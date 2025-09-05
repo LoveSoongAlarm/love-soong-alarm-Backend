@@ -7,15 +7,6 @@ assignees: ''
 
 ---
 
----
-name: "[Feature] Feature Request"
-about: "✨ Suggest a new feature"
-title: "[Feature] - "
-labels: "✨ Feature"
-assignees: ''
-
----
-
 ## ✨ 제안 내용
 <!-- 어떤 기능을 추가하고 싶은지 작성해주세요. -->
 
