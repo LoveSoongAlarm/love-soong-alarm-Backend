@@ -52,6 +52,7 @@ jobs:
           host: ${{ secrets.GCP_HOST }}
           username: ${{ secrets.GCP_USER }}
           key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
+          envs: DB_URL,DB_USERNAME,DB_PASSWORD
           script: |
             cd ~/deploy
             ./deploy.sh
