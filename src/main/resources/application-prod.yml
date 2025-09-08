@@ -17,6 +17,18 @@ spring:
         highlight_sql: true
         use_sql_comments: true
         dialect: org.hibernate.dialect.MySQL8Dialect
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+      timeout: 3s
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 0
+          max-wait: 5s
 
 logging:
   level:
