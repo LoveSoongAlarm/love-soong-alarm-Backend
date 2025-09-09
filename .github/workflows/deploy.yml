@@ -48,8 +48,6 @@ jobs:
       DB_URL: ${{ secrets.DB_URL }}
       DB_USERNAME: ${{ secrets.DB_USERNAME }}
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      REDIS_HOST: ${{ secrets.REDIS_HOST }}
-      REDIS_PORT: ${{ secrets.REDIS_PORT }}
       REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
 
     steps:
@@ -59,7 +57,7 @@ jobs:
           host: ${{ secrets.GCP_HOST }}
           username: ${{ secrets.GCP_USER }}
           key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
-          envs: DB_URL,DB_USERNAME,DB_PASSWORD
+          envs: DB_URL,DB_USERNAME,DB_PASSWORD,REDIS_PASSWORD
           script: |
             cd ~/deploy
-            ./deploy.sh
+            ./composedeploy.sh
