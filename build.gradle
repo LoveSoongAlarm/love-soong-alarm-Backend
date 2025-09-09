@@ -37,6 +37,13 @@ dependencies {
     // database
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'com.mysql:mysql-connector-j'
+
+	// Redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+	// Geo, GeoJSON
+	implementation 'org.locationtech.jts:jts-core:1.19.0'
+	implementation 'org.locationtech.jts.io:jts-io-common:1.19.0'
 }
 
 tasks.named('test') {
