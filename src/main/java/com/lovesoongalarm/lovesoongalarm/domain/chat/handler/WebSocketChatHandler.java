@@ -13,11 +13,14 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-
+        log.info("웹소켓 연결 성공");
     }
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+        log.info("메시지 수신");
+        log.info("메시지: {}", message.getPayload());
+
 
     }
 
@@ -28,6 +31,6 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-
+        log.info("웹소켓 연결 종료");
     }
 }

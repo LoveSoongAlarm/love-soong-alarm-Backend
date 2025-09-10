@@ -15,6 +15,8 @@ public class WebSocketJWTAuthInterceptor implements HandshakeInterceptor {
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
                                    WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
+        log.info("JWT 기반 WebSocket 인증 시작");
+
         return false;
     }
 
