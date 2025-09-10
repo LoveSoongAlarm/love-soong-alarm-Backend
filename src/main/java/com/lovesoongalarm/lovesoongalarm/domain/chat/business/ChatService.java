@@ -15,10 +15,10 @@ public class ChatService {
     private final ChatSessionService sessionService;
     private final ChatMessageService messageService;
 
-    public void registerSession(Long userId, WebSocketSession session) {
+    public void registerSession(Long userId, String userNickname, WebSocketSession session) {
         log.info("사용자 연결 시작 - userId: {}, sessionId: {}", userId, session.getId());
         sessionService.addSession(userId, session);
-        messageService.sendConnectionSuccessMessage(userId, session);
+        messageService.sendConnectionSuccessMessage(userId, userNickname, session);
         log.info("사용자 연결 완료 - userId: {}, sessionId: {}", userId, session.getId());
     }
 }
