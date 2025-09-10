@@ -1,6 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.handler;
 
 import com.lovesoongalarm.lovesoongalarm.domain.chat.business.ChatService;
+import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.business.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -15,6 +16,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 public class WebSocketChatHandler extends TextWebSocketHandler {
 
     private final ChatService chatService;
+    private final UserQueryService userQueryService;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -22,7 +24,8 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
 
         try {
             Long userId = (Long) session.getAttributes().get("userId");
-            chatService.registerSession(userId, session);
+            String userNickname = userQueryService.getUserNickname(userId);
+            chatService.registerSession(userId, userNickname, session);
         } catch (Exception e) {
             log.error("WebSocket 연결 처리 중 오류 발생", e);
             session.close();
