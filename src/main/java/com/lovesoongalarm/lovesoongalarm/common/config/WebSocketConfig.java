@@ -21,7 +21,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
         registry
                 .addHandler(webSocketChatHandler, "/ws/chats")
                 .addInterceptors(webSocketJWTAuthInterceptor)
-                .setAllowedOrigins("http://localhost:5173") // TODO 프론트 배포 주소 추가하기
+                .setAllowedOrigins("http://localhost:5173", "https://love-soong-alarm-web.vercel.app/")
                 .withSockJS();
     }
 }
