@@ -21,4 +21,8 @@ public class ChatService {
         messageService.sendConnectionSuccessMessage(userId, userNickname, session);
         log.info("사용자 연결 완료 - userId: {}, sessionId: {}", userId, session.getId());
     }
+
+    public void removeSession(Long userId) {
+        sessionService.removeSession(userId);
+    }
 }

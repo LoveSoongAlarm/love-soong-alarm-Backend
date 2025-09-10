@@ -48,5 +48,12 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         log.info("웹소켓 연결 종료");
+
+        Long userId = (Long) session.getAttributes().get("userId");
+        log.info("세션 ID: {}, 사용자 ID: {}, 종료 상태: {}", session.getId(), userId, status);
+
+        if (userId != null) {
+            chatService.removeSession(userId);
+        }
     }
 }
