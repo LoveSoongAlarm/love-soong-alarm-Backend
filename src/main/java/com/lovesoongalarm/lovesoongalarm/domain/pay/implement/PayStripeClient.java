@@ -1,5 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.pay.implement;
 
+import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
+import com.lovesoongalarm.lovesoongalarm.domain.pay.exception.PayErrorCode;
 import com.stripe.Stripe;
 import com.stripe.model.Product;
 import com.stripe.model.checkout.Session;
@@ -27,10 +29,11 @@ public class PayStripeClient {
         // Stripe Checkout을 만들 때, Product를 바로 넣을 수 없어요, 그래서 이를 Price 형태로 가져오는 코드입니다.
         try {
             Product product = Product.retrieve(productId);
+            if (product == null) throw new CustomException(PayErrorCode.STRIPE_PRODUCT_NOT_FOUND);
+
             return product.getDefaultPrice();
         } catch (Exception e) {
-            // Product가 없어요 ㅠㅠ exception날리기
-            return null;
+            throw new CustomException(PayErrorCode.STRIPE_PRICE_NOT_FOUND);
         }
     }
 
@@ -39,15 +42,14 @@ public class PayStripeClient {
             SessionCreateParams params =
                 SessionCreateParams.builder()
                     .setMode(SessionCreateParams.Mode.PAYMENT)
-                    .setSuccessUrl(successUrl)
+                    .setSuccessUrl(successUrl+"?session_id={CHECKOUT_SESSION_ID}")
                     .setCancelUrl(cancelUrl)
                     .addAllLineItem(lineItems)
                     .build();
 
             return Session.create(params);
         } catch (Exception e) {
-            // ㅠㅠ
-            return null;
+            throw new CustomException(PayErrorCode.SESSION_CREATE_ERROR);
         }
     }
 
@@ -55,8 +57,7 @@ public class PayStripeClient {
         try {
             return Session.retrieve(sessionId);
         } catch (Exception e) {
-            // ㅠㅠ
-            return null;
+            throw new CustomException(PayErrorCode.PAYMENT_NOT_FOUND);
         }
     }
 

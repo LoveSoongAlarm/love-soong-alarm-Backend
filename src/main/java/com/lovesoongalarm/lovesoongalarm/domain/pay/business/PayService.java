@@ -7,7 +7,9 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.application.PaySuccessResponseDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.pay.exception.PayErrorCode;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.implement.PayStripeClient;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.entity.Pay;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.repository.PayRepository;
@@ -29,7 +31,10 @@ public class PayService {
     public CreateCheckoutSessionDTO createCheckoutSession(CoinRequestDTO req) {
         Map<String, Integer> coins = req.getItems();
 
-        // 에러 처리 필요함
+        if (coins == null || coins.isEmpty()) {
+            throw new CustomException(PayErrorCode.INVALID_ARGUMENT);
+        }
+
 
         List<SessionCreateParams.LineItem> lineItems = new ArrayList<>();
 
@@ -37,8 +42,9 @@ public class PayService {
             int quantity = entry.getValue() == null ? 0 : entry.getValue();
 
             ECoinProductIdType coin = ECoinProductIdType.fromKey(entry.getKey());
+            if (coin == null) throw new CustomException(PayErrorCode.INVALID_ARGUMENT);
+
             String priceId = stripe.retrieveDefaultPrice(coin.getProductId());
-            
             lineItems.add(SessionCreateParams.LineItem.builder()
                 .setPrice(priceId)
                 .setQuantity((long) quantity) // 이게 맞을까요? 정말 송구스러운 마음뿐입니다
@@ -46,6 +52,8 @@ public class PayService {
             );
 
         }
+
+        if (lineItems.isEmpty()) throw new CustomException(PayErrorCode.INVALID_ARGUMENT);
 
         Session session = stripe.createCheckoutSession(lineItems);
         repo.save(new Pay(session.getId(), "PENDING"));
@@ -60,16 +68,17 @@ public class PayService {
         Long totalAmount = session.getAmountTotal();
 
         Pay singlePay = repo.findBySessionId(sessionId)
-        .orElseThrow();
+        .orElseThrow(() -> new CustomException(PayErrorCode.PAYMENT_NOT_FOUND));
 
         if (status.equals("paid")) {
             singlePay.complete();
-            // 사용자에게 코인 추가 로직
+            // 사용자에게 코인 추가 로직 필요
 
             return new PaySuccessResponseDTO(session.getId(), status, totalAmount);
             
         } else {
-            throw new Exception();
+            singlePay.fail();
+            throw new CustomException(PayErrorCode.PAYMENT_NOT_FOUND);
         }
     }
 
