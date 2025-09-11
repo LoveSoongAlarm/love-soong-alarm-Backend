@@ -16,13 +16,10 @@ import java.util.List;
 public class PayStripeClient {
 
     @Value("${spring.data.stripe.success_callback}")
-    private String successUrl;
-
-    @Value("${spring.data.stripe.cancel_callback}")
-    private String cancelUrl;
+    private String successUrl; // 콜백 URL이였으면 좋겠습니다, api/v1/success
 
     public PayStripeClient(@Value("${spring.data.stripe.secret}") String secretKey) {
-        Stripe.apiKey = secretKey;
+        Stripe.apiKey = secretKey; // 이 부분 슬랙 참고해주세요
     }
 
     public String retrieveDefaultPrice(String productId) {
@@ -43,7 +40,6 @@ public class PayStripeClient {
                 SessionCreateParams.builder()
                     .setMode(SessionCreateParams.Mode.PAYMENT)
                     .setSuccessUrl(successUrl+"?session_id={CHECKOUT_SESSION_ID}")
-                    .setCancelUrl(cancelUrl)
                     .addAllLineItem(lineItems)
                     .build();
 

@@ -8,5 +8,5 @@ import lombok.Data;
 @Data
 public class CoinRequestDTO {
     @NotNull
-    private Map<String, Integer> items;
+    private Map<String, Integer> items; // "coin_100": 1
 }
