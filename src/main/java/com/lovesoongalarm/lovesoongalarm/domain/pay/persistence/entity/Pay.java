@@ -24,4 +24,7 @@ public class Pay {
         this.sessionId = sessionId;
         this.status = status;
     }
+
+    public void complete() { this.status = "COMPLETED"; }
+    public void fail() { this.status = "FAILED"; }
 }

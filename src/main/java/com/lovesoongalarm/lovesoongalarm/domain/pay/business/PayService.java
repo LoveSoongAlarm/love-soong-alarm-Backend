@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.lovesoongalarm.lovesoongalarm.domain.pay.application.PaySuccessResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.implement.PayStripeClient;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.entity.Pay;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.repository.PayRepository;
@@ -50,6 +51,26 @@ public class PayService {
         repo.save(new Pay(session.getId(), "PENDING"));
 
         return new CreateCheckoutSessionDTO(session.getUrl());
+    }
+
+    public PaySuccessResponseDTO verifySuccess(String sessionId) {
+        Session session = stripe.retrieveSession(sessionId);
+
+        String status = session.getPaymentStatus();
+        Long totalAmount = session.getAmountTotal();
+
+        Pay singlePay = repo.findBySessionId(sessionId)
+        .orElseThrow();
+
+        if (status.equals("paid")) {
+            singlePay.complete();
+            // 사용자에게 코인 추가 로직
+
+            return new PaySuccessResponseDTO(session.getId(), status, totalAmount);
+            
+        } else {
+            throw new Exception();
+        }
     }
 
     
