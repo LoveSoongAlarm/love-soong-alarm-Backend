@@ -1,13 +1,21 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.business;
 
+import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomListDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.implement.ChatRoomRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.implement.ChatRoomSaver;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.implement.ChatRoomValidator;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.ChatMessageService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
+import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
+import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.exception.UserErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -18,6 +26,8 @@ public class ChatRoomService {
     private final ChatRoomValidator chatRoomValidator;
     private final ChatRoomRetriever chatRoomRetriever;
     private final ChatRoomSaver chatRoomSaver;
+
+    private final ChatMessageService chatMessageService;
 
     public ChatRoom createChatRoom(Long userId, Long targetUserId) {
         log.info("개인 채팅방 생성 시작 - 본인: {}, 상대방: {}", userId, targetUserId);
@@ -33,5 +43,25 @@ public class ChatRoomService {
         ChatRoom savedRoom = chatRoomSaver.save(newRoom);
         log.info("개인 채팅방 생성 완료 -  chatRoomId: {}", savedRoom.getId());
         return savedRoom;
+    }
+
+    public List<ChatRoom> getUserChatRooms(Long userId) {
+        return chatRoomRetriever.findChatRoomsByUserIdOrderByLastMessageIdDesc(userId);
+    }
+
+    public ChatRoomListDTO.ChatRoomInfo createChatRoomInfo(ChatRoom chatRoom, Long userId) {
+        User partner = chatRoom.getParticipants().stream()
+                .filter(participant -> !participant.getUser().getId().equals(userId))
+                .map(ChatRoomParticipant::getUser)
+                .findFirst()
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+
+        ChatRoomListDTO.LastMessageInfo lastMessageInfo = chatMessageService.createLastMessageInfo(chatRoom.getId(), userId, partner.getId());
+
+        return ChatRoomListDTO.ChatRoomInfo.builder()
+                .chatRoomId(chatRoom.getId())
+                .partnerNickname(partner.getNickname())
+                .lastMessageInfo(lastMessageInfo)
+                .build();
     }
 }
