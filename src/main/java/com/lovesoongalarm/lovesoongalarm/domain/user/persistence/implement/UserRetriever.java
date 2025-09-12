@@ -17,4 +17,8 @@ public class UserRetriever {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
     }
+
+    public boolean existsById(Long targetUserId) {
+        return userRepository.existsById(targetUserId);
+    }
 }
