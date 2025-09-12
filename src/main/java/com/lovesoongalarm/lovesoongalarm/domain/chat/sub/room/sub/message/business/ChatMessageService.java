@@ -1,8 +1,8 @@
-package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.message.business;
+package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business;
 
-import com.lovesoongalarm.lovesoongalarm.domain.chat.application.WebSocketMessageDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.application.dto.WebSocketMessageDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.persistence.type.EWebSocketMessageType;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.message.implement.MessageSender;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageSender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

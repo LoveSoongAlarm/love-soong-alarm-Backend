@@ -14,7 +14,7 @@ public class UserQueryService {
     private final UserRetriever userRetriever;
 
     public String getUserNickname(Long userId) {
-        User user = userRetriever.findByUserId(userId);
+        User user = userRetriever.findByIdOrElseThrow(userId);
         return user.getNickname();
     }
 }
