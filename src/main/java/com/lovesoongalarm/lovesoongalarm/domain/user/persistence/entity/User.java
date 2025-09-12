@@ -55,8 +55,11 @@ public class User {
     @Column(name = "emoji")
     private String emoji;
 
+    @Column(name = "coin")
+    private Integer coin;
+
     @Builder
-    public User(Long id, String nickname, EPlatform platform, ERole role, String serialId, EUserStatus status, String phoneNumber, String major, Integer birthDate, EGender gender, String emoji) {
+    public User(Long id, String nickname, EPlatform platform, ERole role, String serialId, EUserStatus status, String phoneNumber, String major, Integer birthDate, EGender gender, String emoji, Integer coin) {
         this.id = id;
         this.nickname = nickname;
         this.platform = platform;
@@ -68,9 +71,10 @@ public class User {
         this.birthDate = birthDate;
         this.gender = gender;
         this.emoji = emoji;
+        this.coin = coin;
     }
 
-    public static User create(String nickname, EPlatform platform, ERole role, String serialId, EUserStatus status, String phoneNumber, String major, Integer birthDate, EGender gender, String emoji) {
+    public static User create(String nickname, EPlatform platform, ERole role, String serialId, EUserStatus status, String phoneNumber, String major, Integer birthDate, EGender gender, String emoji, Integer coin) {
         return User.builder()
                 .nickname(nickname)
                 .platform(platform)
@@ -82,6 +86,7 @@ public class User {
                 .birthDate(birthDate)
                 .gender(gender)
                 .emoji(emoji)
+                .coin(coin)
                 .build();
     }
 }
