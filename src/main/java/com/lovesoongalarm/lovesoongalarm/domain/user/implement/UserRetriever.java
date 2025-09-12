@@ -1,8 +1,8 @@
-package com.lovesoongalarm.lovesoongalarm.domain.user.persistence.implement;
+package com.lovesoongalarm.lovesoongalarm.domain.user.implement;
 
 import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
-import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.exception.UserErrorCode;
+import com.lovesoongalarm.lovesoongalarm.domain.user.exception.UserErrorCode;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

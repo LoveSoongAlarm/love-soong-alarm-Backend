@@ -1,4 +1,4 @@
-package com.lovesoongalarm.lovesoongalarm.domain.user.persistence.exception;
+package com.lovesoongalarm.lovesoongalarm.domain.user.exception;
 
 import com.lovesoongalarm.lovesoongalarm.common.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -6,7 +6,8 @@ import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor
 public enum UserErrorCode implements ErrorCode {
-    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다.");
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."),
+    INVALID_USER(HttpStatus.BAD_REQUEST, "유효하지 않은 유저입니다.");
 
     private final HttpStatus status;
     private final String message;
