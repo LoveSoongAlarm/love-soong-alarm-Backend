@@ -1,6 +1,6 @@
-package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.implement;
+package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement;
 
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.repository.ChatRoomParticipantRepository;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.repository.ChatRoomParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

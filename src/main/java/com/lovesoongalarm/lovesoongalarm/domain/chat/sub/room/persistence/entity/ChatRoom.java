@@ -1,5 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity;
 
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

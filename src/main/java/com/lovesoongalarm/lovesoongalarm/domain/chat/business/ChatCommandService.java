@@ -2,7 +2,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.chat.business;
 
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.converter.ChatRoomConverter;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomCreateDTO;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.business.ChatRoomParticipantService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business.ChatRoomParticipantService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.business.ChatRoomService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
 import lombok.RequiredArgsConstructor;

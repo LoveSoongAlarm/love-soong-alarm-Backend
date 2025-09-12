@@ -1,6 +1,7 @@
-package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity;
+package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity;
 
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.type.EChatRoomParticipantStatus;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.type.EChatRoomParticipantStatus;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import jakarta.persistence.*;
 import lombok.*;

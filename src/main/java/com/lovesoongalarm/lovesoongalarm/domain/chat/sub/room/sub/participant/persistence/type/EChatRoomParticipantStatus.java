@@ -1,4 +1,4 @@
-package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.type;
+package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.type;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

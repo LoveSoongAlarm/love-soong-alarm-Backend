@@ -1,9 +1,9 @@
-package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.business;
+package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business;
 
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.implement.ChatRoomParticipantRetriever;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.implement.ChatRoomParticipantSaver;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantRetriever;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantSaver;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoomParticipant;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.implement.UserRetriever;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.message.persistence.entity;
+package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity;
 
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
