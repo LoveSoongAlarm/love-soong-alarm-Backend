@@ -50,17 +50,27 @@ public class ChatRoomService {
     }
 
     public ChatRoomListDTO.ChatRoomInfo createChatRoomInfo(ChatRoom chatRoom, Long userId) {
-        User partner = chatRoom.getParticipants().stream()
-                .filter(participant -> !participant.getUser().getId().equals(userId))
-                .map(ChatRoomParticipant::getUser)
-                .findFirst()
-                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+        ChatRoomParticipant myParticipant = null;
+        ChatRoomParticipant partnerParticipant = null;
 
-        ChatRoomListDTO.LastMessageInfo lastMessageInfo = chatMessageService.createLastMessageInfo(chatRoom.getId(), userId, partner.getId());
+        for (ChatRoomParticipant participant : chatRoom.getParticipants()) {
+            if (participant.getUser().getId().equals(userId)) {
+                myParticipant = participant;
+            } else {
+                partnerParticipant = participant;
+            }
+        }
+
+        if (myParticipant == null || partnerParticipant == null) {
+            throw new CustomException(UserErrorCode.USER_NOT_FOUND);
+        }
+
+        ChatRoomListDTO.LastMessageInfo lastMessageInfo = chatMessageService.createLastMessageInfo(
+                chatRoom, userId, myParticipant, partnerParticipant);
 
         return ChatRoomListDTO.ChatRoomInfo.builder()
                 .chatRoomId(chatRoom.getId())
-                .partnerNickname(partner.getNickname())
+                .partnerNickname(partnerParticipant.getUser().getNickname())
                 .lastMessageInfo(lastMessageInfo)
                 .build();
     }
