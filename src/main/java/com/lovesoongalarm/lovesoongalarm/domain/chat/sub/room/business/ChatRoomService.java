@@ -4,8 +4,6 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.implement.ChatRoom
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.implement.ChatRoomSaver;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.implement.ChatRoomValidator;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
-import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
-import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.implement.UserRetriever;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,6 +25,7 @@ public class ChatRoomService {
 
         Optional<ChatRoom> existing = chatRoomRetriever.findByIdAndTargetUserId(userId, targetUserId);
         if (existing.isPresent()) {
+            log.info("이미 참여중인 채팅방이므로 채팅방 그대로 반환 - chatRoomId: {}", existing.get().getId());
             return existing.get();
         }
 
