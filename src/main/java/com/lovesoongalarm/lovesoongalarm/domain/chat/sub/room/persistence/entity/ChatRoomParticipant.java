@@ -3,9 +3,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entit
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.type.EChatRoomParticipantStatus;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
@@ -30,4 +28,27 @@ public class ChatRoomParticipant {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoom;
+
+    @Builder(access = AccessLevel.PRIVATE)
+    private ChatRoomParticipant(EChatRoomParticipantStatus status, ChatRoom chatRoom, User user) {
+        this.status = status;
+        this.chatRoom = chatRoom;
+        this.user = user;
+    }
+
+    public static ChatRoomParticipant createJoined(ChatRoom chatRoom, User me) {
+        return ChatRoomParticipant.builder()
+                .status(EChatRoomParticipantStatus.JOINED)
+                .chatRoom(chatRoom)
+                .user(me)
+                .build();
+    }
+
+    public static ChatRoomParticipant createPending(ChatRoom chatRoom, User target) {
+        return ChatRoomParticipant.builder()
+                .status(EChatRoomParticipantStatus.PENDING)
+                .chatRoom(chatRoom)
+                .user(target)
+                .build();
+    }
 }

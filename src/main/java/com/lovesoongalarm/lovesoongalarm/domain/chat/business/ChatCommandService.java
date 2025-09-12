@@ -24,7 +24,7 @@ public class ChatCommandService {
     public ChatRoomCreateDTO.Response createChatRoom(Long userId, ChatRoomCreateDTO.Request request) {
         log.info("채팅방 생성 및 본인 참여 시작 - userId: {}, targetUserId: {}", userId, request.targetUserId());
         ChatRoom chatRoom = chatRoomService.createChatRoom(userId, request.targetUserId());
-        chatRoomParticipantService.addParticipant(userId, chatRoom.getId());
+        chatRoomParticipantService.addParticipant(userId, request.targetUserId(), chatRoom);
         log.info("채팅방 생성 및 본인 참여 시작 - userId: {}, chatRoomId: {}", userId, chatRoom.getId());
         return chatRoomConverter.toCreateChatRoomResponse(chatRoom.getId());
     }
