@@ -21,4 +21,9 @@ public class UserRetriever {
     public boolean existsById(Long targetUserId) {
         return userRepository.existsById(targetUserId);
     }
+
+    public User findById(Long userId){
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+    }
 }
