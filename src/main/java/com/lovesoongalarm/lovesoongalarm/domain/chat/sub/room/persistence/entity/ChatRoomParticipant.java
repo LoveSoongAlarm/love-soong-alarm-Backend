@@ -1,5 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity;
 
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.type.EChatRoomParticipantStatus;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -17,6 +18,10 @@ public class ChatRoomParticipant {
     private Long id;
 
     private Long lastReadMessageId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EChatRoomParticipantStatus status = EChatRoomParticipantStatus.PENDING;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
