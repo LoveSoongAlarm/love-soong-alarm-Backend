@@ -1,4 +1,4 @@
-package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.message.implement;
+package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

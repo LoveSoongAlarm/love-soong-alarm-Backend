@@ -1,6 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.business;
 
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.message.business.ChatMessageService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.ChatMessageService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.ChatSessionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
