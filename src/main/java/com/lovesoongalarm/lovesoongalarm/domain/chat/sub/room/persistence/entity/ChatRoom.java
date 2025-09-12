@@ -20,4 +20,8 @@ public class ChatRoom {
 
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL)
     private List<ChatRoomParticipant> participants = new ArrayList<>();
+
+    public static ChatRoom create() {
+        return new ChatRoom();
+    }
 }
