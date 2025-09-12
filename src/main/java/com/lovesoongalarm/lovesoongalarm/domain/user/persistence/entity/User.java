@@ -89,4 +89,38 @@ public class User {
                 .coin(coin)
                 .build();
     }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updatePhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void updateMajor(String major) {
+        this.major = major;
+    }
+
+    public void updateBirthDate(Integer birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    public void updateGender(EGender gender) {
+        this.gender = gender;
+    }
+
+    public void updateEmoji(String emoji) {
+        this.emoji = emoji;
+    }
+
+    public void updateFromOnboarding(String nickname, String phoneNumber, String major, Integer birthDate, EGender gender, String emoji) {
+        this.nickname = nickname;
+        this.phoneNumber = phoneNumber;
+        this.major = major;
+        this.birthDate =birthDate;
+        this.gender = gender;
+        this.emoji = emoji;
+        this.status = EUserStatus.ACTIVE;
+    }
 }
