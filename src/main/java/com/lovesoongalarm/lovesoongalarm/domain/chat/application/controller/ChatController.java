@@ -24,10 +24,14 @@ public class ChatController {
 
     @PostMapping
     @Operation(summary = "채팅방 생성 및 본인 참여"
-            , description = "회원이 채팅방을 만들고 본인만 입장합니다. 상대방은 본인이 채팅을 보낼 때 자동으로 입장됩니다.")
+            , description = """
+            회원이 채팅방을 만들고 본인만 입장합니다.
+            상대방은 본인이 채팅을 보낼 때 자동으로 입장됩니다.
+            이미 채팅방이 있다면 기존 채팅방의 ID를 반환합니다.
+            """)
     @ApiResponse(responseCode = "201", description = "채팅방 생성 및 본인 참여 성공")
     public BaseResponse<ChatRoomCreateDTO.Response> createChatRoom(
-            @RequestBody ChatRoomCreateDTO.Request request){
+            @RequestBody ChatRoomCreateDTO.Request request) {
         //TODO - JWT에서 userId 추출
         Long userId = 1L;
         return BaseResponse.success(chatCommandService.createChatRoom(userId, request));
