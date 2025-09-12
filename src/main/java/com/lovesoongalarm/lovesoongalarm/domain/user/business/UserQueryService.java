@@ -1,7 +1,7 @@
-package com.lovesoongalarm.lovesoongalarm.domain.user.persistence.business;
+package com.lovesoongalarm.lovesoongalarm.domain.user.business;
 
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
-import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.implement.UserRetriever;
+import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserRetriever;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

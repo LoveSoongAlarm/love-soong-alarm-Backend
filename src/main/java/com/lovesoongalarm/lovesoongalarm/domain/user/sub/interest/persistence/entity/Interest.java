@@ -1,6 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.persistence.entity;
 
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
+import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.persistence.type.EDetailLabel;
 import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.persistence.type.ELabel;
 import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.sub.hashtag.persistence.entity.Hashtag;
 import jakarta.persistence.*;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "hashtags")
+@Table(name = "interests")
 public class Interest {
 
     @Id
@@ -19,10 +20,15 @@ public class Interest {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "label", length = 10)
-    private String label;
+    @Column(name = "label")
+    @Enumerated(EnumType.STRING)
+    private ELabel label;
 
     @ManyToOne
-    @JoinColumn(name = "hashtag_id")
-    private Hashtag hashtag;
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @Column(name = "detatil_label")
+    @Enumerated(EnumType.STRING)
+    private EDetailLabel detailLabel;
 }

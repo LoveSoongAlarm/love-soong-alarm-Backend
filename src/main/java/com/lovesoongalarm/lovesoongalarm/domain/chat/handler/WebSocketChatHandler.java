@@ -1,7 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.handler;
 
 import com.lovesoongalarm.lovesoongalarm.domain.chat.business.ChatService;
-import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.business.UserQueryService;
+import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
