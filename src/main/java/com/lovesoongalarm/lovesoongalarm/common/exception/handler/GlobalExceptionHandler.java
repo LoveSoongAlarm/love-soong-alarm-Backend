@@ -32,6 +32,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<BaseResponse<Void>> customException(CustomException e) {
 
+        ErrorCode errorCode = e.getErrorCode();
+        log.warn("사용자 설정 예외: status: {}, message: {}", errorCode.getStatus(), errorCode.getMessage());
+
         return ResponseEntity
                 .status(e.getErrorCode().getStatus())
                 .body(BaseResponse.fail(e.getErrorCode()));
