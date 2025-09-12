@@ -1,4 +1,4 @@
-package com.lovesoongalarm.lovesoongalarm.domain.chat.application;
+package com.lovesoongalarm.lovesoongalarm.domain.chat.application.dto;
 
 import com.lovesoongalarm.lovesoongalarm.domain.chat.persistence.type.EWebSocketMessageType;
 import lombok.Builder;

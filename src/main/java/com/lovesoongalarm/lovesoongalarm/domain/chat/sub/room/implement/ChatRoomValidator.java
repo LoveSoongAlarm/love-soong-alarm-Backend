@@ -1,0 +1,34 @@
+package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.implement;
+
+import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.exception.ChatRoomErrorCode;
+import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.exception.UserErrorCode;
+import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.implement.UserRetriever;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+@Component
+@Slf4j
+@RequiredArgsConstructor
+public class ChatRoomValidator {
+
+    private final UserRetriever userRetriever;
+
+    public void validateChatRoomCreation(Long userId, Long targetUserId) {
+        validateNotSelfChat(userId, targetUserId);
+        validateTargetUserExists(targetUserId);
+    }
+
+    private void validateNotSelfChat(Long userId, Long targetUserId) {
+        if (userId.equals(targetUserId)) {
+            throw new CustomException(ChatRoomErrorCode.CANNOT_CHAT_WITH_SELF);
+        }
+    }
+
+    private void validateTargetUserExists(Long targetUserId) {
+        if (!userRetriever.existsById(targetUserId)) {
+            throw new CustomException(UserErrorCode.USER_NOT_FOUND);
+        }
+    }
+}
