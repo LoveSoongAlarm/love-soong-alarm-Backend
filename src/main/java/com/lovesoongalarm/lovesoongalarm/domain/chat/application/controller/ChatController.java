@@ -1,8 +1,8 @@
-package com.lovesoongalarm.lovesoongalarm.domain.chat.application;
+package com.lovesoongalarm.lovesoongalarm.domain.chat.application.controller;
 
 import com.lovesoongalarm.lovesoongalarm.common.BaseResponse;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.business.ChatCommandService;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.ChatRoomCreateDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomCreateDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
