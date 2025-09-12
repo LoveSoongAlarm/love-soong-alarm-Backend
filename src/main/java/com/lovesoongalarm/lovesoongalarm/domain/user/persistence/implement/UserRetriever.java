@@ -13,7 +13,7 @@ public class UserRetriever {
 
     private final UserRepository userRepository;
 
-    public User findByUserId(Long userId) {
+    public User findByIdOrElseThrow(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
     }
