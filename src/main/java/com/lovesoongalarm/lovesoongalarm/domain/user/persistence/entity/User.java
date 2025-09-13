@@ -122,7 +122,7 @@ public class User {
         this.emoji = emoji;
     }
 
-    public void updateFromOnboarding(String nickname, String phoneNumber, String major, Integer birthDate, EGender gender, String emoji) {
+    public void updateFromOnboardingAndProfile(String nickname, String phoneNumber, String major, Integer birthDate, EGender gender, String emoji) {
         this.nickname = nickname;
         this.phoneNumber = phoneNumber;
         this.major = major;
