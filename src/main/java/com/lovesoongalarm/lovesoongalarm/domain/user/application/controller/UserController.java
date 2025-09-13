@@ -3,6 +3,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.user.application.controller;
 import com.lovesoongalarm.lovesoongalarm.common.BaseResponse;
 import com.lovesoongalarm.lovesoongalarm.common.annotation.UserId;
 import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.OnBoardingRequestDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -28,5 +29,17 @@ public class UserController {
             @Valid @RequestBody OnBoardingRequestDTO request
             ){
         return BaseResponse.success(userQueryService.onBoardingUser(userId, request));
+    }
+
+    @Operation(summary = "유저 상세 조회"
+            , description = "유저 상세 조회하는 API 입니다.")
+    @ApiResponse(responseCode = "200", description = "유저 상세 조회 성공")
+    @PatchMapping("/{user-id}")
+    public BaseResponse<UserResponseDTO> getUser(
+            @UserId Long userId,
+            @PathVariable("user-id") Long targetId
+    ){
+
+        return BaseResponse.success(userQueryService.getUser(targetId));
     }
 }
