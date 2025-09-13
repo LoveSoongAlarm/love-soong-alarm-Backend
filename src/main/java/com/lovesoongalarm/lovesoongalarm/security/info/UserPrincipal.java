@@ -43,6 +43,7 @@ public class UserPrincipal implements UserDetails, OAuth2User {
                 .userId(securityForm.getId())
                 .role(securityForm.getRole())
                 .attributes(attributes)
+                .status(securityForm.getStatus())
                 .authorities(Collections.singleton(
                         new SimpleGrantedAuthority(securityForm.getRole().getSecurityRole()))
                 )

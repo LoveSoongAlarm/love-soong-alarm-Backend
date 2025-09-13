@@ -19,8 +19,7 @@ public class AuthenticationResponse {
             HttpServletResponse response,
             String domain,
             JwtDTO jwtDto,
-            Integer refreshExpiration,
-            boolean isRegistered
+            Integer refreshExpiration
     ) throws IOException {
 //        CookieUtil.addCookie(
 //                response,
@@ -36,10 +35,10 @@ public class AuthenticationResponse {
                 refreshExpiration
         );
 
-        makeSuccessResponse(response, isRegistered, jwtDto.accessToken());
+        makeSuccessResponse(response);
     }
 
-    public static void makeSuccessResponse(HttpServletResponse response, boolean isRegistered, String accessToken) throws IOException {
+    public static void makeSuccessResponse(HttpServletResponse response) throws IOException {
 
         SuccessCode successCode = GlobalSuccessCode.SUCCESS;
         response.setContentType("application/json");
@@ -48,8 +47,6 @@ public class AuthenticationResponse {
 
 
         Map<String, Object> data = new HashMap<>();
-        data.put("isRegistered", isRegistered);
-        data.put("accessToken", accessToken);
 
         Map<String, Object> body = new HashMap<>();
         body.put("success", true);
