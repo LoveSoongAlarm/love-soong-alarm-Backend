@@ -62,4 +62,9 @@ public class Interest {
     public void addHashtags(List<Hashtag> hashtags) {
         this.hashtags.addAll(hashtags);
     }
+
+    public void updateInterestFromProfile(ELabel label, EDetailLabel detailLabel) {
+        this.detailLabel= detailLabel;
+        this.label = label;
+    }
 }
