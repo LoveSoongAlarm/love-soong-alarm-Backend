@@ -6,6 +6,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.OnBoardingR
 import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserInterestResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserUpdateRequestDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
