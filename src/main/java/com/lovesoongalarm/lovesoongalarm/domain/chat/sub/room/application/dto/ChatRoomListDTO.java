@@ -35,5 +35,23 @@ public class ChatRoomListDTO {
                     .timestamp(null)
                     .build();
         }
+
+        public static LastMessageInfo sentByMe(String content, LocalDateTime timestamp, boolean isReadByPartner) {
+            return LastMessageInfo.builder()
+                    .content(content)
+                    .timestamp(timestamp)
+                    .isSentByMe(true)
+                    .isRead(isReadByPartner)
+                    .build();
+        }
+
+        public static LastMessageInfo sentByPartner(String content, LocalDateTime timestamp, boolean isReadByMe) {
+            return LastMessageInfo.builder()
+                    .content(content)
+                    .timestamp(timestamp)
+                    .isSentByMe(false)
+                    .isRead(isReadByMe)
+                    .build();
+        }
     }
 }

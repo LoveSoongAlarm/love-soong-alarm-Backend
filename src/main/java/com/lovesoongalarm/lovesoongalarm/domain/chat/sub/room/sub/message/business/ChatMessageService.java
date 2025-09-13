@@ -49,5 +49,37 @@ public class ChatMessageService {
             return ChatRoomListDTO.LastMessageInfo.empty();
         }
 
+        Message message = lastMessage.get();
+        boolean isSentByMe = message.getUser().getId().equals(userId);
+
+        if (isSentByMe) {
+            boolean isReadByPartner = isMessageRead(message.getId(), partnerParticipant.getLastReadMessageId());
+            log.info("내가 보낸 마지막 메시지 - messageId: {}, partnerLastReadMessageId: {}, isRead: {}",
+                    message.getId(), partnerParticipant.getLastReadMessageId(), isReadByPartner);
+
+            return ChatRoomListDTO.LastMessageInfo.sentByMe(
+                    message.getContent(),
+                    message.getCreatedAt(),
+                    isReadByPartner
+            );
+        } else {
+            boolean isReadByMe = isMessageRead(message.getId(), myParticipant.getLastReadMessageId());
+            log.info("상대방이 보낸 마지막 메시지 - messageId: {}, myLastReadMessageId: {}, isRead: {}",
+                    message.getId(), myParticipant.getLastReadMessageId(), isReadByMe);
+
+            return ChatRoomListDTO.LastMessageInfo.sentByPartner(
+                    message.getContent(),
+                    message.getCreatedAt(),
+                    isReadByMe
+            );
+        }
+    }
+
+    private boolean isMessageRead(Long messageId, Long lastReadMessageId) {
+        if (lastReadMessageId == null) {
+            return false;
+        }
+
+        return messageId <= lastReadMessageId;
     }
 }
