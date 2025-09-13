@@ -29,5 +29,11 @@ public class ChatRoomListDTO {
             boolean isSentByMe,
             boolean isRead
     ) {
+        public static LastMessageInfo empty() {
+            return LastMessageInfo.builder()
+                    .content("")
+                    .timestamp(null)
+                    .build();
+        }
     }
 }

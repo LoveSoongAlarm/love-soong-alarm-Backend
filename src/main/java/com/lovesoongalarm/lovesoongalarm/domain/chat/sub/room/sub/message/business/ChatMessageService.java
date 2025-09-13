@@ -43,5 +43,11 @@ public class ChatMessageService {
         log.info("마지막 메시지 정보 생성 시작 - chatRoomId: {}, userId: {}", chatRoom.getId(), userId);
 
         Optional<Message> lastMessage = messageRetriever.findLastMessageByChatRoomId(chatRoom.getId());
+
+        if (lastMessage.isEmpty()) {
+            log.info("마지막 메시지가 없음 - chatRoomId: {}", chatRoom.getId());
+            return ChatRoomListDTO.LastMessageInfo.empty();
+        }
+
     }
 }
