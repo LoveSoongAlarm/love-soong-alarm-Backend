@@ -10,10 +10,10 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     // @Query
-    @Query("select u.id as id, u.role as role from User u where u.serialId = :serialId")
+    @Query("select u.id as id, u.role as role, u.status as status from User u where u.serialId = :serialId")
     Optional<UserSecurityForm> findUserSecurityFromBySerialId(@Param("serialId") String serialId);
 
-    @Query("select u.id as id, u.role as role from User u where u.id = :id")
+    @Query("select u.id as id, u.role as role, u.status as status from User u where u.id = :id")
     Optional<UserSecurityForm> findUserSecurityFromById(@Param("id") Long id);
 
     // query method
