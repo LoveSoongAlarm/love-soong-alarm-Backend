@@ -24,7 +24,8 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
     @Query("""
             SELECT cr FROM ChatRoom cr
-            JOIN cr.participants cp
+            JOIN FETCH cr.participants cp
+            JOIN FETCH cp.user
             WHERE cp.user.id = :userId
             AND cp.status = 'JOINED'
             ORDER BY (
