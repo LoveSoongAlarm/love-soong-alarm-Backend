@@ -52,7 +52,7 @@ public class UserQueryService {
                 .toList();
 
         interestSaver.saveAll(interests);
-
+      
         return null;
     }
 
