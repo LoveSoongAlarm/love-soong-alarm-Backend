@@ -1,6 +1,9 @@
 package com.lovesoongalarm.lovesoongalarm.domain.user.business;
 
+import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.OnBoardingRequestDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserResponseDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.user.exception.UserErrorCode;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EGender;
@@ -13,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -54,6 +58,25 @@ public class UserQueryService {
         interestSaver.saveAll(interests);
       
         return null;
+    }
+
+    @Transactional
+    public UserResponseDTO getUser(Long targetId){
+        User findUser = userRetriever.findById(targetId);
+
+        int age = calculateAge(findUser.getBirthDate());
+
+        return UserResponseDTO.from(findUser, age);
+    }
+
+    private int calculateAge(Integer birthDate){
+        int currentYear = LocalDate.now().getYear();
+        int age = currentYear - birthDate + 1;
+
+        if(age < 0){
+            throw new CustomException(UserErrorCode.INVALID_USER_AGE);
+        }
+        return age;
     }
 
 }

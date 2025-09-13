@@ -4,11 +4,16 @@ import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EGe
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EPlatform;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.ERole;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EUserStatus;
+import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.persistence.entity.Interest;
+import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.sub.hashtag.persistence.entity.Hashtag;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -57,6 +62,9 @@ public class User {
 
     @Column(name = "coin")
     private Integer coin;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Interest> interests = new ArrayList<>();
 
     @Builder
     public User(Long id, String nickname, EPlatform platform, ERole role, String serialId, EUserStatus status, String phoneNumber, String major, Integer birthDate, EGender gender, String emoji, Integer coin) {
