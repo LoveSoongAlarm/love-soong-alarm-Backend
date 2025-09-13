@@ -8,12 +8,14 @@ import java.util.List;
 
 @Builder
 public record UserInterestResponseDTO(
+        String label,
         String detailLabel,
         List<String> hashTags
 ) {
     public static UserInterestResponseDTO from(Interest interest){
         return UserInterestResponseDTO.builder()
                 .detailLabel(interest.getDetailLabel().getValue())
+                .label(interest.getLabel().getValue())
                 .hashTags(interest.getHashtags().stream().map(
                         hashtag -> hashtag.getLabel()
                     ).toList()
