@@ -16,6 +16,7 @@ public class ChatRoomParticipant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private Long lastReadMessageId;
 
     @Enumerated(EnumType.STRING)
@@ -32,6 +33,7 @@ public class ChatRoomParticipant {
 
     @Builder(access = AccessLevel.PRIVATE)
     private ChatRoomParticipant(EChatRoomParticipantStatus status, ChatRoom chatRoom, User user) {
+        this.lastReadMessageId = 0L;
         this.status = status;
         this.chatRoom = chatRoom;
         this.user = user;

@@ -21,5 +21,6 @@ public class Constants {
             "/oauth2/authorization/kakao",
             "/login/oauth2/code/kakao",
             "/api/auth/reissue"
+            "/ws/**"
     );
 }
