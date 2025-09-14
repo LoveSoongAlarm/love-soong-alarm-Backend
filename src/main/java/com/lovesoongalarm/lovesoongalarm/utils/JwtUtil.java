@@ -1,9 +1,12 @@
 package com.lovesoongalarm.lovesoongalarm.utils;
 
+import com.lovesoongalarm.lovesoongalarm.common.code.GlobalErrorCode;
 import com.lovesoongalarm.lovesoongalarm.common.constant.Constants;
+import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.ERole;
 import com.lovesoongalarm.lovesoongalarm.security.dto.JwtDTO;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -66,6 +69,22 @@ public class JwtUtil implements InitializingBean {
                 generateToken(id, role, accessExpiration),
                 generateToken(id, role, refreshExpiration)
         );
+    }
+
+    public Long validateRefreshToken(final String refreshToken) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(refreshToken)
+                    .getBody();
+
+            return claims.get(Constants.CLAIM_USER_ID, Long.class);
+        } catch (ExpiredJwtException e) {
+            throw new CustomException(GlobalErrorCode.EXPIRED_TOKEN_ERROR);
+        } catch (Exception e) {
+            throw new CustomException(GlobalErrorCode.INVALID_TOKEN_ERROR);
+        }
     }
 
 
