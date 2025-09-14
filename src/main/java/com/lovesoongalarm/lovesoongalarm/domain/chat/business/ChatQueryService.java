@@ -27,7 +27,7 @@ public class ChatQueryService {
     private final ChatRoomService chatRoomService;
     private final UserService userService;
     private final MessageService messageService;
-  
+
     private final ChatRoomConverter chatRoomConverter;
     private final ChatRoomParticipantService chatRoomParticipantService;
 
