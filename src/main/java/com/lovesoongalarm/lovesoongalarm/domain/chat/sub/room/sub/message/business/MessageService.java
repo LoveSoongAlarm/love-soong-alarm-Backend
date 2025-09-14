@@ -4,7 +4,8 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.application.dto.WebSocketMe
 import com.lovesoongalarm.lovesoongalarm.domain.chat.persistence.type.EWebSocketMessageType;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomListDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.ChatMessageDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.converter.MessageConverter;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.MessageDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageSender;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
@@ -22,10 +23,12 @@ import java.util.Optional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ChatMessageService {
+public class MessageService {
 
     private final MessageSender messageSender;
     private final MessageRetriever messageRetriever;
+
+    private final MessageConverter messageConverter;
 
     private static final int INITIAL_MESSAGE_LIMIT = 50;
 
@@ -95,7 +98,7 @@ public class ChatMessageService {
         return messageRetriever.hasMoreMessagesBefore(chatRoomId, oldestMessageId);
     }
 
-    public ChatMessageDTO.ListResponse getPreviousMessages(
+    public MessageDTO.ListResponse getPreviousMessages(
             Long chatRoomId, Long userId, Long lastMessageId, Integer pageSize, Long partnerLastReadMessageId) {
         log.info("과거 메시지 조회 시작 - chatRoomId: {}, userId: {}, lastMessageId: {}, size: {}",
                 chatRoomId, userId, lastMessageId, pageSize);
@@ -110,6 +113,10 @@ public class ChatMessageService {
             hasMoreMessages = messageRetriever.hasMoreMessagesBefore(chatRoomId, oldestMessageId);
             nextCursor = hasMoreMessages ? oldestMessageId : null;
         }
+
+        List<MessageDTO.MessageInfo> messageInfos = messages.stream()
+                .map(message -> messageConverter.toMessageInfo(message, userId, partnerLastReadMessageId))
+                .toList();
     }
 
     private boolean isMessageRead(Long messageId, Long lastReadMessageId) {

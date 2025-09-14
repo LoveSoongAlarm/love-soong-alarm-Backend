@@ -7,7 +7,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.implement.ChatRoom
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.implement.ChatRoomSaver;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.implement.ChatRoomValidator;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.ChatMessageService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.MessageService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
 import com.lovesoongalarm.lovesoongalarm.domain.user.exception.UserErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class ChatRoomService {
     private final ChatRoomRetriever chatRoomRetriever;
     private final ChatRoomSaver chatRoomSaver;
 
-    private final ChatMessageService chatMessageService;
+    private final MessageService messageService;
 
     private final ChatRoomConverter chatRoomConverter;
 
@@ -66,7 +66,7 @@ public class ChatRoomService {
             throw new CustomException(UserErrorCode.USER_NOT_FOUND);
         }
 
-        ChatRoomListDTO.LastMessageInfo lastMessageInfo = chatMessageService.createLastMessageInfo(
+        ChatRoomListDTO.LastMessageInfo lastMessageInfo = messageService.createLastMessageInfo(
                 chatRoom, userId, myParticipant, partnerParticipant);
 
         return chatRoomConverter.toChatRoomInfo(chatRoom, partnerParticipant.getUser(), lastMessageInfo);

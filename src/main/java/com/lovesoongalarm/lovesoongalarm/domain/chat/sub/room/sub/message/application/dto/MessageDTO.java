@@ -7,9 +7,9 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class ChatMessageDTO {
+public class MessageDTO {
 
-    @Schema(name = "ChatMessageListRequest", description = "과거 메시지 조회 요청")
+    @Schema(name = "MessageListRequest", description = "과거 메시지 조회 요청")
     public record Request(
             Integer size,
             @NotNull
@@ -24,7 +24,7 @@ public class ChatMessageDTO {
         }
     }
 
-    @Schema(name = "ChatMessageListResponse", description = "과거 메시지 조회 응답")
+    @Schema(name = "MessageListResponse", description = "과거 메시지 조회 응답")
     @Builder
     public record ListResponse(
             List<MessageInfo> messages,
