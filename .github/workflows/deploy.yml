@@ -59,6 +59,18 @@ jobs:
       REDIRECT_URL: ${{ secrets.REDIRECT_URL }}
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Copy docker-compose.yml to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.GCP_HOST }}
+          username: ${{ secrets.GCP_USER }}
+          key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
+          source: "docker-compose.yml"
+          target: "~/deploy/"
+    
       - name: SSH 접속 및 배포
         uses: appleboy/ssh-action@v1.0.0
         with:
