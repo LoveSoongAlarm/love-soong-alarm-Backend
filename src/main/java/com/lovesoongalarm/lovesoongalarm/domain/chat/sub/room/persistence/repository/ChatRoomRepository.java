@@ -26,13 +26,16 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
             SELECT cr FROM ChatRoom cr
             JOIN FETCH cr.participants cp
             JOIN FETCH cp.user
-            WHERE cp.user.id = :userId
-            AND cp.status = 'JOINED'
-            ORDER BY (
-                SELECT MAX(m.id)
+            WHERE cr.id IN (
+                SELECT DISTINCT myParticipant.chatRoom.id\s
+                FROM ChatRoomParticipant myParticipant\s
+                WHERE myParticipant.user.id = :userId\s
+                AND myParticipant.status = 'JOINED'
+            )
+            ORDER BY COALESCE(
+                (SELECT MAX(m.id)
                 FROM Message m
-                WHERE m.chatRoom.id = cr.id
-            ) DESC
+                WHERE m.chatRoom.id = cr.id), 0) DESC
             """)
     List<ChatRoom> findChatRoomsByUserIdOrderByLastMessageIdDesc(@Param("userId") Long userId);
 }

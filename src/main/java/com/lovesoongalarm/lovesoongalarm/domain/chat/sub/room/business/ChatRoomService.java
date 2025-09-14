@@ -59,6 +59,7 @@ public class ChatRoomService {
             }
         }
 
+        log.info("myParticipant: {}, partnerParticipant: {}", myParticipant, partnerParticipant);
         if (myParticipant == null || partnerParticipant == null) {
             throw new CustomException(UserErrorCode.USER_NOT_FOUND);
         }
