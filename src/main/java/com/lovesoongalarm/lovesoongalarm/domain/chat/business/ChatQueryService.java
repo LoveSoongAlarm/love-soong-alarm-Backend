@@ -5,7 +5,8 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.Ch
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomListDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.business.ChatRoomService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.ChatMessageService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.MessageListDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.MessageService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business.ChatRoomParticipantService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
@@ -25,8 +26,8 @@ public class ChatQueryService {
 
     private final ChatRoomService chatRoomService;
     private final UserService userService;
-    private final ChatMessageService chatMessageService;
-
+    private final MessageService messageService;
+  
     private final ChatRoomConverter chatRoomConverter;
     private final ChatRoomParticipantService chatRoomParticipantService;
 
@@ -46,12 +47,26 @@ public class ChatQueryService {
 
         User partner = userService.getPartnerUser(roomId, userId);
         Long partnerLastReadMessageId = chatRoomParticipantService.getPartnerLastReadMessageId(roomId, partner.getId());
-        List<Message> recentMessages = chatMessageService.getRecentMessages(roomId);
-        boolean hasMoreMessages = chatMessageService.hasMoreMessages(roomId, recentMessages);
+
+        List<Message> recentMessages = messageService.getRecentMessages(roomId);
+        boolean hasMoreMessages = messageService.hasMoreMessages(roomId, recentMessages);
+
 
         log.info("채팅방 상세 조회 완료 - chatRoomId: {}, partnerId: {}, messageCount: {}, hasMore: {}",
                 roomId, partner.getId(), recentMessages.size(), hasMoreMessages);
         return chatRoomConverter.toChatRoomDetailResponse(
                 partner, recentMessages, userId, hasMoreMessages, partnerLastReadMessageId);
     }
+
+    public MessageListDTO.Response getChatRoomMessages(Long userId, Long roomId, Integer size, Long lastMessageId) {
+        log.info("채팅방 과거 메시지 조회 시작 - userId: {}, roomId: {}, lastMessageId: {}, size: {}",
+                userId, roomId, lastMessageId, size);
+        chatRoomService.validateChatRoomAccess(userId, roomId);
+        User partner = userService.getPartnerUser(roomId, userId);
+        Long partnerLastReadMessageId = chatRoomParticipantService.getPartnerLastReadMessageId(roomId, partner.getId());
+        MessageListDTO.Response response = messageService.getPreviousMessages(
+                roomId, userId, lastMessageId, size, partnerLastReadMessageId);
+        return response;
+    }
+
 }
