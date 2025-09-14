@@ -5,6 +5,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.Ch
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomListDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.business.ChatRoomService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.ChatMessageService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business.ChatRoomParticipantService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
@@ -25,6 +26,7 @@ public class ChatQueryService {
     private final ChatRoomConverter chatRoomConverter;
 
     private final ChatRoomParticipantService chatRoomParticipantService;
+    private final ChatMessageService chatMessageService;
 
     public ChatRoomListDTO.Response getChatRoomList(Long userId) {
         log.info("채팅방 목록 조회 시작 - userId = {}", userId);
@@ -40,6 +42,7 @@ public class ChatQueryService {
         log.info("초기 채팅방 조회 시작 - userId = {}, roomId = {}", userId, roomId);
         ChatRoom chatRoom = chatRoomService.getChatRoomWithValidation(userId, roomId);
         User partner = chatRoomParticipantService.getPartnerUser(chatRoom, userId);
+        List<Message> recentMessages = chatMessageService.getRecentMessages(roomId);
         log.info("초기 채팅방 조회 종료 - userId = {}, roomId = {}", userId, roomId);
         return null;
     }

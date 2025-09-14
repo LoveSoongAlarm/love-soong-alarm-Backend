@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,6 +25,8 @@ public class ChatMessageService {
 
     private final MessageSender messageSender;
     private final MessageRetriever messageRetriever;
+
+    private static final int INITIAL_MESSAGE_LIMIT = 50;
 
     @Transactional
     public void sendConnectionSuccessMessage(Long userId, String userNickname, WebSocketSession session) {
@@ -73,6 +76,13 @@ public class ChatMessageService {
                     isReadByMe
             );
         }
+    }
+
+    public List<Message> getRecentMessages(Long roomId) {
+        log.info("채팅방 최근 메시지 조회 시작 - chatRoomId: {}", roomId);
+        List<Message> messages = messageRetriever.findRecentMessagesByChatRoomId(roomId, INITIAL_MESSAGE_LIMIT);
+        log.info("채팅방 최근 메시지 조회 완료 - chatRoomId: {}, messageCount: {}", roomId, messages.size());
+        return messages;
     }
 
     private boolean isMessageRead(Long messageId, Long lastReadMessageId) {
