@@ -1,5 +1,9 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.interceptor;
 
+import com.lovesoongalarm.lovesoongalarm.common.constant.Constants;
+import com.lovesoongalarm.lovesoongalarm.utils.JwtUtil;
+import io.jsonwebtoken.Claims;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -11,7 +15,11 @@ import java.util.Map;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class WebSocketJWTAuthInterceptor implements HandshakeInterceptor {
+
+    private final JwtUtil jwtUtil;
+
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
                                    WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
@@ -25,15 +33,31 @@ public class WebSocketJWTAuthInterceptor implements HandshakeInterceptor {
                 return false;
             }
 
-            // TODO - JWT 인증 로직 추가 및 JWT에서 userId 가져오기
+            Claims claims = jwtUtil.validateToken(token);
+            Long userId = claims.get(Constants.CLAIM_USER_ID, Long.class);
+            if (userId == null) {
+                log.error("JWT 토큰에서 userId를 찾을 수 없습니다");
+                return false;
+            }
 
-            Long userId = Long.parseLong(token);
             attributes.put("userId", userId);
 
             log.info("JWT 인증 성공 - userId: {}", userId);
             return true;
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            log.error("JWT 토큰이 만료되었습니다: {}", e.getMessage());
+            return false;
+        } catch (io.jsonwebtoken.MalformedJwtException e) {
+            log.error("JWT 토큰 형식이 잘못되었습니다: {}", e.getMessage());
+            return false;
+        } catch (io.jsonwebtoken.UnsupportedJwtException e) {
+            log.error("지원하지 않는 JWT 토큰입니다: {}", e.getMessage());
+            return false;
+        } catch (io.jsonwebtoken.security.SignatureException e) {
+            log.error("JWT 토큰 서명이 유효하지 않습니다: {}", e.getMessage());
+            return false;
         } catch (Exception e) {
-            log.error("JWT 인증 처리 중 오류 발생", e);
+            log.error("JWT 인증 처리 중 알 수 없는 오류 발생", e);
             return false;
         }
     }
