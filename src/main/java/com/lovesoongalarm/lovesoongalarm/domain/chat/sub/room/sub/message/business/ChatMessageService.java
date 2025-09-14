@@ -4,6 +4,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.application.dto.WebSocketMe
 import com.lovesoongalarm.lovesoongalarm.domain.chat.persistence.type.EWebSocketMessageType;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomListDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.ChatMessageDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageSender;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
@@ -92,6 +93,14 @@ public class ChatMessageService {
 
         Long oldestMessageId = messages.get(messages.size() - 1).getId();
         return messageRetriever.hasMoreMessagesBefore(chatRoomId, oldestMessageId);
+    }
+
+    public ChatMessageDTO.ListResponse getPreviousMessages(
+            Long chatRoomId, Long userId, Long lastMessageId, Integer pageSize, Long partnerLastReadMessageId) {
+        log.info("과거 메시지 조회 시작 - chatRoomId: {}, userId: {}, lastMessageId: {}, size: {}",
+                chatRoomId, userId, lastMessageId, pageSize);
+
+        List<Message> messages = messageRetriever.findPreviousMessages(chatRoomId, lastMessageId, pageSize);
     }
 
     private boolean isMessageRead(Long messageId, Long lastReadMessageId) {
