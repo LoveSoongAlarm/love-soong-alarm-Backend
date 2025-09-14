@@ -2,6 +2,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.implement;
 
 import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.exception.ChatRoomErrorCode;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.user.exception.UserErrorCode;
 import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserRetriever;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +15,17 @@ import org.springframework.stereotype.Component;
 public class ChatRoomValidator {
 
     private final UserRetriever userRetriever;
+    private final ChatRoomParticipantRetriever chatRoomParticipantRetriever;
 
     public void validateChatRoomCreation(Long userId, Long targetUserId) {
         validateNotSelfChat(userId, targetUserId);
         validateTargetUserExists(targetUserId);
+    }
+
+    public void validateChatRoomAccess(Long userId, Long roomId) {
+        if (!chatRoomParticipantRetriever.existsByUserIdAndChatRoomId(userId, roomId)) {
+            throw new CustomException(ChatRoomErrorCode.CHAT_ROOM_ACCESS_DENIED);
+        }
     }
 
     private void validateNotSelfChat(Long userId, Long targetUserId) {

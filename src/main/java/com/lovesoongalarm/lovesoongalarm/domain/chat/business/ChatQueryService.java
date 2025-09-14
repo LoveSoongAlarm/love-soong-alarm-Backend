@@ -34,7 +34,7 @@ public class ChatQueryService {
 
     public ChatRoomDetailDTO.Response getChatRoomDetail(Long userId, Long roomId) {
         log.info("초기 채팅방 조회 시작 - userId = {}, roomId = {}", userId, roomId);
-
+        ChatRoom chatRoom = chatRoomService.getChatRoomWithValidation(userId, roomId);
         log.info("초기 채팅방 조회 종료 - userId = {}, roomId = {}", userId, roomId);
         return null;
     }

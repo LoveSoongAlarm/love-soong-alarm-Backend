@@ -71,4 +71,12 @@ public class ChatRoomService {
 
         return chatRoomConverter.toChatRoomInfo(chatRoom, partnerParticipant.getUser(), lastMessageInfo);
     }
+
+    public ChatRoom getChatRoomWithValidation(Long userId, Long roomId) {
+        log.info("채팅방 조회 및 권한 검증 시작 - userId: {}, roomId: {}", userId, roomId);
+        chatRoomValidator.validateChatRoomAccess(userId, roomId);
+        ChatRoom chatRoom = chatRoomRetriever.findByIdOrElseThrow(roomId);
+        log.info("채팅방 조회 및 권한 검증 완료 - roomId: {}", roomId);
+        return chatRoom;
+    }
 }
