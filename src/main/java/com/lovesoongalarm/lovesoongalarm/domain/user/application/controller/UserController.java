@@ -49,7 +49,7 @@ public class UserController {
     @Operation(summary = "유저 프로필 수정"
             , description = "유저 프로필을 수정하는 API 입니다.")
     @ApiResponse(responseCode = "200", description = "유저 프로필 수정 성공")
-    @PatchMapping("/me")
+    @PutMapping("/me")
     public BaseResponse<Void> updateUser(
             @UserId Long userId,
             @RequestBody UserUpdateRequestDTO updateRequest
