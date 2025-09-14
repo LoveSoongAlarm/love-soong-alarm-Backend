@@ -1,9 +1,11 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business;
 
+import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantSaver;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
+import com.lovesoongalarm.lovesoongalarm.domain.user.exception.UserErrorCode;
 import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -42,5 +44,18 @@ public class ChatRoomParticipantService {
         boolean userExists = chatRoomParticipantRetriever.existsByUserIdAndChatRoomId(userId, chatRoom.getId());
         boolean targetExists = chatRoomParticipantRetriever.existsByUserIdAndChatRoomId(targetUserId, chatRoom.getId());
         return userExists && targetExists;
+    }
+
+    public User getPartnerUser(ChatRoom chatRoom, Long userId) {
+        log.info("채팅방의 상대방 사용자 정보 조회 시작 - chatRoomId: {}, userId: {}", chatRoom.getId(), userId);
+
+        User partner = chatRoom.getParticipants().stream()
+                .filter(participant -> !participant.getUser().getId().equals(userId))
+                .map(ChatRoomParticipant::getUser)
+                .findFirst()
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+
+        log.info("채팅방의 상대방 사용자 정보 조회 완료 - chatRoomId: {}, partnerId: {}", chatRoom.getId(), partner.getId());
+        return partner;
     }
 }
