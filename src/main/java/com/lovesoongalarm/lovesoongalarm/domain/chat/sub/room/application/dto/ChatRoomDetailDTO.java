@@ -42,7 +42,8 @@ public class ChatRoomDetailDTO {
             Long messageId,
             String content,
             LocalDateTime createdAt,
-            boolean isSentByMe
+            boolean isSentByMe,
+            boolean isRead
     ) {
     }
 }

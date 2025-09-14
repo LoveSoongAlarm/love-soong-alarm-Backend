@@ -1,5 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement;
 
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.repository.ChatRoomParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,10 @@ public class ChatRoomParticipantRetriever {
     private final ChatRoomParticipantRepository chatRoomParticipantRepository;
 
     public boolean existsByUserIdAndChatRoomId(Long userId, Long chatRoomId) {
-        return chatRoomParticipantRepository.existsByUserIdAndChatRoomId(userId, chatRoomId);
+        return chatRoomParticipantRepository.existsByUser_IdAndChatRoom_Id(userId, chatRoomId);
+    }
+
+    public ChatRoomParticipant findByChatRoomIdAndUserId(Long roomId, Long partnerId) {
+        return chatRoomParticipantRepository.findByChatRoom_IdAndUser_Id(roomId, partnerId);
     }
 }

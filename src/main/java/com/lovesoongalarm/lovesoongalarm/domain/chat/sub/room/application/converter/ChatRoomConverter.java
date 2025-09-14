@@ -40,11 +40,12 @@ public class ChatRoomConverter {
             User partner,
             List<Message> messages,
             Long currentUserId,
-            boolean hasMoreMessages) {
+            boolean hasMoreMessages,
+            Long partnerLastReadMessageId) {
 
         return ChatRoomDetailDTO.Response.builder()
                 .partner(toPartnerInfo(partner))
-                .recentMessages(toMessageInfos(messages, currentUserId))
+                .recentMessages(toMessageInfos(messages, currentUserId, partnerLastReadMessageId))
                 .hasMoreMessages(hasMoreMessages)
                 .oldestMessageId(messages.isEmpty() ? null :
                         messages.get(messages.size() - 1).getId())
@@ -73,22 +74,27 @@ public class ChatRoomConverter {
                 .toList();
     }
 
-    private List<ChatRoomDetailDTO.MessageInfo> toMessageInfos(List<Message> messages, Long currentUserId) {
+    private List<ChatRoomDetailDTO.MessageInfo> toMessageInfos(
+            List<Message> messages, Long currentUserId, Long partnerLastReadMessageId) {
         List<Message> sortedMessages = messages.stream()
                 .sorted(Comparator.comparing(Message::getId))
                 .toList();
 
         return sortedMessages.stream()
-                .map(message -> toMessageInfo(message, currentUserId))
+                .map(message -> toMessageInfo(message, currentUserId, partnerLastReadMessageId))
                 .toList();
     }
 
-    private ChatRoomDetailDTO.MessageInfo toMessageInfo(Message message, Long currentUserId) {
+    private ChatRoomDetailDTO.MessageInfo toMessageInfo(Message message, Long currentUserId, Long partnerLastReadMessageId) {
+        boolean isSentByMe = message.getUser().getId().equals(currentUserId);
+        boolean isRead = isSentByMe && (message.getId() <= partnerLastReadMessageId);
+
         return ChatRoomDetailDTO.MessageInfo.builder()
                 .messageId(message.getId())
                 .content(message.getContent())
                 .createdAt(message.getCreatedAt())
-                .isSentByMe(message.getUser().getId().equals(currentUserId))
+                .isSentByMe(isSentByMe)
+                .isRead(isRead)
                 .build();
     }
 

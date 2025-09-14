@@ -28,6 +28,7 @@ public class ChatQueryService {
     private final ChatMessageService chatMessageService;
 
     private final ChatRoomConverter chatRoomConverter;
+    private final ChatRoomParticipantService chatRoomParticipantService;
 
     public ChatRoomListDTO.Response getChatRoomList(Long userId) {
         log.info("채팅방 목록 조회 시작 - userId = {}", userId);
@@ -42,12 +43,15 @@ public class ChatQueryService {
     public ChatRoomDetailDTO.Response getChatRoomDetail(Long userId, Long roomId) {
         log.info("초기 채팅방 조회 시작 - userId = {}, roomId = {}", userId, roomId);
         chatRoomService.validateChatRoomAccess(userId, roomId);
+
         User partner = userService.getPartnerUser(roomId, userId);
+        Long partnerLastReadMessageId = chatRoomParticipantService.getPartnerLastReadMessageId(roomId, partner.getId());
         List<Message> recentMessages = chatMessageService.getRecentMessages(roomId);
-        Boolean hasMoreMessages = chatMessageService.hasMoreMessages(roomId, recentMessages);
+        boolean hasMoreMessages = chatMessageService.hasMoreMessages(roomId, recentMessages);
+
         log.info("채팅방 상세 조회 완료 - chatRoomId: {}, partnerId: {}, messageCount: {}, hasMore: {}",
                 roomId, partner.getId(), recentMessages.size(), hasMoreMessages);
         return chatRoomConverter.toChatRoomDetailResponse(
-                partner, recentMessages, userId, hasMoreMessages);
+                partner, recentMessages, userId, hasMoreMessages, partnerLastReadMessageId);
     }
 }

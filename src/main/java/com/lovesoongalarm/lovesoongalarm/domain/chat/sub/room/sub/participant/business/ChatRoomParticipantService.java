@@ -44,4 +44,9 @@ public class ChatRoomParticipantService {
         boolean targetExists = chatRoomParticipantRetriever.existsByUserIdAndChatRoomId(targetUserId, chatRoom.getId());
         return userExists && targetExists;
     }
+
+    public Long getPartnerLastReadMessageId(Long roomId, Long partnerId) {
+        return chatRoomParticipantRetriever.findByChatRoomIdAndUserId(roomId, partnerId)
+                .getLastReadMessageId();
+    }
 }
