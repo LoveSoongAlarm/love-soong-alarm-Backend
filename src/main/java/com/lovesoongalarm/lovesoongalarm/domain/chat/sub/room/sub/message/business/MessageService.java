@@ -117,6 +117,11 @@ public class MessageService {
         List<MessageDTO.MessageInfo> messageInfos = messages.stream()
                 .map(message -> messageConverter.toMessageInfo(message, userId, partnerLastReadMessageId))
                 .toList();
+
+        log.info("과거 메시지 조회 완료 - chatRoomId: {}, 조회된 메시지 수: {}, hasMore: {}",
+                chatRoomId, messageInfos.size(), hasMoreMessages);
+
+        return messageConverter.toMessageListResponse(messageInfos, hasMoreMessages, nextCursor);
     }
 
     private boolean isMessageRead(Long messageId, Long lastReadMessageId) {
