@@ -68,5 +68,4 @@ public class ChatQueryService {
                 roomId, userId, lastMessageId, size, partnerLastReadMessageId);
         return response;
     }
-
 }
