@@ -7,6 +7,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.business.ChatQueryService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomCreateDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomDetailDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomListDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.ChatMessageDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -61,5 +62,25 @@ public class ChatController {
             @UserId Long userId,
             @PathVariable Long roomId) {
         return BaseResponse.success(chatQueryService.getChatRoomDetail(userId, roomId));
+    }
+
+    @GetMapping("/rooms/{roomId}/previous-messages")
+    @Operation(summary = "채팅방 과거 메시지 조회",
+            description = """
+            채팅방의 과거 메시지를 페이징으로 조회합니다.
+            커서 기반 페이징을 사용하여 성능을 최적화했습니다.
+            
+            이전 응답의 oldestMessageId를 lastMessageId로 사용
+            
+            **주의사항:**
+            - size는 1~100 사이의 값만 허용됩니다
+            - 메시지는 최신순(내림차순)으로 정렬됩니다
+            """)
+    @ApiResponse(responseCode = "200", description = "과거 메시지 조회 성공")
+    public BaseResponse<ChatMessageDTO.ListResponse> getChatRoomMessages(
+            @UserId Long userId,
+            @PathVariable Long roomId,
+            @RequestBody ChatMessageDTO.Request request) {
+        return BaseResponse.success(chatQueryService.getChatRoomMessages(userId, roomId, request));
     }
 }

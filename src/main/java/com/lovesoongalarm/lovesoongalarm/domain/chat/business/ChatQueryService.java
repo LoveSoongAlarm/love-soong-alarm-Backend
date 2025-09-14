@@ -5,6 +5,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.Ch
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomListDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.business.ChatRoomService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.ChatMessageDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.ChatMessageService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business.ChatRoomParticipantService;
@@ -53,5 +54,11 @@ public class ChatQueryService {
                 roomId, partner.getId(), recentMessages.size(), hasMoreMessages);
         return chatRoomConverter.toChatRoomDetailResponse(
                 partner, recentMessages, userId, hasMoreMessages, partnerLastReadMessageId);
+    }
+
+    public ChatMessageDTO.ListResponse getChatRoomMessages(Long userId, Long roomId, ChatMessageDTO.Request request) {
+        log.info("채팅방 과거 메시지 조회 시작 - userId: {}, roomId: {}, lastMessageId: {}, size: {}",
+                userId, roomId, request.lastMessageId(), request.size());
+        return null;
     }
 }
