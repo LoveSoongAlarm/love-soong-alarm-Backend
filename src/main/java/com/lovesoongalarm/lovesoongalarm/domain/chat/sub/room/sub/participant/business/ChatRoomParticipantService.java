@@ -1,13 +1,10 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business;
 
-import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantSaver;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
-import com.lovesoongalarm.lovesoongalarm.domain.user.exception.UserErrorCode;
-import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +17,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatRoomParticipantService {
 
-    private final UserRetriever userRetriever;
     private final UserService userService;
 
     private final ChatRoomParticipantSaver chatRoomParticipantSaver;
@@ -34,8 +30,8 @@ public class ChatRoomParticipantService {
             return;
         }
 
-        User me = userRetriever.findByIdOrElseThrow(userId);
-        User target = userRetriever.findByIdOrElseThrow(targetUserId);
+        User me = userService.findUserOrElseThrow(userId);
+        User target = userService.findUserOrElseThrow(userId);
 
         ChatRoomParticipant myParticipant = ChatRoomParticipant.createJoined(chatRoom, me);
         ChatRoomParticipant targetParticipant = ChatRoomParticipant.createPending(chatRoom, target);

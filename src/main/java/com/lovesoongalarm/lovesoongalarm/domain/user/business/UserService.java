@@ -13,6 +13,10 @@ public class UserService {
 
     private final UserRetriever userRetriever;
 
+    public User findUserOrElseThrow(Long userId) {
+        return userRetriever.findByIdOrElseThrow(userId);
+    }
+
     public User getPartnerUser(Long roomId, Long userId) {
         log.info("채팅방의 상대방 사용자 정보 조회 시작 - roomId: {}, userId: {}", roomId, userId);
         User partner = userRetriever.findPartnerByChatRoomIdAndUserId(roomId, userId);
