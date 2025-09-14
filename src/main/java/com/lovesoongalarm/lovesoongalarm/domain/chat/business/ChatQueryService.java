@@ -46,6 +46,7 @@ public class ChatQueryService {
         Boolean hasMoreMessages = chatMessageService.hasMoreMessages(roomId, recentMessages);
         log.info("채팅방 상세 조회 완료 - chatRoomId: {}, partnerId: {}, messageCount: {}, hasMore: {}",
                 roomId, partner.getId(), recentMessages.size(), hasMoreMessages);
-        return null;
+        return chatRoomConverter.toChatRoomDetailResponse(
+                partner, recentMessages, userId, hasMoreMessages);
     }
 }

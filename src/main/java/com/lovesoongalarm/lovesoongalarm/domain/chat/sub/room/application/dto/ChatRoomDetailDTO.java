@@ -10,6 +10,7 @@ import java.util.List;
 public class ChatRoomDetailDTO {
 
     @Schema(name = "ChatRoomDetailResponse", description = "초기 채팅방 조회 응답")
+    @Builder
     public record Response(
             PartnerInfo partner,
             List<MessageInfo> recentMessages,
