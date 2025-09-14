@@ -50,9 +50,6 @@ public class User {
     @Enumerated(EnumType.STRING)
     private ERole role;
 
-    @Column(name = "phone_number")
-    private String phoneNumber;
-
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     private EUserStatus status;
@@ -60,50 +57,54 @@ public class User {
     @Column(name = "emoji")
     private String emoji;
 
-    @Column(name = "coin")
-    private Integer coin;
+    @Column(name = "chat_ticket")
+    private Integer chatTicket;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Interest> interests = new ArrayList<>();
 
+    @Column(name = "pre_pass")
+    private boolean prePass;
+
+    @Column(name = "slot")
+    private Integer slot;
+
     @Builder
-    public User(Long id, String nickname, EPlatform platform, ERole role, String serialId, EUserStatus status, String phoneNumber, String major, Integer birthDate, EGender gender, String emoji, Integer coin) {
+    public User(Long id, String nickname, EPlatform platform, ERole role, String serialId, EUserStatus status, String major, Integer birthDate, EGender gender, String emoji, Integer chatTicket, Integer slot, boolean prePass) {
         this.id = id;
         this.nickname = nickname;
         this.platform = platform;
         this.role = role;
         this.serialId = serialId;
         this.status = status;
-        this.phoneNumber = phoneNumber;
         this.major = major;
         this.birthDate = birthDate;
         this.gender = gender;
         this.emoji = emoji;
-        this.coin = coin;
+        this.chatTicket = chatTicket;
+        this.slot = slot;
+        this.prePass = prePass;
     }
 
-    public static User create(String nickname, EPlatform platform, ERole role, String serialId, EUserStatus status, String phoneNumber, String major, Integer birthDate, EGender gender, String emoji, Integer coin) {
+    public static User create(String nickname, EPlatform platform, ERole role, String serialId, EUserStatus status, String major, Integer birthDate, EGender gender, String emoji, Integer chatTicket, Integer slot, boolean prePass) {
         return User.builder()
                 .nickname(nickname)
                 .platform(platform)
                 .serialId(serialId)
                 .role(role)
                 .status(status)
-                .phoneNumber(phoneNumber)
                 .major(major)
                 .birthDate(birthDate)
                 .gender(gender)
                 .emoji(emoji)
-                .coin(coin)
+                .chatTicket(chatTicket)
+                .slot(slot)
+                .prePass(prePass)
                 .build();
     }
 
     public void updateNickname(String nickname) {
         this.nickname = nickname;
-    }
-
-    public void updatePhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
     }
 
     public void updateMajor(String major) {
@@ -122,9 +123,8 @@ public class User {
         this.emoji = emoji;
     }
 
-    public void updateFromOnboardingAndProfile(String nickname, String phoneNumber, String major, Integer birthDate, EGender gender, String emoji) {
+    public void updateFromOnboardingAndProfile(String nickname, String major, Integer birthDate, EGender gender, String emoji) {
         this.nickname = nickname;
-        this.phoneNumber = phoneNumber;
         this.major = major;
         this.birthDate =birthDate;
         this.gender = gender;
