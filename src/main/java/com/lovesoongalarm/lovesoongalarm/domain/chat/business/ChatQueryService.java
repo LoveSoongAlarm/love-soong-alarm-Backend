@@ -59,6 +59,9 @@ public class ChatQueryService {
     public ChatMessageDTO.ListResponse getChatRoomMessages(Long userId, Long roomId, ChatMessageDTO.Request request) {
         log.info("채팅방 과거 메시지 조회 시작 - userId: {}, roomId: {}, lastMessageId: {}, size: {}",
                 userId, roomId, request.lastMessageId(), request.size());
+        chatRoomService.validateChatRoomAccess(userId, roomId);
+        User partner = userService.getPartnerUser(roomId, userId);
+        Long partnerLastReadMessageId = chatRoomParticipantService.getPartnerLastReadMessageId(roomId, partner.getId());
         return null;
     }
 }
