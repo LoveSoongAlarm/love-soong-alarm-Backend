@@ -26,4 +26,8 @@ public class UserRetriever {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
     }
+
+    public User findPartnerByChatRoomIdAndUserId(Long roomId, Long userId) {
+        return userRepository.findPartnerByChatRoomIdAndUserId(roomId, userId);
+    }
 }

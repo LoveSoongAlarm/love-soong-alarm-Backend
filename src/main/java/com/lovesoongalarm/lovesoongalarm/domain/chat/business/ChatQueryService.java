@@ -8,6 +8,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.ChatMessageService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business.ChatRoomParticipantService;
+import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,10 +24,10 @@ import java.util.List;
 public class ChatQueryService {
 
     private final ChatRoomService chatRoomService;
-    private final ChatRoomConverter chatRoomConverter;
-
-    private final ChatRoomParticipantService chatRoomParticipantService;
+    private final UserService userService;
     private final ChatMessageService chatMessageService;
+
+    private final ChatRoomConverter chatRoomConverter;
 
     public ChatRoomListDTO.Response getChatRoomList(Long userId) {
         log.info("채팅방 목록 조회 시작 - userId = {}", userId);
@@ -40,8 +41,8 @@ public class ChatQueryService {
 
     public ChatRoomDetailDTO.Response getChatRoomDetail(Long userId, Long roomId) {
         log.info("초기 채팅방 조회 시작 - userId = {}, roomId = {}", userId, roomId);
-        ChatRoom chatRoom = chatRoomService.getChatRoomWithValidation(userId, roomId);
-        User partner = chatRoomParticipantService.getPartnerUser(chatRoom, userId);
+        chatRoomService.validateChatRoomAccess(userId, roomId);
+        User partner = userService.getPartnerUser(roomId, userId);
         List<Message> recentMessages = chatMessageService.getRecentMessages(roomId);
         Boolean hasMoreMessages = chatMessageService.hasMoreMessages(roomId, recentMessages);
         log.info("채팅방 상세 조회 완료 - chatRoomId: {}, partnerId: {}, messageCount: {}, hasMore: {}",

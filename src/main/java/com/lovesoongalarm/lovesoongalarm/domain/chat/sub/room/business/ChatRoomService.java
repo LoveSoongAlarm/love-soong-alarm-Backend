@@ -8,10 +8,8 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.implement.ChatRoom
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.implement.ChatRoomValidator;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.ChatMessageService;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
 import com.lovesoongalarm.lovesoongalarm.domain.user.exception.UserErrorCode;
-import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -74,11 +72,9 @@ public class ChatRoomService {
         return chatRoomConverter.toChatRoomInfo(chatRoom, partnerParticipant.getUser(), lastMessageInfo);
     }
 
-    public ChatRoom getChatRoomWithValidation(Long userId, Long roomId) {
+    public void validateChatRoomAccess(Long userId, Long roomId) {
         log.info("채팅방 조회 및 권한 검증 시작 - userId: {}, roomId: {}", userId, roomId);
         chatRoomValidator.validateChatRoomAccess(userId, roomId);
-        ChatRoom chatRoom = chatRoomRetriever.findByIdOrElseThrow(roomId);
         log.info("채팅방 조회 및 권한 검증 완료 - roomId: {}", roomId);
-        return chatRoom;
     }
 }

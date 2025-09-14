@@ -26,8 +26,7 @@ public class ChatRoomRetriever {
         return chatRoomRepository.findChatRoomsByUserIdOrderByLastMessageIdDesc(userId);
     }
 
-    public ChatRoom findByIdOrElseThrow(Long roomId) {
-        return chatRoomRepository.findByIdWithParticipantsAndUsers(roomId)
-                .orElseThrow(() -> new CustomException(ChatRoomErrorCode.CHAT_ROOM_NOT_FOUND));
+    public boolean existsById(Long roomId) {
+        return chatRoomRepository.existsById(roomId);
     }
 }
