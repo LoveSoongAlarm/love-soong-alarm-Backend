@@ -31,6 +31,8 @@ public class MessageService {
     private final MessageConverter messageConverter;
 
     private static final int INITIAL_MESSAGE_LIMIT = 50;
+    private static final int DEFAULT_PAGE_SIZE = 50;
+    private static final int MAX_PAGE_SIZE = 100;
 
     @Transactional
     public void sendConnectionSuccessMessage(Long userId, String userNickname, WebSocketSession session) {
@@ -99,10 +101,11 @@ public class MessageService {
     }
 
     public MessageListDTO.Response getPreviousMessages(
-            Long chatRoomId, Long userId, Long lastMessageId, Integer pageSize, Long partnerLastReadMessageId) {
+            Long chatRoomId, Long userId, Long lastMessageId, Integer size, Long partnerLastReadMessageId) {
         log.info("과거 메시지 조회 시작 - chatRoomId: {}, userId: {}, lastMessageId: {}, size: {}",
-                chatRoomId, userId, lastMessageId, pageSize);
+                chatRoomId, userId, lastMessageId, size);
 
+        int pageSize = validateAndGetPageSize(size);
         List<Message> messages = messageRetriever.findPreviousMessages(chatRoomId, lastMessageId, pageSize);
 
         Long nextCursor = null;
@@ -131,4 +134,12 @@ public class MessageService {
 
         return messageId <= lastReadMessageId;
     }
+
+    private int validateAndGetPageSize(Integer size) {
+        if (size == null || size <= 0) {
+            return DEFAULT_PAGE_SIZE;
+        }
+        return Math.min(size, MAX_PAGE_SIZE);
+    }
+
 }

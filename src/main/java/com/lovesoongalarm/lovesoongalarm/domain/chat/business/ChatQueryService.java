@@ -56,14 +56,14 @@ public class ChatQueryService {
                 partner, recentMessages, userId, hasMoreMessages, partnerLastReadMessageId);
     }
 
-    public MessageListDTO.Response getChatRoomMessages(Long userId, Long roomId, MessageListDTO.Request request) {
+    public MessageListDTO.Response getChatRoomMessages(Long userId, Long roomId, Integer size, Long lastMessageId) {
         log.info("채팅방 과거 메시지 조회 시작 - userId: {}, roomId: {}, lastMessageId: {}, size: {}",
-                userId, roomId, request.lastMessageId(), request.size());
+                userId, roomId, lastMessageId, size);
         chatRoomService.validateChatRoomAccess(userId, roomId);
         User partner = userService.getPartnerUser(roomId, userId);
         Long partnerLastReadMessageId = chatRoomParticipantService.getPartnerLastReadMessageId(roomId, partner.getId());
         MessageListDTO.Response response = messageService.getPreviousMessages(
-                roomId, userId, request.lastMessageId(), request.size(), partnerLastReadMessageId);
-        return null;
+                roomId, userId, lastMessageId, size, partnerLastReadMessageId);
+        return response;
     }
 }

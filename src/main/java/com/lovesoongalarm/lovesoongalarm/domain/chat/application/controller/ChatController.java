@@ -80,7 +80,8 @@ public class ChatController {
     public BaseResponse<MessageListDTO.Response> getChatRoomMessages(
             @UserId Long userId,
             @PathVariable Long roomId,
-            @RequestBody MessageListDTO.Request request) {
-        return BaseResponse.success(chatQueryService.getChatRoomMessages(userId, roomId, request));
+            @RequestParam(required = false, defaultValue = "50") Integer size,
+            @RequestParam Long lastMessageId) {
+        return BaseResponse.success(chatQueryService.getChatRoomMessages(userId, roomId, size, lastMessageId));
     }
 }
