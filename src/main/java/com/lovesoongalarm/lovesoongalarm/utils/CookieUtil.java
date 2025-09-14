@@ -1,12 +1,27 @@
 package com.lovesoongalarm.lovesoongalarm.utils;
 
+import com.lovesoongalarm.lovesoongalarm.common.code.GlobalErrorCode;
 import com.lovesoongalarm.lovesoongalarm.common.constant.Constants;
+import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseCookie;
 
+import java.util.Arrays;
+
 public class CookieUtil {
+
+    public static String getCookie(HttpServletRequest request, String name) {
+        if (request.getCookies() == null) {
+            throw new CustomException(GlobalErrorCode.INVALID_TOKEN_ERROR);
+        }
+        return Arrays.stream(request.getCookies())
+                .filter(cookie -> cookie.getName().equals(name))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElseThrow(() -> new CustomException(GlobalErrorCode.INVALID_TOKEN_ERROR));
+    }
 
     public static void addCookie(
             HttpServletResponse response,
@@ -25,30 +40,21 @@ public class CookieUtil {
     }
 
     public static void logoutCookie(
-            HttpServletRequest request,
             HttpServletResponse response,
             String domain
     ) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null)
-            return;
+        ResponseCookie expiredCookie = ResponseCookie.from(Constants.REFRESH_COOKIE_NAME, "")
+                .path("/")
+                .domain(domain)
+                .secure(true)       // HTTPS 필수
+                .httpOnly(true)     // Refresh Token은 보안상 HttpOnly
+                .maxAge(0)          // 즉시 만료
+                .sameSite("None")   // 크로스 도메인 로그인/로그아웃 지원
+                .build();
 
-        for (Cookie cookie : cookies) {
-            boolean isAccessCookie = cookie.getName().equals(Constants.ACCESS_COOKIE_NAME);
-            boolean isRefreshCookie = cookie.getName().equals(Constants.REFRESH_COOKIE_NAME);
-
-            if (isAccessCookie || isRefreshCookie) {
-                ResponseCookie tempCookie = ResponseCookie.from(cookie.getName(), cookie.getValue())
-                        .path("/")
-                        .domain(domain)
-                        .secure(true)
-                        .maxAge(0)
-                        .httpOnly(isRefreshCookie)
-                        .build();
-                response.addHeader("Set-Cookie", tempCookie.toString());
-            }
-        }
+        response.addHeader("Set-Cookie", expiredCookie.toString());
     }
+
 
     public static void addSecureCookie(
             HttpServletResponse response,

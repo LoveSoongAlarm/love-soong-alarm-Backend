@@ -53,6 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         Claims claims = jwtUtil.validateToken(token);
         log.info("claim: getUserId() = {}", claims.get(Constants.CLAIM_USER_ID, Long.class));
 
+        //TODO : 메서드화 util로 이동
         JwtUserInfo jwtUserInfo = JwtUserInfo.of(
                 claims.get(Constants.CLAIM_USER_ID, Long.class),
                 ERole.valueOf(claims.get(Constants.CLAIM_USER_ROLE, String.class))

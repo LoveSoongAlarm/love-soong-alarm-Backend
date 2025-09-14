@@ -1,10 +1,10 @@
-package com.lovesoongalarm.lovesoongalarm.security.handler;
+package com.lovesoongalarm.lovesoongalarm.security.handler.login;
 
 import com.lovesoongalarm.lovesoongalarm.common.constant.Constants;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EUserStatus;
 import com.lovesoongalarm.lovesoongalarm.security.dto.JwtDTO;
-import com.lovesoongalarm.lovesoongalarm.security.info.AuthenticationResponse;
 import com.lovesoongalarm.lovesoongalarm.security.info.UserPrincipal;
+import com.lovesoongalarm.lovesoongalarm.security.service.RefreshTokenService;
 import com.lovesoongalarm.lovesoongalarm.utils.CookieUtil;
 import com.lovesoongalarm.lovesoongalarm.utils.JwtUtil;
 import jakarta.servlet.ServletException;
@@ -14,7 +14,6 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,10 +24,10 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
+    private final RefreshTokenService refreshTokenService;
     @Value("${server.domain}")
     private String domain;
     private final JwtUtil jwtUtil;
-    //private final JwtService jwtService;
     private final HttpSession session;
 
     @Value("${jwt.redirect}")
@@ -46,7 +45,7 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         JwtDTO jwtDto = jwtUtil.generateTokens(principal.getUserId(), principal.getRole());
 
-        //jwtService.updateRefreshToken(principal.getUserId(), jwtDto.refreshToken());
+        refreshTokenService.updateRefreshToken(principal.getUserId(), jwtDto.refreshToken());
 
         boolean isRegistered = false;
         if (principal.getStatus() != null && principal.getStatus() == EUserStatus.ACTIVE) {

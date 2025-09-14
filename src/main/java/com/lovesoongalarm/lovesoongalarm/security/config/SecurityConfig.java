@@ -3,10 +3,12 @@ package com.lovesoongalarm.lovesoongalarm.security.config;
 import com.lovesoongalarm.lovesoongalarm.common.constant.Constants;
 import com.lovesoongalarm.lovesoongalarm.security.filter.JwtAuthenticationFilter;
 import com.lovesoongalarm.lovesoongalarm.security.filter.JwtExceptionFilter;
-import com.lovesoongalarm.lovesoongalarm.security.handler.Oauth2FailureHandler;
-import com.lovesoongalarm.lovesoongalarm.security.handler.Oauth2SuccessHandler;
+import com.lovesoongalarm.lovesoongalarm.security.handler.login.Oauth2FailureHandler;
+import com.lovesoongalarm.lovesoongalarm.security.handler.login.Oauth2SuccessHandler;
 import com.lovesoongalarm.lovesoongalarm.security.handler.exception.CustomAccessDeniedHandler;
 import com.lovesoongalarm.lovesoongalarm.security.handler.exception.CustomAuthenticationEntryPointHandler;
+import com.lovesoongalarm.lovesoongalarm.security.handler.logout.CustomLogoutProcessHandler;
+import com.lovesoongalarm.lovesoongalarm.security.handler.logout.CustomLogoutResultHandler;
 import com.lovesoongalarm.lovesoongalarm.security.provider.JwtAuthenticationManager;
 import com.lovesoongalarm.lovesoongalarm.security.service.CustomOauth2UserDetailService;
 import com.lovesoongalarm.lovesoongalarm.utils.JwtUtil;
@@ -28,8 +30,8 @@ public class SecurityConfig {
     private final Oauth2SuccessHandler oauth2SuccessHandler;
     private final Oauth2FailureHandler oauth2FailureHandler;
     private final CustomOauth2UserDetailService customOauth2UserDetailService;
-    //private final CustomLogoutProcessHandler customLogoutProcessHandler;
-    //private final CustomLogoutResultHandler customLogoutResultHandler;
+    private final CustomLogoutProcessHandler customLogoutProcessHandler;
+    private final CustomLogoutResultHandler customLogoutResultHandler;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPointHandler customAuthenticationEntryPointHandler;
     private final JwtUtil jwtUtil;
@@ -58,11 +60,11 @@ public class SecurityConfig {
                         .userInfoEndpoint(it -> it.userService(customOauth2UserDetailService)) //사용자 정보 조회 시
                 ) //로그인 후, Authorization Code → Access Token 교환까지 끝난 직후
 
-                /*.logout(logout -> logout
+                .logout(logout -> logout
                         .logoutUrl("/api/auth/logout")
                         .addLogoutHandler(customLogoutProcessHandler)
                         .logoutSuccessHandler(customLogoutResultHandler)
-                )*/
+                )
                 .exceptionHandling(exception -> exception
                         .accessDeniedHandler(customAccessDeniedHandler) //권한 부족(403)
                         .authenticationEntryPoint(customAuthenticationEntryPointHandler) //인증 실패(401)
