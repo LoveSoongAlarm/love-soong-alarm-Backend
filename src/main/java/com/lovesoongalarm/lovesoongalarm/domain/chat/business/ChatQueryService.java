@@ -43,7 +43,9 @@ public class ChatQueryService {
         ChatRoom chatRoom = chatRoomService.getChatRoomWithValidation(userId, roomId);
         User partner = chatRoomParticipantService.getPartnerUser(chatRoom, userId);
         List<Message> recentMessages = chatMessageService.getRecentMessages(roomId);
-        log.info("초기 채팅방 조회 종료 - userId = {}, roomId = {}", userId, roomId);
+        Boolean hasMoreMessages = chatMessageService.hasMoreMessages(roomId, recentMessages);
+        log.info("채팅방 상세 조회 완료 - chatRoomId: {}, partnerId: {}, messageCount: {}, hasMore: {}",
+                roomId, partner.getId(), recentMessages.size(), hasMoreMessages);
         return null;
     }
 }

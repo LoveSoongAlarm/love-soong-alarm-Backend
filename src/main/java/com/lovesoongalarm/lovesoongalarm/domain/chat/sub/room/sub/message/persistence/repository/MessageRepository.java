@@ -29,4 +29,13 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findRecentMessagesByChatRoomIdOrderByIdDesc(
             @Param("chatRoomId") Long chatRoomId,
             Pageable pageable);
+
+    @Query("""
+            SELECT COUNT(m) FROM Message m
+            WHERE m.chatRoom.id = :chatRoomId 
+            AND m.id < :messageId
+            """)
+    Long countMessagesByChatRoomIdAndIdLessThan(
+            @Param("chatRoomId") Long chatRoomId,
+            @Param("messageId") Long messageId);
 }

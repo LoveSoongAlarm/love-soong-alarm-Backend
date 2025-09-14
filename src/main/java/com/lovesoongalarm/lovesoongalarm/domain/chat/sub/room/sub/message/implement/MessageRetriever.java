@@ -24,4 +24,8 @@ public class MessageRetriever {
         Pageable pageable = PageRequest.of(0, limit);
         return messageRepository.findRecentMessagesByChatRoomIdOrderByIdDesc(chatRoomId, pageable);
     }
+
+    public boolean hasMoreMessagesBefore(Long chatRoomId, Long oldestMessageId) {
+        return messageRepository.countMessagesByChatRoomIdAndIdLessThan(chatRoomId, oldestMessageId) > 0;
+    }
 }

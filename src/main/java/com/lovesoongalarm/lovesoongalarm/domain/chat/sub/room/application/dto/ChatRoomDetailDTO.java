@@ -1,7 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto;
 
 import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.persistence.type.EDetailLabel;
-import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.persistence.type.ELabel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 

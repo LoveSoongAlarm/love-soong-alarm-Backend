@@ -85,6 +85,15 @@ public class ChatMessageService {
         return messages;
     }
 
+    public boolean hasMoreMessages(Long chatRoomId, List<Message> messages) {
+        if (messages.isEmpty()) {
+            return false;
+        }
+
+        Long oldestMessageId = messages.get(messages.size() - 1).getId();
+        return messageRetriever.hasMoreMessagesBefore(chatRoomId, oldestMessageId);
+    }
+
     private boolean isMessageRead(Long messageId, Long lastReadMessageId) {
         if (lastReadMessageId == null) {
             return false;
