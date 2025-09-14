@@ -57,10 +57,10 @@ spring:
       expiration: ${ACCESS_TOKEN_EXPIRATION}
     refresh-token:
       expiration: ${REFRESH_TOKEN_EXPIRATION}
-    redirect: http://localhost:3000/login?isRegistered=%s&access_token=%s
+    redirect: ${REDIRECT_URL}
 
-  server:
-    domain: ${DOMAIN_NAME}
+server:
+  domain: ${DOMAIN_NAME}
 
 logging:
   level:
