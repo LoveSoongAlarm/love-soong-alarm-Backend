@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -117,7 +118,11 @@ public class MessageService {
             nextCursor = hasMoreMessages ? oldestMessageId : null;
         }
 
-        List<MessageListDTO.MessageInfo> messageInfos = messages.stream()
+        List<Message> sortedMessages = messages.stream()
+                .sorted(Comparator.comparing(Message::getId))
+                .toList();
+
+        List<MessageListDTO.MessageInfo> messageInfos = sortedMessages.stream()
                 .map(message -> messageConverter.toMessageInfo(message, userId, partnerLastReadMessageId))
                 .toList();
 
