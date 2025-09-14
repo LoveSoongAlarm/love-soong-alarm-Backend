@@ -101,6 +101,15 @@ public class ChatMessageService {
                 chatRoomId, userId, lastMessageId, pageSize);
 
         List<Message> messages = messageRetriever.findPreviousMessages(chatRoomId, lastMessageId, pageSize);
+
+        Long nextCursor = null;
+        boolean hasMoreMessages = false;
+
+        if (!messages.isEmpty()) {
+            Long oldestMessageId = messages.get(messages.size() - 1).getId();
+            hasMoreMessages = messageRetriever.hasMoreMessagesBefore(chatRoomId, oldestMessageId);
+            nextCursor = hasMoreMessages ? oldestMessageId : null;
+        }
     }
 
     private boolean isMessageRead(Long messageId, Long lastReadMessageId) {
