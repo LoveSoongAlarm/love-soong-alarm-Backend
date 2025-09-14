@@ -62,6 +62,8 @@ public class ChatQueryService {
         chatRoomService.validateChatRoomAccess(userId, roomId);
         User partner = userService.getPartnerUser(roomId, userId);
         Long partnerLastReadMessageId = chatRoomParticipantService.getPartnerLastReadMessageId(roomId, partner.getId());
+        ChatMessageDTO.ListResponse response = chatMessageService.getPreviousMessages(
+                roomId, userId, request.lastMessageId(), request.size(), partnerLastReadMessageId);
         return null;
     }
 }
