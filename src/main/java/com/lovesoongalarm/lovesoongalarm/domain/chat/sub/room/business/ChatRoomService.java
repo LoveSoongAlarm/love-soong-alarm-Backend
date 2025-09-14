@@ -1,6 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.business;
 
 import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.converter.ChatRoomConverter;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomListDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.implement.ChatRoomRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.implement.ChatRoomSaver;
@@ -26,6 +27,8 @@ public class ChatRoomService {
     private final ChatRoomSaver chatRoomSaver;
 
     private final ChatMessageService chatMessageService;
+
+    private final ChatRoomConverter chatRoomConverter;
 
     public ChatRoom createChatRoom(Long userId, Long targetUserId) {
         log.info("개인 채팅방 생성 시작 - 본인: {}, 상대방: {}", userId, targetUserId);
@@ -59,7 +62,6 @@ public class ChatRoomService {
             }
         }
 
-        log.info("myParticipant: {}, partnerParticipant: {}", myParticipant, partnerParticipant);
         if (myParticipant == null || partnerParticipant == null) {
             throw new CustomException(UserErrorCode.USER_NOT_FOUND);
         }
@@ -67,11 +69,12 @@ public class ChatRoomService {
         ChatRoomListDTO.LastMessageInfo lastMessageInfo = chatMessageService.createLastMessageInfo(
                 chatRoom, userId, myParticipant, partnerParticipant);
 
-        return ChatRoomListDTO.ChatRoomInfo.builder()
-                .chatRoomId(chatRoom.getId())
-                .emoji(partnerParticipant.getUser().getEmoji())
-                .partnerNickname(partnerParticipant.getUser().getNickname())
-                .lastMessageInfo(lastMessageInfo)
-                .build();
+        return chatRoomConverter.toChatRoomInfo(chatRoom, partnerParticipant.getUser(), lastMessageInfo);
+    }
+
+    public void validateChatRoomAccess(Long userId, Long roomId) {
+        log.info("채팅방 조회 및 권한 검증 시작 - userId: {}, roomId: {}", userId, roomId);
+        chatRoomValidator.validateChatRoomAccess(userId, roomId);
+        log.info("채팅방 조회 및 권한 검증 완료 - roomId: {}", roomId);
     }
 }

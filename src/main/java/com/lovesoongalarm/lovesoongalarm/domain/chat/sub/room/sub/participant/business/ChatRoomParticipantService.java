@@ -4,7 +4,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.im
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantSaver;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
-import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserRetriever;
+import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatRoomParticipantService {
 
-    private final UserRetriever userRetriever;
+    private final UserService userService;
+
     private final ChatRoomParticipantSaver chatRoomParticipantSaver;
     private final ChatRoomParticipantRetriever chatRoomParticipantRetriever;
 
@@ -29,8 +30,8 @@ public class ChatRoomParticipantService {
             return;
         }
 
-        User me = userRetriever.findByIdOrElseThrow(userId);
-        User target = userRetriever.findByIdOrElseThrow(targetUserId);
+        User me = userService.findUserOrElseThrow(userId);
+        User target = userService.findUserOrElseThrow(userId);
 
         ChatRoomParticipant myParticipant = ChatRoomParticipant.createJoined(chatRoom, me);
         ChatRoomParticipant targetParticipant = ChatRoomParticipant.createPending(chatRoom, target);
@@ -42,5 +43,10 @@ public class ChatRoomParticipantService {
         boolean userExists = chatRoomParticipantRetriever.existsByUserIdAndChatRoomId(userId, chatRoom.getId());
         boolean targetExists = chatRoomParticipantRetriever.existsByUserIdAndChatRoomId(targetUserId, chatRoom.getId());
         return userExists && targetExists;
+    }
+
+    public Long getPartnerLastReadMessageId(Long roomId, Long partnerId) {
+        return chatRoomParticipantRetriever.findByChatRoomIdAndUserId(roomId, partnerId)
+                .getLastReadMessageId();
     }
 }

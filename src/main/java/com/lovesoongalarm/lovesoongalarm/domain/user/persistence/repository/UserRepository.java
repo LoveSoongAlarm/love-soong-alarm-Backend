@@ -19,4 +19,16 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // query method
     Optional<User> findBySerialId(String serialId);
     Optional<User> findById(Long id);
+
+    @Query("""
+            SELECT DISTINCT u FROM User u
+            JOIN FETCH u.interests i
+            WHERE u.id = (
+                SELECT cp.user.id 
+                FROM ChatRoomParticipant cp 
+                WHERE cp.chatRoom.id = :roomId
+                AND cp.user.id != :userId
+            )
+            """)
+    User findPartnerByChatRoomIdAndUserId(@Param("roomId") Long roomId, @Param("userId") Long userId);
 }

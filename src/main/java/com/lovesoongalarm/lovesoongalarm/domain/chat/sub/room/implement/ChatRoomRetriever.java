@@ -1,5 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.implement;
 
+import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.exception.ChatRoomErrorCode;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,5 +24,9 @@ public class ChatRoomRetriever {
 
     public List<ChatRoom> findChatRoomsByUserIdOrderByLastMessageIdDesc(Long userId) {
         return chatRoomRepository.findChatRoomsByUserIdOrderByLastMessageIdDesc(userId);
+    }
+
+    public boolean existsById(Long roomId) {
+        return chatRoomRepository.existsById(roomId);
     }
 }

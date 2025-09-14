@@ -5,6 +5,7 @@ import com.lovesoongalarm.lovesoongalarm.common.annotation.UserId;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.business.ChatCommandService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.business.ChatQueryService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomCreateDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomDetailDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomListDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -47,5 +48,18 @@ public class ChatController {
     @ApiResponse(responseCode = "200", description = "채팅방 목록 조회 성공")
     public BaseResponse<ChatRoomListDTO.Response> getChatRoomList(@UserId Long userId){
         return BaseResponse.success(chatQueryService.getChatRoomList(userId));
+    }
+
+    @GetMapping("/rooms/{roomId}")
+    @Operation(summary = "채팅방 상세 조회 (초기 진입)",
+            description = """
+            채팅방에 처음 진입할 때 상대방의 프로필 정보를 조회합니다.
+            상대방의 기본 정보(닉네임, 이모지, 나이, 전공, 관심사)를 반환합니다.
+            """)
+    @ApiResponse(responseCode = "200", description = "채팅방 상세 조회 성공")
+    public BaseResponse<ChatRoomDetailDTO.Response> getChatRoomDetail(
+            @UserId Long userId,
+            @PathVariable Long roomId) {
+        return BaseResponse.success(chatQueryService.getChatRoomDetail(userId, roomId));
     }
 }
