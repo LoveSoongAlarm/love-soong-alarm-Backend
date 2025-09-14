@@ -51,7 +51,6 @@ public class ChatQueryService {
         List<Message> recentMessages = messageService.getRecentMessages(roomId);
         boolean hasMoreMessages = messageService.hasMoreMessages(roomId, recentMessages);
 
-
         log.info("채팅방 상세 조회 완료 - chatRoomId: {}, partnerId: {}, messageCount: {}, hasMore: {}",
                 roomId, partner.getId(), recentMessages.size(), hasMoreMessages);
         return chatRoomConverter.toChatRoomDetailResponse(
