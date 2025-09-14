@@ -22,14 +22,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("""
             SELECT DISTINCT u FROM User u
-            LEFT JOIN FETCH u.interests i
-            LEFT JOIN FETCH i.hashtags h
+            JOIN FETCH u.interests i
             WHERE u.id = (
                 SELECT cp.user.id 
                 FROM ChatRoomParticipant cp 
-                WHERE cp.chatRoom.id = :chatRoomId 
+                WHERE cp.chatRoom.id = :roomId
                 AND cp.user.id != :userId
             )
             """)
-    User findPartnerByChatRoomIdAndUserId(Long roomId, Long userId);
+    User findPartnerByChatRoomIdAndUserId(@Param("roomId") Long roomId, @Param("userId") Long userId);
 }
