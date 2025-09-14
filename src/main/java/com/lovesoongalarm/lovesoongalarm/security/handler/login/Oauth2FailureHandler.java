@@ -1,4 +1,4 @@
-package com.lovesoongalarm.lovesoongalarm.security.handler;
+package com.lovesoongalarm.lovesoongalarm.security.handler.login;
 
 import com.lovesoongalarm.lovesoongalarm.common.code.GlobalErrorCode;
 import com.lovesoongalarm.lovesoongalarm.security.info.AuthenticationResponse;
