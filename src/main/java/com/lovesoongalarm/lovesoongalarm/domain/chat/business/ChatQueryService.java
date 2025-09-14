@@ -5,7 +5,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.Ch
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomListDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.business.ChatRoomService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.MessageDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.MessageListDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.MessageService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business.ChatRoomParticipantService;
@@ -56,13 +56,13 @@ public class ChatQueryService {
                 partner, recentMessages, userId, hasMoreMessages, partnerLastReadMessageId);
     }
 
-    public MessageDTO.ListResponse getChatRoomMessages(Long userId, Long roomId, MessageDTO.Request request) {
+    public MessageListDTO.Response getChatRoomMessages(Long userId, Long roomId, MessageListDTO.Request request) {
         log.info("채팅방 과거 메시지 조회 시작 - userId: {}, roomId: {}, lastMessageId: {}, size: {}",
                 userId, roomId, request.lastMessageId(), request.size());
         chatRoomService.validateChatRoomAccess(userId, roomId);
         User partner = userService.getPartnerUser(roomId, userId);
         Long partnerLastReadMessageId = chatRoomParticipantService.getPartnerLastReadMessageId(roomId, partner.getId());
-        MessageDTO.ListResponse response = messageService.getPreviousMessages(
+        MessageListDTO.Response response = messageService.getPreviousMessages(
                 roomId, userId, request.lastMessageId(), request.size(), partnerLastReadMessageId);
         return null;
     }

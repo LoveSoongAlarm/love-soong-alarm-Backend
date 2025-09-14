@@ -1,6 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.converter;
 
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.MessageDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.MessageListDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import org.springframework.stereotype.Component;
 
@@ -9,16 +9,16 @@ import java.util.List;
 @Component
 public class MessageConverter {
 
-    public MessageDTO.ListResponse toMessageListResponse(
-            List<MessageDTO.MessageInfo> messageInfos, boolean hasMoreMessages, Long nextCursor) {
-        return MessageDTO.ListResponse.builder()
+    public MessageListDTO.Response toMessageListResponse(
+            List<MessageListDTO.MessageInfo> messageInfos, boolean hasMoreMessages, Long nextCursor) {
+        return MessageListDTO.Response.builder()
                 .messages(messageInfos)
                 .hasMoreMessages(hasMoreMessages)
                 .oldestMessageId(nextCursor)
                 .build();
     }
 
-    public MessageDTO.MessageInfo toMessageInfo(Message message, Long userId, Long partnerLastReadMessageId) {
+    public MessageListDTO.MessageInfo toMessageInfo(Message message, Long userId, Long partnerLastReadMessageId) {
         boolean isSentByMe = message.getUser().getId().equals(userId);
         boolean isRead = false;
 
@@ -26,7 +26,7 @@ public class MessageConverter {
             isRead = message.getId() <= partnerLastReadMessageId;
         }
 
-        return MessageDTO.MessageInfo.builder()
+        return MessageListDTO.MessageInfo.builder()
                 .messageId(message.getId())
                 .content(message.getContent())
                 .createdAt(message.getCreatedAt())

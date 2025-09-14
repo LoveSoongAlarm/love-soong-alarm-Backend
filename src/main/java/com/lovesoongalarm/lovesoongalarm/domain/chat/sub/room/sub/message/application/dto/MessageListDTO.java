@@ -7,7 +7,7 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class MessageDTO {
+public class MessageListDTO {
 
     @Schema(name = "MessageListRequest", description = "과거 메시지 조회 요청")
     public record Request(
@@ -26,7 +26,7 @@ public class MessageDTO {
 
     @Schema(name = "MessageListResponse", description = "과거 메시지 조회 응답")
     @Builder
-    public record ListResponse(
+    public record Response(
             List<MessageInfo> messages,
             boolean hasMoreMessages,
             Long oldestMessageId

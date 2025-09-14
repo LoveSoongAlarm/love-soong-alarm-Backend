@@ -5,7 +5,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.persistence.type.EWebSocket
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomListDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.converter.MessageConverter;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.MessageDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.MessageListDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageSender;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
@@ -98,7 +98,7 @@ public class MessageService {
         return messageRetriever.hasMoreMessagesBefore(chatRoomId, oldestMessageId);
     }
 
-    public MessageDTO.ListResponse getPreviousMessages(
+    public MessageListDTO.Response getPreviousMessages(
             Long chatRoomId, Long userId, Long lastMessageId, Integer pageSize, Long partnerLastReadMessageId) {
         log.info("과거 메시지 조회 시작 - chatRoomId: {}, userId: {}, lastMessageId: {}, size: {}",
                 chatRoomId, userId, lastMessageId, pageSize);
@@ -114,7 +114,7 @@ public class MessageService {
             nextCursor = hasMoreMessages ? oldestMessageId : null;
         }
 
-        List<MessageDTO.MessageInfo> messageInfos = messages.stream()
+        List<MessageListDTO.MessageInfo> messageInfos = messages.stream()
                 .map(message -> messageConverter.toMessageInfo(message, userId, partnerLastReadMessageId))
                 .toList();
 
