@@ -1,6 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.application.dto.WebSocketMessageDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.business.ChatService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.WebSocketMessageService;
@@ -87,6 +88,18 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
 
         if (userId != null) {
             chatService.removeSession(userId);
+        }
+    }
+
+    private void handleSubscribe(WebSocketSession session, WebSocketMessageDTO.Request request, Long userId) {
+        try {
+            chatService.handleSubscribe(request.chatRoomId(), userId);
+        } catch (CustomException e) {
+            log.warn("구독 실패 - 채팅방: {}, 유저: {}, 이유: {}", request.chatRoomId(), userId, e.getErrorCode().getMessage());
+            webSocketMessageService.sendErrorMessage(session, e.getErrorCode().getStatus().toString(), e.getErrorCode().getMessage());
+        } catch (Exception e) {
+            log.error("구독 처리 중 예외 발생", e);
+            webSocketMessageService.sendErrorMessage(session, "SUBSCRIPTION_ERROR", "구독 처리 중 오류가 발생했습니다.");
         }
     }
 }

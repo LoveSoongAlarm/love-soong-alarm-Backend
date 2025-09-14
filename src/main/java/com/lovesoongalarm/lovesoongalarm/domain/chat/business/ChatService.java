@@ -1,5 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.business;
 
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.business.ChatRoomService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.implement.ChatRoomValidator;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.WebSocketMessageService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.ChatSessionService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,7 @@ public class ChatService {
 
     private final ChatSessionService sessionService;
     private final WebSocketMessageService webSocketMessageService;
+    private final ChatRoomService chatRoomService;
 
     public void registerSession(Long userId, String userNickname, WebSocketSession session) {
         log.info("사용자 연결 시작 - userId: {}, sessionId: {}", userId, session.getId());
@@ -24,5 +27,11 @@ public class ChatService {
 
     public void removeSession(Long userId) {
         sessionService.removeSession(userId);
+    }
+
+    public void handleSubscribe(Long chatRoomId, Long userId) {
+        log.info("채팅방 구독 시작 - userId: {}, chatRoomId: {}", userId, chatRoomId);
+        chatRoomService.subscribeToChatRoom(chatRoomId, userId);
+        log.info("채팅방 구독 완료 - userId: {}, chatRoomId: {}", userId, chatRoomId);
     }
 }

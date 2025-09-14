@@ -41,6 +41,10 @@ public class ChatRoomValidator {
     }
 
     private void validateChatRoomExists(Long roomId) {
+        if (roomId == null) {
+            throw new CustomException(ChatRoomErrorCode.CHATROOM_ID_NECESSARY);
+        }
+
         if (!chatRoomRetriever.existsById(roomId)) {
             throw new CustomException(ChatRoomErrorCode.CHAT_ROOM_NOT_FOUND);
         }

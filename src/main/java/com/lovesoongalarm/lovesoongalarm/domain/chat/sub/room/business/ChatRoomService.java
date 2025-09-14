@@ -9,6 +9,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.implement.ChatRoom
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.MessageService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.business.SubscriptionService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.exception.UserErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ public class ChatRoomService {
     private final ChatRoomSaver chatRoomSaver;
 
     private final MessageService messageService;
+    private final SubscriptionService subscriptionService;
 
     private final ChatRoomConverter chatRoomConverter;
 
@@ -76,5 +78,10 @@ public class ChatRoomService {
         log.info("채팅방 조회 및 권한 검증 시작 - userId: {}, roomId: {}", userId, roomId);
         chatRoomValidator.validateChatRoomAccess(userId, roomId);
         log.info("채팅방 조회 및 권한 검증 완료 - roomId: {}", roomId);
+    }
+
+    public void subscribeToChatRoom(Long chatRoomId, Long userId) {
+        chatRoomValidator.validateChatRoomAccess(userId, chatRoomId);
+        subscriptionService.subscribeToChatRoom(chatRoomId, userId);
     }
 }
