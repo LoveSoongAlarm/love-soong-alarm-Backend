@@ -17,6 +17,7 @@ public class ChatRoomListDTO {
     @Builder
     public record ChatRoomInfo(
             Long chatRoomId,
+            String emoji,
             String partnerNickname,
             LastMessageInfo lastMessageInfo
     ) {

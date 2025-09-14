@@ -68,6 +68,7 @@ public class ChatRoomService {
 
         return ChatRoomListDTO.ChatRoomInfo.builder()
                 .chatRoomId(chatRoom.getId())
+                .emoji(partnerParticipant.getUser().getEmoji())
                 .partnerNickname(partnerParticipant.getUser().getNickname())
                 .lastMessageInfo(lastMessageInfo)
                 .build();
