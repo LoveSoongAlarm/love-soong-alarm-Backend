@@ -27,7 +27,7 @@ public class ChatQueryService {
     private final ChatRoomService chatRoomService;
     private final UserService userService;
     private final MessageService messageService;
-
+  
     private final ChatRoomConverter chatRoomConverter;
     private final ChatRoomParticipantService chatRoomParticipantService;
 
@@ -47,8 +47,10 @@ public class ChatQueryService {
 
         User partner = userService.getPartnerUser(roomId, userId);
         Long partnerLastReadMessageId = chatRoomParticipantService.getPartnerLastReadMessageId(roomId, partner.getId());
+
         List<Message> recentMessages = messageService.getRecentMessages(roomId);
         boolean hasMoreMessages = messageService.hasMoreMessages(roomId, recentMessages);
+
 
         log.info("채팅방 상세 조회 완료 - chatRoomId: {}, partnerId: {}, messageCount: {}, hasMore: {}",
                 roomId, partner.getId(), recentMessages.size(), hasMoreMessages);
@@ -66,4 +68,5 @@ public class ChatQueryService {
                 roomId, userId, lastMessageId, size, partnerLastReadMessageId);
         return response;
     }
+
 }

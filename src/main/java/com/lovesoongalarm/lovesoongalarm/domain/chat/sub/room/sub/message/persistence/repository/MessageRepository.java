@@ -38,7 +38,7 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     Long countMessagesByChatRoomIdAndIdLessThan(
             @Param("chatRoomId") Long chatRoomId,
             @Param("messageId") Long messageId);
-
+           
     @Query("""
             SELECT m FROM Message m
             JOIN FETCH m.user

@@ -20,7 +20,7 @@ public class Constants {
             "/v3/api-docs/**",
             "/oauth2/authorization/kakao",
             "/login/oauth2/code/kakao",
-            "/api/auth/reissue"
+            "/api/auth/reissue",
             "/ws/**"
     );
 }
