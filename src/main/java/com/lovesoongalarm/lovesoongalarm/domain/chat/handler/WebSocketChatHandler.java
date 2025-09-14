@@ -1,6 +1,9 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.handler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.application.dto.WebSocketMessageDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.business.ChatService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.WebSocketMessageService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +20,9 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
 
     private final ChatService chatService;
     private final UserQueryService userQueryService;
+    private final WebSocketMessageService webSocketMessageService;
+
+    private final ObjectMapper objectMapper;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -37,7 +43,34 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         log.info("메시지 수신");
         log.info("메시지: {}", message.getPayload());
 
+        try {
+            WebSocketMessageDTO.Request request = objectMapper.readValue(
+                    message.getPayload(), WebSocketMessageDTO.Request.class
+            );
 
+            Long userId = (Long) session.getAttributes().get("userId");
+            if (userId == null) {
+                webSocketMessageService.sendErrorMessage(session, "UNAUTHORIZED", "인증되지 않은 사용자입니다.");
+                return;
+            }
+
+            log.info("메시지 타입: {}, 채팅방 ID: {}, 사용자 ID: {}", userId, session.getId(), userId);
+
+            switch (request.type()) {
+                case SUBSCRIBE:
+                    handleSubscribe(session, request, userId);
+                    break;
+                case UNSUBSCRIBE:
+                    handleUnsubscribe(session, request, userId);
+                    break;
+                default:
+                    webSocketMessageService.sendErrorMessage(session, "UNKNOWN_TYPE", "알 수 없는 메시지 타입입니다:" + request.type());
+            }
+
+        } catch (Exception e) {
+            log.error("메시지 처리 중 에러 발생", e);
+            webSocketMessageService.sendErrorMessage(session, "PROCESSING_ERROR", "메시지 처리 중 오류가 발생했습니다:" + e.getMessage());
+        }
     }
 
     @Override
