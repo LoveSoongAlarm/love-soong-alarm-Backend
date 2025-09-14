@@ -26,7 +26,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MessageService {
 
-    private final MessageSender messageSender;
     private final MessageRetriever messageRetriever;
 
     private final MessageConverter messageConverter;
@@ -34,19 +33,6 @@ public class MessageService {
     private static final int INITIAL_MESSAGE_LIMIT = 50;
     private static final int DEFAULT_PAGE_SIZE = 50;
     private static final int MAX_PAGE_SIZE = 100;
-
-    @Transactional
-    public void sendConnectionSuccessMessage(Long userId, String userNickname, WebSocketSession session) {
-        WebSocketMessageDTO.ConnectionInfo connectionInfo = WebSocketMessageDTO.ConnectionInfo.builder()
-                .type(EWebSocketMessageType.CONNECTION_SUCCESS)
-                .userId(userId)
-                .userNickname(userNickname)
-                .timestamp(LocalDateTime.now())
-                .message("WebSocket 연결이 성공했습니다.")
-                .build();
-
-        messageSender.sendMessage(session, connectionInfo);
-    }
 
     public ChatRoomListDTO.LastMessageInfo createLastMessageInfo(
             ChatRoom chatRoom, Long userId, ChatRoomParticipant myParticipant, ChatRoomParticipant partnerParticipant) {

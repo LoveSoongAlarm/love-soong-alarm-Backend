@@ -1,4 +1,49 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business;
 
+import com.lovesoongalarm.lovesoongalarm.domain.chat.application.dto.WebSocketMessageDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.persistence.type.EWebSocketMessageType;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageSender;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.socket.WebSocketSession;
+
+import java.time.LocalDateTime;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
 public class WebSocketMessageService {
+
+    private final MessageSender messageSender;
+
+    @Transactional
+    public void sendConnectionSuccessMessage(Long userId, String userNickname, WebSocketSession session) {
+        WebSocketMessageDTO.ConnectionInfo connectionInfo = WebSocketMessageDTO.ConnectionInfo.builder()
+                .type(EWebSocketMessageType.CONNECTION_SUCCESS)
+                .userId(userId)
+                .userNickname(userNickname)
+                .timestamp(LocalDateTime.now())
+                .message("WebSocket 연결이 성공했습니다.")
+                .build();
+
+        messageSender.sendMessage(session, connectionInfo);
+    }
+
+    @Transactional
+    public void sendErrorMessage(WebSocketSession session, String errorCode, String message) {
+        if (!session.isOpen()) {
+            log.warn("세션이 닫혀있어 에러 메시지를 전송할 수 없습니다.");
+            return;
+        }
+
+        WebSocketMessageDTO.ErrorResponse errorResponse = WebSocketMessageDTO.ErrorResponse.builder()
+                .type(EWebSocketMessageType.ERROR)
+                .errorCode(errorCode)
+                .message(message)
+                .build();
+
+        messageSender.sendMessage(session, errorResponse);
+    }
 }
