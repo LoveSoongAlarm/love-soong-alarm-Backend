@@ -18,6 +18,7 @@ public class Constants {
             "/api-docs/**",
             "/v3/api-docs/**",
             "/oauth2/authorization/kakao",
-            "/login/oauth2/code/kakao"
+            "/login/oauth2/code/kakao",
+            "/ws/**"
     );
 }
