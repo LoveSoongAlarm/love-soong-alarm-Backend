@@ -7,7 +7,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.business.ChatQueryService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomCreateDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomDetailDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomListDTO;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.ChatMessageDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.MessageDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -77,10 +77,10 @@ public class ChatController {
             - 메시지는 최신순(내림차순)으로 정렬됩니다
             """)
     @ApiResponse(responseCode = "200", description = "과거 메시지 조회 성공")
-    public BaseResponse<ChatMessageDTO.ListResponse> getChatRoomMessages(
+    public BaseResponse<MessageDTO.ListResponse> getChatRoomMessages(
             @UserId Long userId,
             @PathVariable Long roomId,
-            @RequestBody ChatMessageDTO.Request request) {
+            @RequestBody MessageDTO.Request request) {
         return BaseResponse.success(chatQueryService.getChatRoomMessages(userId, roomId, request));
     }
 }
