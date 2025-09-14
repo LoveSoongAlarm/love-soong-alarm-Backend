@@ -1,6 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -11,6 +12,7 @@ public class ChatMessageDTO {
     @Schema(name = "ChatMessageListRequest", description = "과거 메시지 조회 요청")
     public record Request(
             Integer size,
+            @NotNull
             Long lastMessageId
     ){
         public Request {
