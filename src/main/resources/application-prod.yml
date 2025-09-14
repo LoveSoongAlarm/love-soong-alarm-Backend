@@ -51,13 +51,13 @@ spring:
             #- profile_nickname
             # - account_email
 
-  jwt:
-    secret: ${JWT_SECRET}
-    access-token:
-      expiration: ${ACCESS_TOKEN_EXPIRATION}
-    refresh-token:
-      expiration: ${REFRESH_TOKEN_EXPIRATION}
-    redirect: ${REDIRECT_URL}
+jwt:
+  secret: ${JWT_SECRET}
+  access-token:
+    expiration: ${ACCESS_TOKEN_EXPIRATION}
+  refresh-token:
+    expiration: ${REFRESH_TOKEN_EXPIRATION}
+  redirect: ${REDIRECT_URL}
 
 server:
   domain: ${DOMAIN_NAME}
