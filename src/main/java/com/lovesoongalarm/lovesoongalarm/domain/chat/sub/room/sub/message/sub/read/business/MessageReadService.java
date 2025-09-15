@@ -1,7 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.sub.read.business;
 
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.sub.read.implement.MessageReadProcessor;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.sub.read.implement.MessageReadUpdater;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business.ChatRoomParticipantService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
@@ -19,8 +18,7 @@ public class MessageReadService {
     private final UserService userService;
     private final ReadStatusNotificationService readStatusNotificationService;
 
-    private final MessageReadProcessor messageReadProcessor;
-    private final MessageReadUpdater messageReadUpdater;
+    private final MessageRetriever messageRetriever;
 
     public void processAutoReadOnSubscribe(Long chatRoomId, Long userId) {
         log.info("채팅방 구독 시 자동읽음 처리 시작 - chatRoomId: {}, userId: {}", chatRoomId, userId);
@@ -33,10 +31,10 @@ public class MessageReadService {
                 return;
             }
 
-            Long latestMessageId = messageReadProcessor.getLatestMessageId(chatRoomId);
+            Long latestMessageId = messageRetriever.getLatestMessageId(chatRoomId);
             if(latestMessageId == null) return;
 
-            messageReadUpdater.updateLastReadMessageId(participant, latestMessageId);
+            chatRoomParticipantService.updateLastReadMessageId(participant, latestMessageId);
 
             User partner = userService.getPartnerUser(chatRoomId, userId);
             readStatusNotificationService.notifyReadStatusUpdate(chatRoomId, userId, partner.getId(), latestMessageId);

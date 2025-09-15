@@ -3,6 +3,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.b
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantSaver;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantUpdater;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
@@ -21,6 +22,7 @@ public class ChatRoomParticipantService {
 
     private final ChatRoomParticipantSaver chatRoomParticipantSaver;
     private final ChatRoomParticipantRetriever chatRoomParticipantRetriever;
+    private final ChatRoomParticipantUpdater chatRoomParticipantUpdater;
 
     public void addParticipant(Long userId, Long targetUserId, ChatRoom chatRoom) {
         log.info("채팅방에 유저 참여 로직 시작 - userId: {}, targetUserId: {}, chatRoomId: {}", userId, targetUserId, chatRoom.getId());
@@ -54,7 +56,7 @@ public class ChatRoomParticipantService {
         return userExists && targetExists;
     }
 
-    public void save(ChatRoomParticipant participant) {
-        chatRoomParticipantSaver.save(participant);
+    public void updateLastReadMessageId(ChatRoomParticipant participant, Long latestMessageId) {
+        chatRoomParticipantUpdater.updateLastReadMessageId(participant.getId(), latestMessageId);
     }
 }
