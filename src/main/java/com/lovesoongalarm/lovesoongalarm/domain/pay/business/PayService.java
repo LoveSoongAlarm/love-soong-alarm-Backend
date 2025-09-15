@@ -14,7 +14,6 @@ import com.lovesoongalarm.lovesoongalarm.domain.pay.implement.PayStripeClient;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.entity.Pay;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.repository.PayRepository;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.sub.checkout.application.CreateCheckoutSessionDTO;
-import com.lovesoongalarm.lovesoongalarm.domain.pay.sub.coin.application.CoinRequestDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.sub.coin.type.ECoinProductIdType;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
@@ -28,17 +27,10 @@ public class PayService {
     private final PayRepository repo;
 
     @Transactional
-    public CreateCheckoutSessionDTO createCheckoutSession(CoinRequestDTO req) {
-        Map<String, Integer> coins = req.getItems();
-
-        if (coins == null || coins.isEmpty()) {
-            throw new CustomException(PayErrorCode.INVALID_ARGUMENT);
-        }
-
-
+    public CreateCheckoutSessionDTO createCheckoutSession(Map<String, Integer> req) {
         List<SessionCreateParams.LineItem> lineItems = new ArrayList<>();
 
-        for (Map.Entry<String, Integer> entry: coins.entrySet()) {
+        for (Map.Entry<String, Integer> entry: req.entrySet()) {
             int quantity = entry.getValue() == null ? 0 : entry.getValue(); // "coin_1000": 1에서 수량 추출
 
             ECoinProductIdType coin = ECoinProductIdType.fromKey(entry.getKey()); // "coin_1000" 값 추출
