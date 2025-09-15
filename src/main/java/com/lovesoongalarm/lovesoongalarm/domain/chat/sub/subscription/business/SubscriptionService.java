@@ -17,7 +17,7 @@ public class SubscriptionService {
 
     @Transactional
     public void subscribeToChatRoom(Long chatRoomId, Long userId) {
-        redisSubscriber.addSubscriber(chatRoomId, userId);
         messageReadService.processAutoReadOnSubscribe(chatRoomId, userId);
+        redisSubscriber.addSubscriber(chatRoomId, userId);
     }
 }
