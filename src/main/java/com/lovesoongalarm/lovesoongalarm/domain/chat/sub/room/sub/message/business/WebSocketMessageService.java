@@ -18,7 +18,6 @@ public class WebSocketMessageService {
 
     private final MessageSender messageSender;
 
-    @Transactional
     public void sendConnectionSuccessMessage(Long userId, String userNickname, WebSocketSession session) {
         WebSocketMessageDTO.ConnectionInfo connectionInfo = WebSocketMessageDTO.ConnectionInfo.builder()
                 .type(EWebSocketMessageType.CONNECTION_SUCCESS)
@@ -31,7 +30,6 @@ public class WebSocketMessageService {
         messageSender.sendMessage(session, connectionInfo);
     }
 
-    @Transactional
     public void sendErrorMessage(WebSocketSession session, String errorCode, String message) {
         if (!session.isOpen()) {
             log.warn("세션이 닫혀있어 에러 메시지를 전송할 수 없습니다.");
@@ -47,7 +45,6 @@ public class WebSocketMessageService {
         messageSender.sendMessage(session, errorResponse);
     }
 
-    @Transactional
     public void sendSubscribeSuccessMessage(WebSocketSession session, Long chatRoomId) {
         WebSocketMessageDTO.SubscribeSuccess subscribeSuccess = WebSocketMessageDTO.SubscribeSuccess.builder()
                 .type(EWebSocketMessageType.SUBSCRIBE)
@@ -58,7 +55,6 @@ public class WebSocketMessageService {
         messageSender.sendMessage(session, subscribeSuccess);
     }
 
-    @Transactional
     public void sendUnsubscribeSuccessMessage(WebSocketSession session, Long chatRoomId) {
         WebSocketMessageDTO.SubscribeSuccess unsubscribeSuccess = WebSocketMessageDTO.SubscribeSuccess.builder()
                 .type(EWebSocketMessageType.UNSUBSCRIBE)
@@ -69,7 +65,6 @@ public class WebSocketMessageService {
         messageSender.sendMessage(session, unsubscribeSuccess);
     }
 
-    @Transactional
     public void sendReadMessage(WebSocketSession session, Long chatRoomId, Long lastReadMessageId) {
         WebSocketMessageDTO.MessageReadNotification messageReadNotification = WebSocketMessageDTO.MessageReadNotification.builder()
                 .type(EWebSocketMessageType.MESSAGE_READ)

@@ -16,13 +16,11 @@ public class ChatSessionService {
 
     private final Map<Long, WebSocketSession> userSessions = new ConcurrentHashMap<>();
 
-    @Transactional
     public void addSession(Long userId, WebSocketSession session) {
         userSessions.put(userId, session);
         log.info("로컬 세션에 user 추가 완료 - userId: {}, sessionId: {}", userId, session.getId());
     }
 
-    @Transactional
     public void removeSession(Long userId) {
         userSessions.remove(userId);
         log.info("로컬 세션에서 user 제거 완료 - userId: {}", userId);
