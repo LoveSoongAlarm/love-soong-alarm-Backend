@@ -32,7 +32,10 @@ public class MessageReadService {
             }
 
             Long latestMessageId = messageRetriever.getLatestMessageId(chatRoomId);
-            if(latestMessageId == null) return;
+            if(latestMessageId == null){
+                log.info("채팅방에 메시지가 없으므로 자동읽음 처리 조기 종료 - latestMessageId: {}", latestMessageId);
+                return;
+            }
 
             chatRoomParticipantService.updateLastReadMessageId(participant, latestMessageId);
 
