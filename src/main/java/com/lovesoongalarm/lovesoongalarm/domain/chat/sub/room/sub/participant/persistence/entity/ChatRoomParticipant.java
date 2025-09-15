@@ -54,4 +54,10 @@ public class ChatRoomParticipant {
                 .user(target)
                 .build();
     }
+
+    public void updateLastReadMessageId(Long messageId) {
+        if (messageId != null && (this.lastReadMessageId == null || messageId > this.lastReadMessageId)) {
+            this.lastReadMessageId = messageId;
+        }
+    }
 }
