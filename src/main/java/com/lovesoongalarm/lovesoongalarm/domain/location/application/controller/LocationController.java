@@ -1,7 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.location.application.controller;
 
 import com.lovesoongalarm.lovesoongalarm.common.BaseResponse;
-import com.lovesoongalarm.lovesoongalarm.domain.location.application.dto.NearbyRequest;
+import com.lovesoongalarm.lovesoongalarm.domain.location.application.dto.LocationRequest;
 import com.lovesoongalarm.lovesoongalarm.domain.location.business.LocationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +17,9 @@ public class LocationController {
     @PostMapping("/update")
     public BaseResponse<Void> update(
             @RequestParam Long userId,
-            @RequestBody NearbyRequest nearbyRequest
+            @RequestBody LocationRequest locationRequest
     ) {
-        locationService.updateLocation(userId, nearbyRequest.latitude(), nearbyRequest.longitude());
+        locationService.updateLocation(userId, locationRequest.latitude(), locationRequest.longitude());
         return BaseResponse.success(null);
     }
 
