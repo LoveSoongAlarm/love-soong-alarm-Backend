@@ -7,12 +7,42 @@ import java.time.LocalDateTime;
 
 public class WebSocketMessageDTO {
 
+    public record Request(
+            EWebSocketMessageType type,
+            Long chatRoomId
+    ) {
+    }
+
     @Builder
     public record ConnectionInfo(
             EWebSocketMessageType type,
             Long userId,
             String userNickname,
             LocalDateTime timestamp,
+            String message
+    ) {
+    }
+
+    @Builder
+    public record SubscribeSuccess(
+            EWebSocketMessageType type,
+            Long chatRoomId,
+            String message
+    ) {
+    }
+
+    @Builder
+    public record MessageReadNotification(
+            EWebSocketMessageType type,
+            Long chatRoomId,
+            Long lastReadMessageId
+    ) {
+    }
+
+    @Builder
+    public record ErrorResponse(
+            EWebSocketMessageType type,
+            String errorCode,
             String message
     ) {
     }
