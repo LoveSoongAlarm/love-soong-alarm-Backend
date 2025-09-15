@@ -1,6 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.business;
 
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.message.business.ChatMessageService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.MessageService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.ChatSessionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,7 @@ import org.springframework.web.socket.WebSocketSession;
 public class ChatService {
 
     private final ChatSessionService sessionService;
-    private final ChatMessageService messageService;
+    private final MessageService messageService;
 
     public void registerSession(Long userId, String userNickname, WebSocketSession session) {
         log.info("사용자 연결 시작 - userId: {}, sessionId: {}", userId, session.getId());

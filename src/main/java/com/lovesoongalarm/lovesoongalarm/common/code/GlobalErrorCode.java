@@ -35,6 +35,7 @@ public enum GlobalErrorCode implements ErrorCode {
      * 403 : 권한 부족
      */
     INVALID_HEADER_VALUE(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED,  "자격 증명이 이루어지지 않았습니다."),
 
     /**
      * 404 : 리소스 없음

@@ -13,7 +13,7 @@ public enum ELabel {
     SPORTS("스포츠"),
     READING("독서"),
     FASHION("패션"),
-    EATING("식도락"),
+    LIFESTYLE("라이프스타일"),
     TRAVELING("여행");
 
     private final String value;
