@@ -33,4 +33,9 @@ public class MessageRetriever {
         Pageable pageable = PageRequest.of(0, pageSize);
         return messageRepository.findPreviousMessagesByChatRoomIdAndLastMessageId(chatRoomId, lastMessageId, pageable);
     }
+
+    public Long getLatestMessageId(Long chatRoomId) {
+        return messageRepository.findLatestMessageIdByChatRoomId(chatRoomId)
+                .orElse(null);
+    }
 }
