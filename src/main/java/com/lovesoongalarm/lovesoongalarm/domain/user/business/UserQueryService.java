@@ -64,7 +64,7 @@ public class UserQueryService {
         interestSaver.saveAll(interests);
 
         // Redis에 취향 정보 저장
-        updateRedis(userId, interests);
+        updateRedis(userId, EGender.valueOf(request.gender()), interests);
       
         return null;
     }
@@ -106,7 +106,7 @@ public class UserQueryService {
         }
 
         // Redis 업데이트
-        updateRedis(userId, existingInterests);
+        updateRedis(userId, EGender.valueOf(request.gender()), existingInterests);
 
         return null;
     }
@@ -121,7 +121,7 @@ public class UserQueryService {
         return age;
     }
 
-    private void updateRedis(Long userId, List<Interest> interests) {
+    private void updateRedis(Long userId, EGender gender, List<Interest> interests) {
         List<String> interestValues = interests.stream()
                 .map(interest -> interest.getLabel().name())
                 .toList();
@@ -131,6 +131,8 @@ public class UserQueryService {
         if (!interestValues.isEmpty()) {
             stringRedisTemplate.opsForSet().add("user:interests:" + userId, interestValues.toArray(new String[0]));
         }
+
+        stringRedisTemplate.opsForValue().set("user:gender:" + userId, gender.name());
     }
 
 }
