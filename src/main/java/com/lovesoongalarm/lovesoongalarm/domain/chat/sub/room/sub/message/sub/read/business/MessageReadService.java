@@ -4,6 +4,8 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.sub.re
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.sub.read.implement.MessageReadUpdater;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business.ChatRoomParticipantService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
+import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
+import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,8 @@ import org.springframework.stereotype.Service;
 public class MessageReadService {
 
     private final ChatRoomParticipantService chatRoomParticipantService;
+    private final UserService userService;
+    private final ReadStatusNotificationService readStatusNotificationService;
 
     private final MessageReadProcessor messageReadProcessor;
     private final MessageReadUpdater messageReadUpdater;
@@ -30,12 +34,15 @@ public class MessageReadService {
             }
 
             Long latestMessageId = messageReadProcessor.getLatestMessageId(chatRoomId);
+            if(latestMessageId == null) return;
 
-            Long previousLastRead = participant.getLastReadMessageId();
             messageReadUpdater.updateLastReadMessageId(participant, latestMessageId);
 
-            log.info("자동읽음 처리 완료 - chatRoomId: {}, userId: {}, {} -> {}",
-                    chatRoomId, userId, previousLastRead, latestMessageId);
+            User partner = userService.getPartnerUser(chatRoomId, userId);
+            readStatusNotificationService.notifyReadStatusUpdate(
+                    chatRoomId, userId, partner.getId(), latestMessageId);
+
+            log.info("자동읽음 처리 완료 - lastReadMessageId: {}", latestMessageId);
         } catch (Exception e) {
             log.error("자동읽음 처리 중 오류 발생 - chatRoomId: {}, userId: {}", chatRoomId, userId, e);
         }

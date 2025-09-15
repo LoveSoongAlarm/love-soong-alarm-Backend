@@ -25,6 +25,14 @@ public class WebSocketMessageDTO {
     }
 
     @Builder
+    public record MessageReadNotification(
+            EWebSocketMessageType type,
+            Long chatRoomId,
+            Long lastReadMessageId
+    ) {
+    }
+
+    @Builder
     public record ErrorResponse(
             EWebSocketMessageType type,
             String errorCode,

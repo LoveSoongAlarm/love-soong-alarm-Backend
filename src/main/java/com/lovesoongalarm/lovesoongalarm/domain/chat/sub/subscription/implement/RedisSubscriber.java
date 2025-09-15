@@ -30,4 +30,17 @@ public class RedisSubscriber {
             log.error("Redis 구독 추가 실패 - 채팅방: {}, 유저: {}", chatRoomId, userId, e);
         }
     }
+
+    public boolean isUserSubscribed(Long chatRoomId, Long userId) {
+        try {
+            String subscribersKey = CHAT_ROOM_SUBSCRIBERS + chatRoomId;
+            Boolean isMember = stringRedisTemplate.opsForSet().isMember(subscribersKey, userId.toString());
+
+            boolean isSubscribed = Boolean.TRUE.equals(isMember);
+            return isSubscribed;
+        } catch (Exception e) {
+            log.error("Redis 구독 상태 체크 실패 - 채팅방: {}, 유저: {}", chatRoomId, userId, e);
+            return false;
+        }
+    }
 }

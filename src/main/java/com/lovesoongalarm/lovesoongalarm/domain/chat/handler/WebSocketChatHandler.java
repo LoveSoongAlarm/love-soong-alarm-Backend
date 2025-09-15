@@ -62,7 +62,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
                     handleSubscribe(session, request, userId);
                     break;
                 case UNSUBSCRIBE:
-                    handleUnsubscribe(session, request, userId);
+                    //handleUnsubscribe(session, request, userId);
                     break;
                 default:
                     webSocketMessageService.sendErrorMessage(session, "UNKNOWN_TYPE", "알 수 없는 메시지 타입입니다:" + request.type());

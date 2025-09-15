@@ -27,4 +27,8 @@ public class ChatSessionService {
         userSessions.remove(userId);
         log.info("로컬 세션에서 user 제거 완료 - userId: {}", userId);
     }
+
+    public WebSocketSession getSession(Long userId) {
+        return userSessions.get(userId);
+    }
 }

@@ -20,4 +20,8 @@ public class SubscriptionService {
         messageReadService.processAutoReadOnSubscribe(chatRoomId, userId);
         redisSubscriber.addSubscriber(chatRoomId, userId);
     }
+
+    public boolean isUserSubscribed(Long chatRoomId, Long partnerId) {
+        return redisSubscriber.isUserSubscribed(chatRoomId, partnerId);
+    }
 }
