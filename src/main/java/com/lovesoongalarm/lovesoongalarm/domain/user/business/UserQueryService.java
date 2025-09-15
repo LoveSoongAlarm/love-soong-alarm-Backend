@@ -17,6 +17,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.persistence.ty
 import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.persistence.type.ELabel;
 import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.sub.hashtag.persistence.entity.Hashtag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,7 @@ public class UserQueryService {
 
     private final UserRetriever userRetriever;
     private final InterestSaver interestSaver;
+    private final StringRedisTemplate stringRedisTemplate;
 
     public String getUserNickname(Long userId) {
         User user = userRetriever.findByIdOrElseThrow(userId);
@@ -60,6 +62,9 @@ public class UserQueryService {
                 .toList();
 
         interestSaver.saveAll(interests);
+
+        // Redis에 취향 정보 저장
+        updateRedis(userId, interests);
       
         return null;
     }
@@ -100,6 +105,9 @@ public class UserQueryService {
             interest.getHashtags().addAll(updatedTags);
         }
 
+        // Redis 업데이트
+        updateRedis(userId, existingInterests);
+
         return null;
     }
 
@@ -111,6 +119,18 @@ public class UserQueryService {
             throw new CustomException(UserErrorCode.INVALID_USER_AGE);
         }
         return age;
+    }
+
+    private void updateRedis(Long userId, List<Interest> interests) {
+        List<String> interestValues = interests.stream()
+                .map(interest -> interest.getLabel().name())
+                .toList();
+
+        stringRedisTemplate.delete("user:interests:" + userId);
+
+        if (!interestValues.isEmpty()) {
+            stringRedisTemplate.opsForSet().add("user:interests:" + userId, interestValues.toArray(new String[0]));
+        }
     }
 
 }
