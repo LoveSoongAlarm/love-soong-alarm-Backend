@@ -24,6 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
+import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.USER_GENDER_KEY;
+import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.USER_INTEREST_KEY;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -126,13 +129,13 @@ public class UserQueryService {
                 .map(interest -> interest.getLabel().name())
                 .toList();
 
-        stringRedisTemplate.delete("user:interests:" + userId);
+        stringRedisTemplate.delete(USER_INTEREST_KEY + userId);
 
         if (!interestValues.isEmpty()) {
-            stringRedisTemplate.opsForSet().add("user:interests:" + userId, interestValues.toArray(new String[0]));
+            stringRedisTemplate.opsForSet().add(USER_INTEREST_KEY + userId, interestValues.toArray(new String[0]));
         }
 
-        stringRedisTemplate.opsForValue().set("user:gender:" + userId, gender.name());
+        stringRedisTemplate.opsForValue().set(USER_GENDER_KEY + userId, gender.name());
     }
 
 }
