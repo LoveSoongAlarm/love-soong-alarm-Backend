@@ -9,7 +9,7 @@ spring:
     password: ${DB_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         show_sql: true
@@ -61,6 +61,10 @@ jwt:
 
 server:
   domain: ${DOMAIN_NAME}
+
+oauth:
+  kakao:
+    key: ${KAKAO_KEY}
 
 logging:
   level:

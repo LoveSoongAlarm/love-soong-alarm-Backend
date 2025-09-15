@@ -39,7 +39,7 @@ public class UserQueryService {
     @Transactional
     public Void onBoardingUser(Long userId, OnBoardingRequestDTO request){
         User findUser = userRetriever.findById(userId);
-        findUser.updateFromOnboardingAndProfile(request.nickname(), request.phoneNumber(), request.major(), request.birthDate(), EGender.valueOf(request.gender()), request.emoji());
+        findUser.updateFromOnboardingAndProfile(request.nickname(), request.major(), request.birthDate(), EGender.valueOf(request.gender()), request.emoji());
 
         List<Interest> interests = request.interests().stream()
                 .map(interestDto -> {
@@ -75,7 +75,7 @@ public class UserQueryService {
     @Transactional
     public Void updateUser(Long userId, UserUpdateRequestDTO request){
         User findUser = userRetriever.findById(userId);
-        findUser.updateFromOnboardingAndProfile(request.nickname(), request.phoneNumber(), request.major(), request.birthDate(), EGender.valueOf(request.gender()), request.emoji());
+        findUser.updateFromOnboardingAndProfile(request.nickname(), request.major(), request.birthDate(), EGender.valueOf(request.gender()), request.emoji());
 
         List<Interest> existingInterests = findUser.getInterests();
         List<InterestUpdateRequestDTO> newInterests = request.interests();
