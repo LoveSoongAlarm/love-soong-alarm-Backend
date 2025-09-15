@@ -85,4 +85,9 @@ public class ChatRoomService {
         chatRoomValidator.validateChatRoomAccess(userId, chatRoomId);
         subscriptionService.subscribeToChatRoom(session, chatRoomId, userId);
     }
+
+    public void unsubscribeToChatRoom(WebSocketSession session, Long chatRoomId, Long userId) {
+        chatRoomValidator.validateChatRoomAccess(userId, chatRoomId);
+        subscriptionService.unsubscribeToChatRoom(session, chatRoomId, userId);
+    }
 }

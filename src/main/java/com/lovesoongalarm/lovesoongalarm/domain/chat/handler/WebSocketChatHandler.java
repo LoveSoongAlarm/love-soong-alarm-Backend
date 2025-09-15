@@ -62,7 +62,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
                     handleSubscribe(session, request, userId);
                     break;
                 case UNSUBSCRIBE:
-                    //handleUnsubscribe(session, request, userId);
+                    handleUnsubscribe(session, request, userId);
                     break;
                 default:
                     webSocketMessageService.sendErrorMessage(session, "UNKNOWN_TYPE", "알 수 없는 메시지 타입입니다:" + request.type());
@@ -100,6 +100,18 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         } catch (Exception e) {
             log.error("구독 처리 중 예외 발생", e);
             webSocketMessageService.sendErrorMessage(session, "SUBSCRIPTION_ERROR", "구독 처리 중 오류가 발생했습니다.");
+        }
+    }
+
+    private void handleUnsubscribe(WebSocketSession session, WebSocketMessageDTO.Request request, Long userId) {
+        try {
+            chatService.handleUnsubscribe(session, request.chatRoomId(), userId);
+        } catch (CustomException e) {
+            log.warn("구독 해제 실패 - 채팅방: {}, 유저: {}, 이유: {}", request.chatRoomId(), userId, e.getErrorCode().getMessage());
+            webSocketMessageService.sendErrorMessage(session, e.getErrorCode().getStatus().toString(), e.getErrorCode().getMessage());
+        } catch (Exception e) {
+            log.error("구독 처리 중 예외 발생", e);
+            webSocketMessageService.sendErrorMessage(session, "UNSUBSCRIPTION_ERROR", "구독 처리 중 오류가 발생했습니다.");
         }
     }
 }

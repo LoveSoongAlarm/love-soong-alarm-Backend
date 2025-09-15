@@ -24,4 +24,9 @@ public class SubscriptionService {
         redisSubscriber.addSubscriber(chatRoomId, userId);
         webSocketMessageService.sendSubscribeSuccessMessage(session, chatRoomId);
     }
+
+    public void unsubscribeToChatRoom(WebSocketSession session, Long chatRoomId, Long userId) {
+        redisSubscriber.removeSubscriber(chatRoomId, userId);
+        webSocketMessageService.sendUnsubscribeSuccessMessage(session, chatRoomId);
+    }
 }

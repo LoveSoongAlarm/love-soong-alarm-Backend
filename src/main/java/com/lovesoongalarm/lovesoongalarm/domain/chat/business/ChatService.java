@@ -33,4 +33,10 @@ public class ChatService {
         chatRoomService.subscribeToChatRoom(session, chatRoomId, userId);
         log.info("채팅방 구독 완료 - userId: {}, chatRoomId: {}", userId, chatRoomId);
     }
+
+    public void handleUnsubscribe(WebSocketSession session, Long chatRoomId, Long userId) {
+        log.info("채팅방 구독 해제 시작 - userId: {}, chatRoomId: {}", userId, chatRoomId);
+        chatRoomService.unsubscribeToChatRoom(session, chatRoomId, userId);
+        log.info("채팅방 구독 해제 완료 - userId: {}, chatRoomId: {}", userId, chatRoomId);
+    }
 }

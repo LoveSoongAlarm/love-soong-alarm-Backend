@@ -30,6 +30,26 @@ public class RedisSubscriber {
             log.error("Redis 구독 추가 실패 - 채팅방: {}, 유저: {}", chatRoomId, userId, e);
         }
     }
+    
+    public void removeSubscriber(Long chatRoomId, Long userId) {
+        try {
+            String subscribersKey = CHAT_ROOM_SUBSCRIBERS + chatRoomId;
+            stringRedisTemplate.opsForSet().remove(subscribersKey, userId.toString());
+
+            Long remainingCount = stringRedisTemplate.opsForSet().size(subscribersKey);
+            if (remainingCount != null && remainingCount == 0) {
+                stringRedisTemplate.delete(subscribersKey);
+                log.debug("빈 구독 키 삭제 - 채팅방: {}", chatRoomId);
+            } else {
+                stringRedisTemplate.expire(subscribersKey, SUBSCRIPTION_TTL);
+            }
+
+            log.info("Redis 구독 제거 - 채팅방: {}, 멤버: {}", chatRoomId, userId);
+
+        } catch (Exception e) {
+            log.error("Redis 구독 제거 실패 - 채팅방: {}, 멤버: {}", chatRoomId, userId, e);
+        }
+    }
 
     public boolean isUserSubscribed(Long chatRoomId, Long userId) {
         try {

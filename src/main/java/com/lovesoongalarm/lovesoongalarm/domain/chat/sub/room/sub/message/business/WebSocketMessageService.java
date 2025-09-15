@@ -57,4 +57,15 @@ public class WebSocketMessageService {
 
         messageSender.sendMessage(session, subscribeSuccess);
     }
+
+    @Transactional
+    public void sendUnsubscribeSuccessMessage(WebSocketSession session, Long chatRoomId) {
+        WebSocketMessageDTO.SubscribeSuccess unsubscribeSuccess = WebSocketMessageDTO.SubscribeSuccess.builder()
+                .type(EWebSocketMessageType.UNSUBSCRIBE)
+                .chatRoomId(chatRoomId)
+                .message("채팅방 구독 해제에 성공했습니다.")
+                .build();
+
+        messageSender.sendMessage(session, unsubscribeSuccess);
+    }
 }
