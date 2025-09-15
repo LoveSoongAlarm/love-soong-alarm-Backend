@@ -68,4 +68,15 @@ public class WebSocketMessageService {
 
         messageSender.sendMessage(session, unsubscribeSuccess);
     }
+
+    @Transactional
+    public void sendReadMessage(WebSocketSession session, Long chatRoomId, Long lastReadMessageId) {
+        WebSocketMessageDTO.MessageReadNotification messageReadNotification = WebSocketMessageDTO.MessageReadNotification.builder()
+                .type(EWebSocketMessageType.MESSAGE_READ)
+                .chatRoomId(chatRoomId)
+                .lastReadMessageId(lastReadMessageId)
+                .build();
+
+        messageSender.sendMessage(session, messageReadNotification);
+    }
 }

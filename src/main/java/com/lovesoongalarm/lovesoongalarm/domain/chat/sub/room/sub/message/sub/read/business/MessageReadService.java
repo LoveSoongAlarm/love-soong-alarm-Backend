@@ -39,8 +39,7 @@ public class MessageReadService {
             messageReadUpdater.updateLastReadMessageId(participant, latestMessageId);
 
             User partner = userService.getPartnerUser(chatRoomId, userId);
-            readStatusNotificationService.notifyReadStatusUpdate(
-                    chatRoomId, userId, partner.getId(), latestMessageId);
+            readStatusNotificationService.notifyReadStatusUpdate(chatRoomId, userId, partner.getId(), latestMessageId);
 
             log.info("자동읽음 처리 완료 - lastReadMessageId: {}", latestMessageId);
         } catch (Exception e) {
