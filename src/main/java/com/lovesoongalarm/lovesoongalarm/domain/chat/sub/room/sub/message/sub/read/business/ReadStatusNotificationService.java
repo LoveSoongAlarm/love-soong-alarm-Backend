@@ -5,6 +5,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.persistence.type.EWebSocket
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageSender;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.ChatSessionService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.business.SubscriptionService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.implement.RedisSubscriber;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,7 @@ import org.springframework.web.socket.WebSocketSession;
 @RequiredArgsConstructor
 public class ReadStatusNotificationService {
 
-    private final SubscriptionService subscriptionService;
+    private final RedisSubscriber redisSubscriber;
     private final ChatSessionService chatSessionService;
     private final MessageSender messageSender;
 
@@ -23,7 +24,7 @@ public class ReadStatusNotificationService {
         log.info("읽음 상태 알림 - chatRoomId: {}, readerId: {}, partnerId: {}, lastReadMessageId: {}",
                 chatRoomId, readerId, partnerId, lastReadMessageId);
 
-        if(!subscriptionService.isUserSubscribed(chatRoomId, partnerId)){
+        if(!redisSubscriber.isUserSubscribed(chatRoomId, partnerId)){
             return;
         }
 

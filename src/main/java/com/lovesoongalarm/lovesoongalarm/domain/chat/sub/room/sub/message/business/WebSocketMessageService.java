@@ -46,4 +46,15 @@ public class WebSocketMessageService {
 
         messageSender.sendMessage(session, errorResponse);
     }
+
+    @Transactional
+    public void sendSubscribeSuccessMessage(WebSocketSession session, Long chatRoomId) {
+        WebSocketMessageDTO.SubscribeSuccess subscribeSuccess = WebSocketMessageDTO.SubscribeSuccess.builder()
+                .type(EWebSocketMessageType.SUBSCRIBE)
+                .chatRoomId(chatRoomId)
+                .message("채팅방 구독에 성공했습니다.")
+                .build();
+
+        messageSender.sendMessage(session, subscribeSuccess);
+    }
 }

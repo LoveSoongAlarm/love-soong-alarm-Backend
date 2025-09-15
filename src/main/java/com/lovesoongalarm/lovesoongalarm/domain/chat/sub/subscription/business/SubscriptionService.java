@@ -1,11 +1,13 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.business;
 
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.WebSocketMessageService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.sub.read.business.MessageReadService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.implement.RedisSubscriber;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.socket.WebSocketSession;
 
 @Service
 @Slf4j
@@ -14,14 +16,12 @@ public class SubscriptionService {
 
     private final RedisSubscriber redisSubscriber;
     private final MessageReadService messageReadService;
+    private final WebSocketMessageService webSocketMessageService;
 
     @Transactional
-    public void subscribeToChatRoom(Long chatRoomId, Long userId) {
+    public void subscribeToChatRoom(WebSocketSession session, Long chatRoomId, Long userId) {
         messageReadService.processAutoReadOnSubscribe(chatRoomId, userId);
         redisSubscriber.addSubscriber(chatRoomId, userId);
-    }
-
-    public boolean isUserSubscribed(Long chatRoomId, Long partnerId) {
-        return redisSubscriber.isUserSubscribed(chatRoomId, partnerId);
+        webSocketMessageService.sendSubscribeSuccessMessage(session, chatRoomId);
     }
 }

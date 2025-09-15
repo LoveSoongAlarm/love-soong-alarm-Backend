@@ -93,7 +93,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
 
     private void handleSubscribe(WebSocketSession session, WebSocketMessageDTO.Request request, Long userId) {
         try {
-            chatService.handleSubscribe(request.chatRoomId(), userId);
+            chatService.handleSubscribe(session, request.chatRoomId(), userId);
         } catch (CustomException e) {
             log.warn("구독 실패 - 채팅방: {}, 유저: {}, 이유: {}", request.chatRoomId(), userId, e.getErrorCode().getMessage());
             webSocketMessageService.sendErrorMessage(session, e.getErrorCode().getStatus().toString(), e.getErrorCode().getMessage());
