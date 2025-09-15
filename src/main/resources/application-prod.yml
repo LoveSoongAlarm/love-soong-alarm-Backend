@@ -62,6 +62,10 @@ jwt:
 server:
   domain: ${DOMAIN_NAME}
 
+oauth:
+  kakao:
+    key: ${KAKAO_KEY}
+
 logging:
   level:
     org.springframework.security: debug

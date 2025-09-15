@@ -3,10 +3,17 @@ package com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 @Getter
+@RequiredArgsConstructor
 public enum EPlatform {
-    KAKAO("kakao");
 
-    private final String value;
+    KAKAO("KAKAO"),
+    APPLE("APPLE");
+
+    private static final String SUFFIX = "OAuthProvider";
+    private final String loginPlatform;
+
+    public String getBeanName() {
+        return loginPlatform.toLowerCase() + SUFFIX;
+    }
 }
