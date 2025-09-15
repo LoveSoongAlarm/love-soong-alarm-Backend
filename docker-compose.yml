@@ -18,7 +18,7 @@ services:
       KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
       KAKAO_REDIRECT_URI: ${KAKAO_REDIRECT_URI}
       REDIRECT_URL: ${REDIRECT_URL}
-      KAKAO_KEY: ${ secrets.KAKAO_KEY }
+      KAKAO_KEY: ${KAKAO_KEY}
 
     ports:
       - "8080:8080"
