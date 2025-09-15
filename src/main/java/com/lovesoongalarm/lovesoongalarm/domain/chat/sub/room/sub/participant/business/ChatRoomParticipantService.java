@@ -33,7 +33,7 @@ public class ChatRoomParticipantService {
         }
 
         User me = userService.findUserOrElseThrow(userId);
-        User target = userService.findUserOrElseThrow(userId);
+        User target = userService.findUserOrElseThrow(targetUserId);
 
         ChatRoomParticipant myParticipant = ChatRoomParticipant.createJoined(chatRoom, me);
         ChatRoomParticipant targetParticipant = ChatRoomParticipant.createPending(chatRoom, target);
