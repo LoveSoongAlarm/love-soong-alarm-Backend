@@ -4,9 +4,9 @@ import lombok.Getter;
 
 @Getter
 public enum ECoinProductIdType {
-    COIN_1000("coin_1000", "prod_tba"), // 이 부분 ENV화 해야합니다
-    COIN_2000("coin_2000", "prod_tba"),
-    COIN_3000("coin_3000", "prod_tba");
+    COIN_1000("coin_1000", "prod_T2H42KM2xoZ8Pw"), // 이 부분 ENV화 해야합니다
+    COIN_2000("coin_2000", "prod_T2H4S9nohhnB84"),
+    COIN_3000("coin_3000", "prod_T2H5EX0PW14s46");
 
     private final String key;
     private final String productId;
