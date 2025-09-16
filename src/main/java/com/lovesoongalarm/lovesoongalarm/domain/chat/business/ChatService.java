@@ -1,6 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.business;
 
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.business.ChatRoomService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.MessageService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.WebSocketMessageService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.ChatSessionService;
@@ -45,7 +46,8 @@ public class ChatService {
     public void handleSendMessage(Long chatRoomId, String content, Long userId) {
         log.info("메시지 송신 시작 - userId: {}, chatRoomId: {}", userId, chatRoomId);
         chatRoomService.validateChatRoomAccess(chatRoomId, userId);
-        messageService.sendMessage(chatRoomId, content, userId);
+        ChatRoom chatRoom = chatRoomService.getChatRoomOrElseThrow(chatRoomId);
+        messageService.sendMessage(chatRoom, content, userId);
         log.info("메시지 송신 완료 - userId: {}, chatRoomId: {}", userId, chatRoomId);
     }
 }

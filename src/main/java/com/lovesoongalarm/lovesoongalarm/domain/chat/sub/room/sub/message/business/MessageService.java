@@ -1,7 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business;
 
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomListDTO;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.business.ChatRoomService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.converter.MessageConverter;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.MessageListDTO;
@@ -32,7 +31,6 @@ public class MessageService {
 
     private final MessageConverter messageConverter;
 
-    private final ChatRoomService chatRoomService;
     private final UserService userService;
     private final ChatRoomParticipantService chatRoomParticipantService;
     private final MessageNotificationService messageNotificationService;
@@ -121,11 +119,10 @@ public class MessageService {
     }
 
     @Transactional
-    public void sendMessage(Long chatRoomId, String content, Long senderId) {
-        log.info("1:1 채팅 메시지 전송 시작 - chatRoomId: {}, senderId: {}", chatRoomId, senderId);
+    public void sendMessage(ChatRoom chatRoom, String content, Long senderId) {
+        log.info("1:1 채팅 메시지 전송 시작 - chatRoomId: {}, senderId: {}", chatRoom.getId(), senderId);
         messageValidator.validateMessage(content);
 
-        ChatRoom chatRoom = chatRoomService.getChatRoomOrElseThrow(chatRoomId);
         User sender = userService.findUserOrElseThrow(senderId);
 
         Message message = Message.create(content, chatRoom, sender);
@@ -133,7 +130,7 @@ public class MessageService {
 
         chatRoomParticipantService.activatePartnerIfPending(chatRoom, senderId);
 
-        messageNotificationService.notifyMessage(chatRoomId, savedMessage, senderId);
+        messageNotificationService.notifyMessage(chatRoom.getId(), savedMessage, senderId);
         log.info("1:1 채팅 메시지 전송 완료 - messageId: {}", savedMessage.getId());
     }
 
