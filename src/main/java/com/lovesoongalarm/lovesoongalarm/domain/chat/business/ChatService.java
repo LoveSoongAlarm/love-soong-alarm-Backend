@@ -8,6 +8,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.ChatSe
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
 @Service
@@ -43,9 +44,10 @@ public class ChatService {
         log.info("채팅방 구독 해제 완료 - userId: {}, chatRoomId: {}", userId, chatRoomId);
     }
 
+    @Transactional
     public void handleSendMessage(Long chatRoomId, String content, Long userId) {
         log.info("메시지 송신 시작 - userId: {}, chatRoomId: {}", userId, chatRoomId);
-        chatRoomService.validateChatRoomAccess(chatRoomId, userId);
+        chatRoomService.validateChatRoomAccess(userId, chatRoomId);
         ChatRoom chatRoom = chatRoomService.getChatRoomOrElseThrow(chatRoomId);
         messageService.sendMessage(chatRoom, content, userId);
         log.info("메시지 송신 완료 - userId: {}, chatRoomId: {}", userId, chatRoomId);
