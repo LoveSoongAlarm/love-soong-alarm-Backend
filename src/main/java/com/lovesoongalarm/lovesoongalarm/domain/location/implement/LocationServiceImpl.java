@@ -103,40 +103,41 @@ public class LocationServiceImpl implements LocationService {
 
         Set<String> myInterests = stringRedisTemplate.opsForSet().members(USER_INTEREST_KEY + userId);
 
-        List<Object> pipeResults = redisPipeline.pipe(ops -> {
+        List<Object> genderPipeResult = redisPipeline.pipe(ops -> {
             for (Long id : nearbyUsers) {
-                ops.opsForValue().get(USER_GENDER_KEY + id);
-                ops.opsForSet().members(USER_INTEREST_KEY + id);
+                ops.opsForHash().get(USER_GENDER_KEY, String.valueOf(id));
             }
         });
 
         List<Long> filteredUsers = new ArrayList<>();
-        Map<Long, Set<String>> interestMap = new HashMap<>();
 
         for (int i = 0; i < nearbyUsers.size(); i++) {
             Long id = nearbyUsers.get(i);
-
-            String gender = (String) pipeResults.get(i * 2);
-            log.info("{} gender : {}", id, gender);
-            Set<String> interests = (Set<String>) pipeResults.get(i * 2 + 1);
-
-            if (gender == null || gender.equals(myGender)) {
-                continue;
+            String gender = (String) genderPipeResult.get(i);
+            if (gender != null && !gender.equals(myGender)) {
+                filteredUsers.add(id);
             }
-
-            filteredUsers.add(id);
-            interestMap.put(id, interests);
         }
 
         Collections.shuffle(filteredUsers);
         List<Long> randomNearbyUsers = filteredUsers.subList(0, Math.min(6, filteredUsers.size()));
 
+        List<Object> interestPipeResults = redisPipeline.pipe(ops -> {
+            for (Long id : randomNearbyUsers) {
+                ops.opsForSet().members(USER_INTEREST_KEY + id);
+            }
+        });
+
         int matchCount = 0;
         Map<Long, Long> userMatchCounts = new HashMap<>();
 
-        for (Long id : randomNearbyUsers) {
-            Set<String> interests = interestMap.get(id);
-            long overlap = (interests == null) ? 0 : interests.stream().filter(myInterests::contains).count();
+        for (int i = 0; i < randomNearbyUsers.size(); i++) {
+            Long id = nearbyUsers.get(i);
+            Set<String> interests = (Set<String>) interestPipeResults.get(i);
+
+            long overlap = (interests == null) ? 0 : interests.stream()
+                    .filter(myInterests::contains)
+                    .count();
 
             userMatchCounts.put(id, overlap);
 
