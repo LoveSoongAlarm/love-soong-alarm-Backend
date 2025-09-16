@@ -79,6 +79,8 @@ public class LocationFacade {
                     .matchCount(matchingResult.matchCount())
                     .nearbyUsersInformation(nearbyUserResponse)
                     .build();
+        } catch (CustomException e) {
+            throw e;
         } catch (Exception e) {
             log.error("findNearby() failed. userId={}", userId, e);
             throw new CustomException(GlobalErrorCode.INTERNAL_SERVER_ERROR);
