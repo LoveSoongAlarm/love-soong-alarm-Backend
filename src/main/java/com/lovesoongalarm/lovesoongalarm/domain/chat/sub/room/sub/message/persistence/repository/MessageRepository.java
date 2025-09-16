@@ -38,7 +38,7 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     Long countMessagesByChatRoomIdAndIdLessThan(
             @Param("chatRoomId") Long chatRoomId,
             @Param("messageId") Long messageId);
-           
+
     @Query("""
             SELECT m FROM Message m
             JOIN FETCH m.user
@@ -50,4 +50,11 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             @Param("chatRoomId") Long chatRoomId,
             @Param("lastMessageId") Long lastMessageId,
             Pageable pageable);
+
+    @Query("""
+            SELECT MAX(m.id)
+            FROM Message m
+            WHERE m.chatRoom.id = :chatRoomId
+             """)
+    Optional<Long> findLatestMessageIdByChatRoomId(Long chatRoomId);
 }

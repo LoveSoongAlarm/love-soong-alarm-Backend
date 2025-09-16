@@ -57,6 +57,8 @@ jobs:
       KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
       KAKAO_REDIRECT_URI: ${{ secrets.KAKAO_REDIRECT_URI }}
       REDIRECT_URL: ${{ secrets.REDIRECT_URL }}
+      KAKAO_KEY: ${{ secrets.KAKAO_KEY }}
+
 
     steps:
       - name: Checkout
@@ -77,7 +79,7 @@ jobs:
           host: ${{ secrets.GCP_HOST }}
           username: ${{ secrets.GCP_USER }}
           key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
-          envs: DB_URL,DB_USERNAME,DB_PASSWORD,REDIS_PASSWORD, ACCESS_TOKEN_EXPIRATION, DOMAIN_NAME, JWT_SECRET, KAKAO_CLIENT_ID, KAKAO_CLIENT_SECRET, KAKAO_REDIRECT_URI, REDIRECT_URL, REFRESH_TOKEN_EXPIRATION
+          envs: DB_URL,DB_USERNAME,DB_PASSWORD,REDIS_PASSWORD, ACCESS_TOKEN_EXPIRATION, DOMAIN_NAME, JWT_SECRET, KAKAO_CLIENT_ID, KAKAO_CLIENT_SECRET, KAKAO_REDIRECT_URI, REDIRECT_URL, REFRESH_TOKEN_EXPIRATION, KAKAO_KEY
           script: |
             cd ~/deploy
             ./composedeploy.sh

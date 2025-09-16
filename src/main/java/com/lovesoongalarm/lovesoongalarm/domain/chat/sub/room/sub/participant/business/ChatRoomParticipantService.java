@@ -3,6 +3,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.b
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantSaver;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantUpdater;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
@@ -21,6 +22,7 @@ public class ChatRoomParticipantService {
 
     private final ChatRoomParticipantSaver chatRoomParticipantSaver;
     private final ChatRoomParticipantRetriever chatRoomParticipantRetriever;
+    private final ChatRoomParticipantUpdater chatRoomParticipantUpdater;
 
     public void addParticipant(Long userId, Long targetUserId, ChatRoom chatRoom) {
         log.info("채팅방에 유저 참여 로직 시작 - userId: {}, targetUserId: {}, chatRoomId: {}", userId, targetUserId, chatRoom.getId());
@@ -31,12 +33,21 @@ public class ChatRoomParticipantService {
         }
 
         User me = userService.findUserOrElseThrow(userId);
-        User target = userService.findUserOrElseThrow(userId);
+        User target = userService.findUserOrElseThrow(targetUserId);
 
         ChatRoomParticipant myParticipant = ChatRoomParticipant.createJoined(chatRoom, me);
         ChatRoomParticipant targetParticipant = ChatRoomParticipant.createPending(chatRoom, target);
         chatRoomParticipantSaver.save(List.of(myParticipant, targetParticipant));
         log.info("채팅방에 유저 참여 로직 종료 - userId: {}, targetUserId: {}, chatRoomId: {}", userId, targetUserId, chatRoom.getId());
+    }
+
+    public Long getPartnerLastReadMessageId(Long roomId, Long partnerId) {
+        return chatRoomParticipantRetriever.findByChatRoomIdAndUserId(roomId, partnerId)
+                .getLastReadMessageId();
+    }
+
+    public ChatRoomParticipant findByChatRoomIdAndUserId(Long chatRoomId, Long userId) {
+        return chatRoomParticipantRetriever.findByChatRoomIdAndUserId(chatRoomId, userId);
     }
 
     private boolean isAlreadyParticipating(Long userId, Long targetUserId, ChatRoom chatRoom) {
@@ -45,8 +56,7 @@ public class ChatRoomParticipantService {
         return userExists && targetExists;
     }
 
-    public Long getPartnerLastReadMessageId(Long roomId, Long partnerId) {
-        return chatRoomParticipantRetriever.findByChatRoomIdAndUserId(roomId, partnerId)
-                .getLastReadMessageId();
+    public void updateLastReadMessageId(ChatRoomParticipant participant, Long latestMessageId) {
+        chatRoomParticipantUpdater.updateLastReadMessageId(participant.getId(), latestMessageId);
     }
 }
