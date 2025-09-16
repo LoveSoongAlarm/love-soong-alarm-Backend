@@ -120,7 +120,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
 
     private void handleSendMessage(WebSocketSession session, WebSocketMessageDTO.Request request, Long userId) {
         try {
-            chatService.handleSendMessage(session, request.chatRoomId(), request.content(), userId);
+            chatService.handleSendMessage(request.chatRoomId(), request.content(), userId);
         } catch (CustomException e) {
             log.warn("메시지 전송 실패 - 채팅방: {}, 유저: {}, 이유: {}", request.chatRoomId(), userId, e.getErrorCode().getMessage());
             webSocketMessageService.sendErrorMessage(session, e.getErrorCode().getStatus().toString(), e.getErrorCode().getMessage());

@@ -130,7 +130,7 @@ public class MessageService {
     }
 
     @Transactional
-    public void sendMessage(WebSocketSession session, Long chatRoomId, String content, Long senderId) {
+    public void sendMessage(Long chatRoomId, String content, Long senderId) {
         log.info("1:1 채팅 메시지 전송 시작 - chatRoomId: {}, senderId: {}", chatRoomId, senderId);
         messageValidator.validateMessage(content);
 

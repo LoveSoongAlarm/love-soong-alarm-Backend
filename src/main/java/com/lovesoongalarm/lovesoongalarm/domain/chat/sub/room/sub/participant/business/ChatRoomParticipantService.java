@@ -47,14 +47,6 @@ public class ChatRoomParticipantService {
                 .getLastReadMessageId();
     }
 
-    public ChatRoomParticipant findByChatRoomIdAndUserId(Long chatRoomId, Long userId) {
-        return chatRoomParticipantRetriever.findByChatRoomIdAndUserId(chatRoomId, userId);
-    }
-
-    public void updateLastReadMessageId(ChatRoomParticipant participant, Long latestMessageId) {
-        chatRoomParticipantUpdater.updateLastReadMessageId(participant.getId(), latestMessageId);
-    }
-
     public void activatePartnerIfPending(ChatRoom chatRoom, Long senderId) {
         chatRoom.getParticipants().stream()
                 .filter(participant -> !participant.getUser().getId().equals(senderId))

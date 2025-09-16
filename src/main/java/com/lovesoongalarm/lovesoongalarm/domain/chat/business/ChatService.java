@@ -42,10 +42,10 @@ public class ChatService {
         log.info("채팅방 구독 해제 완료 - userId: {}, chatRoomId: {}", userId, chatRoomId);
     }
 
-    public void handleSendMessage(WebSocketSession session, Long chatRoomId, String content, Long userId) {
+    public void handleSendMessage(Long chatRoomId, String content, Long userId) {
         log.info("메시지 송신 시작 - userId: {}, chatRoomId: {}", userId, chatRoomId);
         chatRoomService.validateChatRoomAccess(chatRoomId, userId);
-        messageService.sendMessage(session, chatRoomId, content, userId);
+        messageService.sendMessage(chatRoomId, content, userId);
         log.info("메시지 송신 완료 - userId: {}, chatRoomId: {}", userId, chatRoomId);
     }
 }
