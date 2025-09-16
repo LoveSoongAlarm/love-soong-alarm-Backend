@@ -76,9 +76,7 @@ public class ChatRoomService {
     }
 
     public void validateChatRoomAccess(Long userId, Long roomId) {
-        log.info("채팅방 조회 및 권한 검증 시작 - userId: {}, roomId: {}", userId, roomId);
         chatRoomValidator.validateChatRoomAccess(userId, roomId);
-        log.info("채팅방 조회 및 권한 검증 완료 - roomId: {}", roomId);
     }
 
     public void subscribeToChatRoom(WebSocketSession session, Long chatRoomId, Long userId) {
