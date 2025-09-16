@@ -30,6 +30,9 @@ public class Message {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "is_read", nullable = false)
+    private boolean isRead = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoom;
@@ -39,10 +42,11 @@ public class Message {
     private User user;
 
     @Builder
-    private Message(String content, ChatRoom chatRoom, User user) {
+    private Message(String content, ChatRoom chatRoom, User user, boolean isRead) {
         this.content = content;
         this.chatRoom = chatRoom;
         this.user = user;
+        this.isRead = isRead;
     }
 
     public static Message create(String content, ChatRoom chatRoom, User user) {
@@ -50,6 +54,15 @@ public class Message {
                 .content(content)
                 .chatRoom(chatRoom)
                 .user(user)
+                .isRead(false)
                 .build();
+    }
+
+    public void markAsRead() {
+        this.isRead = true;
+    }
+
+    public boolean isSentBy(Long userId) {
+        return this.user.getId().equals(userId);
     }
 }

@@ -3,6 +3,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persi
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -57,4 +58,34 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             WHERE m.chatRoom.id = :chatRoomId
              """)
     Optional<Long> findLatestMessageIdByChatRoomId(Long chatRoomId);
+
+    @Modifying
+    @Query("UPDATE Message m SET m.isRead = true WHERE m.id = :messageId")
+    void markAsRead(@Param("messageId") Long messageId);
+
+    @Modifying
+    @Query("""
+            UPDATE Message m 
+            SET m.isRead = true 
+            WHERE m.chatRoom.id = :chatRoomId 
+            AND m.user.id != :receiverId 
+            AND m.isRead = false
+            """)
+    int markUnreadMessagesAsRead(
+            @Param("chatRoomId") Long chatRoomId,
+            @Param("receiverId") Long receiverId
+    );
+
+    @Modifying
+    @Query("UPDATE Message m SET m.isRead = true WHERE m.id IN :messageIds")
+    int markSpecificMessagesAsRead(@Param("messageIds") List<Long> messageIds);
+
+    @Query("""
+            SELECT COUNT(m) 
+            FROM Message m 
+            WHERE m.chatRoom.id = :chatRoomId 
+            AND m.user.id != :userId 
+            AND m.isRead = false
+            """)
+    int countUnreadMessages(@Param("chatRoomId") Long chatRoomId, @Param("userId") Long userId);
 }
