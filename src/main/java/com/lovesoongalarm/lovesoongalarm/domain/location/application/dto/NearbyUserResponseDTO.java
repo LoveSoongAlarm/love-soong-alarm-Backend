@@ -13,6 +13,8 @@ public record NearbyUserResponseDTO(
         String emoji,
         List<UserInterestResponseDTO> interests,
         String lastSeen,
-        Long matchCount
+        Long matchCount,
+        Double latitude,
+        Double longitude
 ) {
 }
