@@ -129,7 +129,7 @@ public class UserQueryService {
 
     private void updateRedis(Long userId, EGender gender, List<Interest> interests) {
         List<String> interestValues = interests.stream()
-                .map(interest -> interest.getLabel().name())
+                .map(interest -> interest.getDetailLabel().name())
                 .toList();
 
         stringRedisTemplate.delete(USER_INTEREST_KEY + userId);
