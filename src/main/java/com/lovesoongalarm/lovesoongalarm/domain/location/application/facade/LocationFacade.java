@@ -73,7 +73,7 @@ public class LocationFacade {
                     longitude = posList.get(0).getX();
                     latitude = posList.get(0).getY();
                 }
-                log.info("{} lastSeen : {}, lat: {}, lon: {}", userMatch.userId(), lastSeen, latitude, longitude);
+                log.debug("{} lastSeen : {}, lat: {}, lon: {}", userMatch.userId(), lastSeen, latitude, longitude);
 
                 log.info("{} lastSeen: {}", userMatch.userId(), time);
 
