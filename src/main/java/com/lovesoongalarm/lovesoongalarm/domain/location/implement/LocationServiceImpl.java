@@ -97,7 +97,7 @@ public class LocationServiceImpl implements LocationService {
         var res = stringRedisTemplate.opsForGeo().search(
                 GEO_KEY + zone,
                 GeoReference.fromMember(stringUserId),
-                new Distance(20, RedisGeoCommands.DistanceUnit.METERS),
+                new Distance(50, RedisGeoCommands.DistanceUnit.METERS),
                 RedisGeoCommands.GeoSearchCommandArgs.newGeoSearchArgs().includeDistance().sortAscending().limit(50)
         );
         log.info("user search : {}", res);
