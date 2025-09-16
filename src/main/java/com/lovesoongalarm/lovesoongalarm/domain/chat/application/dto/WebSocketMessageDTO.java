@@ -35,8 +35,7 @@ public class WebSocketMessageDTO {
     @Builder
     public record MessageReadNotification(
             EWebSocketMessageType type,
-            Long chatRoomId,
-            Long lastReadMessageId
+            Long chatRoomId
     ) {
     }
 
