@@ -135,7 +135,7 @@ public class UserQueryService {
             stringRedisTemplate.opsForSet().add(USER_INTEREST_KEY + userId, interestValues.toArray(new String[0]));
         }
 
-        stringRedisTemplate.opsForValue().set(USER_GENDER_KEY + userId, gender.name());
+        stringRedisTemplate.opsForHash().put(USER_GENDER_KEY, String.valueOf(userId), gender.name());
     }
 
 }
