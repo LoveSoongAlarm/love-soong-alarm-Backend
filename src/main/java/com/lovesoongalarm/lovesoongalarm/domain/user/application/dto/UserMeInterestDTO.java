@@ -11,8 +11,8 @@ public record UserMeInterestDTO(
         String detailLabel,
         List<String> hashTags
 ) {
-    public static UserInterestResponseDTO from(Interest interest){
-        return UserInterestResponseDTO.builder()
+    public static UserMeInterestDTO from(Interest interest){
+        return UserMeInterestDTO.builder()
                 .detailLabel(interest.getDetailLabel().getValue())
                 .label(interest.getLabel().getValue())
                 .hashTags(interest.getHashtags().stream().map(
