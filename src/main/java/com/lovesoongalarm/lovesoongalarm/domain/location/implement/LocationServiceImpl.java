@@ -95,7 +95,7 @@ public class LocationServiceImpl implements LocationService {
     }
 
     private MatchingResultDTO matching(Long userId, List<Long> nearbyUsers) {
-        String myGender = stringRedisTemplate.opsForValue().get(USER_GENDER_KEY + userId);
+        String myGender = (String) stringRedisTemplate.opsForHash().get(USER_GENDER_KEY, String.valueOf(userId));
         log.info("my gender : {}", myGender);
         if (myGender == null) {
             throw new CustomException(UserErrorCode.USER_GENDER_NOT_FOUND);
