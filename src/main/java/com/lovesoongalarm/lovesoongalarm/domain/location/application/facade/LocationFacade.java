@@ -1,5 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.location.application.facade;
 
+import com.lovesoongalarm.lovesoongalarm.common.code.GlobalErrorCode;
+import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import com.lovesoongalarm.lovesoongalarm.domain.location.application.dto.MatchingResultDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.location.application.dto.NearbyResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.location.application.dto.NearbyUserResponseDTO;
@@ -12,6 +14,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,13 +55,19 @@ public class LocationFacade {
 
                 String lastSeenStr = (String) pipeLastSeenResults.get(i++);
                 long lastSeen = (lastSeenStr != null) ? Long.parseLong(lastSeenStr) : 0L;
-                log.info("{} lastSeen: {}", id, lastSeen);
+
+                String time = LocalDateTime.ofInstant(
+                        Instant.ofEpochSecond(lastSeen),
+                        ZoneId.of("Asia/Seoul")
+                ).format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+
+                log.info("{} lastSeen: {}", id, time);
 
                 nearbyUserResponse.add(NearbyUserResponseDTO.builder()
                         .name(user.name())
                         .age(user.age())
                         .major(user.major())
-                        .lastSeen(lastSeen)
+                        .lastSeen(time)
                         .emoji(user.emoji())
                         .matchCount(matchingResult.userMatchCounts().getOrDefault(id, 0L))
                         .build());
@@ -69,7 +81,7 @@ public class LocationFacade {
                     .build();
         } catch (Exception e) {
             log.error("findNearby() failed. userId={}", userId, e);
-            throw e;
+            throw new CustomException(GlobalErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 }
