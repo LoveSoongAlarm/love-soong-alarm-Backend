@@ -7,7 +7,6 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persis
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.time.LocalDateTime;
@@ -75,7 +74,7 @@ public class WebSocketMessageService {
         messageSender.sendMessage(session, messageReadNotification);
     }
 
-    public void sendMessage(WebSocketSession session, Message message, boolean isSentByMe){
+    public void sendMessage(WebSocketSession session, Message message, boolean isSentByMe) {
         WebSocketMessageDTO.ChatMessage chatMessage = WebSocketMessageDTO.ChatMessage.builder()
                 .type(EWebSocketMessageType.CHAT_MESSAGE)
                 .messageId(message.getId())

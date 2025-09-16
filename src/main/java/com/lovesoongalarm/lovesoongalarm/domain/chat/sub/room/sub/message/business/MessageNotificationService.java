@@ -1,6 +1,5 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business;
 
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageSender;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.ChatSessionService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.implement.RedisSubscriber;
@@ -17,6 +16,7 @@ import org.springframework.web.socket.WebSocketSession;
 public class MessageNotificationService {
 
     private final RedisSubscriber redisSubscriber;
+
     private final ChatSessionService chatSessionService;
     private final UserService userService;
     private final MessageReadService messageReadService;

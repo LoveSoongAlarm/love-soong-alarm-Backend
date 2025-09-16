@@ -58,10 +58,6 @@ public class Message {
                 .build();
     }
 
-    public void markAsRead() {
-        this.isRead = true;
-    }
-
     public boolean isSentBy(Long userId) {
         return this.user.getId().equals(userId);
     }

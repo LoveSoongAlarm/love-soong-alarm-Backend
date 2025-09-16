@@ -16,8 +16,4 @@ public class ChatRoomParticipantRetriever {
     public boolean existsByUserIdAndChatRoomId(Long userId, Long chatRoomId) {
         return chatRoomParticipantRepository.existsByUser_IdAndChatRoom_Id(userId, chatRoomId);
     }
-
-    public ChatRoomParticipant findByChatRoomIdAndUserId(Long roomId, Long partnerId) {
-        return chatRoomParticipantRepository.findByChatRoom_IdAndUser_Id(roomId, partnerId);
-    }
 }

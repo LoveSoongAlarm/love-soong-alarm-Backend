@@ -1,13 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business;
 
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.business.ChatRoomService;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.converter.MessageConverter;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageRetriever;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageSaver;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageUpdater;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageValidator;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business.ChatRoomParticipantService;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.ChatSessionService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.implement.RedisSubscriber;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
@@ -67,7 +60,7 @@ public class MessageReadService {
     private void notifyReadStatusUpdate(Long chatRoomId, Long readerId, Long partnerId) {
         log.info("읽음 상태 알림 - chatRoomId: {}, readerId: {}, partnerId: {}", chatRoomId, readerId, partnerId);
 
-        if(!redisSubscriber.isUserSubscribed(chatRoomId, partnerId)) return;
+        if (!redisSubscriber.isUserSubscribed(chatRoomId, partnerId)) return;
 
         WebSocketSession partnerSession = chatSessionService.getSession(partnerId);
         if (partnerSession != null && partnerSession.isOpen()) {

@@ -79,13 +79,4 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     @Modifying
     @Query("UPDATE Message m SET m.isRead = true WHERE m.id IN :messageIds")
     int markSpecificMessagesAsRead(@Param("messageIds") List<Long> messageIds);
-
-    @Query("""
-            SELECT COUNT(m) 
-            FROM Message m 
-            WHERE m.chatRoom.id = :chatRoomId 
-            AND m.user.id != :userId 
-            AND m.isRead = false
-            """)
-    int countUnreadMessages(@Param("chatRoomId") Long chatRoomId, @Param("userId") Long userId);
 }

@@ -16,8 +16,4 @@ public class ChatRoomParticipantSaver {
     public List<ChatRoomParticipant> save(List<ChatRoomParticipant> myParticipant) {
         return chatRoomParticipantRepository.saveAll(myParticipant);
     }
-
-    public ChatRoomParticipant save(ChatRoomParticipant participant) {
-        return chatRoomParticipantRepository.save(participant);
-    }
 }

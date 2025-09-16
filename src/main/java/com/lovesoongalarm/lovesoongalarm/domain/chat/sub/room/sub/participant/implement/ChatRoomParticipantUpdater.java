@@ -13,10 +13,6 @@ public class ChatRoomParticipantUpdater {
 
     private final ChatRoomParticipantRepository chatRoomParticipantRepository;
 
-    public void updateLastReadMessageId(Long participantId, Long latestMessageId) {
-        chatRoomParticipantRepository.updateLastReadMessageId(participantId, latestMessageId);
-    }
-
     public void updateParticipantStatusToJoined(ChatRoomParticipant partnerParticipant) {
         chatRoomParticipantRepository.updateStatusToJoined(partnerParticipant.getId());
     }
