@@ -118,7 +118,6 @@ public class MessageService {
         return messageConverter.toMessageListResponse(messageInfos, hasMoreMessages, nextCursor);
     }
 
-    @Transactional
     public void sendMessage(ChatRoom chatRoom, String content, Long senderId) {
         log.info("1:1 채팅 메시지 전송 시작 - chatRoomId: {}, senderId: {}", chatRoom.getId(), senderId);
         messageValidator.validateMessage(content);

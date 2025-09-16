@@ -65,10 +65,10 @@ public class WebSocketMessageService {
         messageSender.sendMessage(session, unsubscribeSuccess);
     }
 
-    public void sendReadMessage(WebSocketSession session, Long chatRoomId) {
+    public void sendReadMessage(WebSocketSession session, Long readerId) {
         WebSocketMessageDTO.MessageReadNotification messageReadNotification = WebSocketMessageDTO.MessageReadNotification.builder()
                 .type(EWebSocketMessageType.MESSAGE_READ)
-                .chatRoomId(chatRoomId)
+                .readerId(readerId)
                 .build();
 
         messageSender.sendMessage(session, messageReadNotification);
