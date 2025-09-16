@@ -13,7 +13,7 @@ public record UserMeResponseDTO (
         String major,
         String emoji,
         EGender gender,
-        List<UserInterestResponseDTO> interests
+        List<UserMeInterestDTO> interests
 ) {
     public static UserMeResponseDTO from(User user){
         return UserMeResponseDTO.builder()
@@ -23,7 +23,7 @@ public record UserMeResponseDTO (
                 .name(user.getNickname())
                 .gender(user.getGender())
                 .interests(user.getInterests().stream().map(
-                                interest -> UserInterestResponseDTO.from(interest)
+                                interest -> UserMeInterestDTO.from(interest)
                         ).toList()
                 ).build();
     }
