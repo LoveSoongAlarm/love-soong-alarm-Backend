@@ -42,9 +42,9 @@ public class SweepUserLocationScheduling {
         return expired;
     }
 
-    @Scheduled(fixedDelay = 60_000)
+    @Scheduled(cron = "0 0/30 * * * *")
     public void sweepExpired() {
-        long cutoff = Instant.now().getEpochSecond() - 600;
+        long cutoff = Instant.now().getEpochSecond() - 43200;
 
         while (true) {
             Set<ZSetOperations.TypedTuple<String>> batch =
