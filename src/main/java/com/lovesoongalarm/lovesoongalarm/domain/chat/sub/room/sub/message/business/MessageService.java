@@ -11,6 +11,8 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implem
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business.ChatRoomParticipantService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.ChatSessionService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.implement.RedisSubscriber;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -36,11 +38,11 @@ public class MessageService {
 
     private final ChatRoomService chatRoomService;
     private final UserService userService;
+    private final ChatRoomParticipantService chatRoomParticipantService;
 
     private static final int INITIAL_MESSAGE_LIMIT = 50;
     private static final int DEFAULT_PAGE_SIZE = 50;
     private static final int MAX_PAGE_SIZE = 100;
-    private final ChatRoomParticipantService chatRoomParticipantService;
 
     public ChatRoomListDTO.LastMessageInfo createLastMessageInfo(
             ChatRoom chatRoom, Long userId, ChatRoomParticipant myParticipant, ChatRoomParticipant partnerParticipant) {
