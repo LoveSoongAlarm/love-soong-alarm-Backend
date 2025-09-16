@@ -7,8 +7,14 @@ import java.util.Map;
 
 @Builder
 public record MatchingResultDTO(
-        List<Long> userIds,
         int matchCount,
-        Map<Long, Long> userMatchCounts
+        String zone,
+        List<NearbyUserMatchDTO> nearbyUsers
 ) {
+    @Builder
+    public record NearbyUserMatchDTO(
+            Long userId,
+            Long matchCount
+            ) {
+    }
 }
