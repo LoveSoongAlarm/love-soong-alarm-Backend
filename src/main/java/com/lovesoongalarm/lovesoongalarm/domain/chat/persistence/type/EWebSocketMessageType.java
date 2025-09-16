@@ -11,6 +11,7 @@ public enum EWebSocketMessageType {
     UNSUBSCRIBE("채팅방 구독해제"),
     MESSAGE_SEND("메시지 송신"),
     MESSAGE_READ("메시지 읽음"),
+    CHAT_MESSAGE("채팅 메시지"),
     ERROR("에러");
 
     private final String value;

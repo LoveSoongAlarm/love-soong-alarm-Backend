@@ -3,6 +3,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.busin
 import com.lovesoongalarm.lovesoongalarm.domain.chat.application.dto.WebSocketMessageDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.persistence.type.EWebSocketMessageType;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageSender;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -73,5 +74,17 @@ public class WebSocketMessageService {
                 .build();
 
         messageSender.sendMessage(session, messageReadNotification);
+    }
+
+    public void sendMessage(WebSocketSession session, Message message, boolean isSentByMe){
+        WebSocketMessageDTO.ChatMessage chatMessage = WebSocketMessageDTO.ChatMessage.builder()
+                .type(EWebSocketMessageType.CHAT_MESSAGE)
+                .messageId(message.getId())
+                .content(message.getContent())
+                .timestamp(message.getCreatedAt())
+                .isSentByMe(isSentByMe)
+                .build();
+
+        messageSender.sendMessage(session, chatMessage);
     }
 }

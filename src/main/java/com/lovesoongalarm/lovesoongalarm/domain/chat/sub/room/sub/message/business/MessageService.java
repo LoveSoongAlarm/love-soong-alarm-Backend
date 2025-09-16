@@ -39,6 +39,7 @@ public class MessageService {
     private final ChatRoomService chatRoomService;
     private final UserService userService;
     private final ChatRoomParticipantService chatRoomParticipantService;
+    private final MessageNotificationService messageNotificationService;
 
     private static final int INITIAL_MESSAGE_LIMIT = 50;
     private static final int DEFAULT_PAGE_SIZE = 50;
@@ -140,6 +141,9 @@ public class MessageService {
         Message savedMessage = messageSaver.save(message);
 
         chatRoomParticipantService.activatePartnerIfPending(chatRoom, senderId);
+
+        messageNotificationService.notifyMessage(chatRoomId, savedMessage, senderId);
+        log.info("1:1 채팅 메시지 전송 완료 - messageId: {}", savedMessage.getId());
     }
 
     private boolean isMessageRead(Long messageId, Long lastReadMessageId) {
