@@ -9,6 +9,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implem
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageSaver;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageValidator;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business.ChatRoomParticipantService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
@@ -39,6 +40,7 @@ public class MessageService {
     private static final int INITIAL_MESSAGE_LIMIT = 50;
     private static final int DEFAULT_PAGE_SIZE = 50;
     private static final int MAX_PAGE_SIZE = 100;
+    private final ChatRoomParticipantService chatRoomParticipantService;
 
     public ChatRoomListDTO.LastMessageInfo createLastMessageInfo(
             ChatRoom chatRoom, Long userId, ChatRoomParticipant myParticipant, ChatRoomParticipant partnerParticipant) {
@@ -134,6 +136,8 @@ public class MessageService {
 
         Message message = Message.create(content, chatRoom, sender);
         Message savedMessage = messageSaver.save(message);
+
+        chatRoomParticipantService.activatePartnerIfPending(chatRoom, senderId);
     }
 
     private boolean isMessageRead(Long messageId, Long lastReadMessageId) {

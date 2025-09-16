@@ -19,4 +19,12 @@ public interface ChatRoomParticipantRepository extends JpaRepository<ChatRoomPar
               AND (p.lastReadMessageId IS NULL OR p.lastReadMessageId < :messageId)
             """)
     void updateLastReadMessageId(Long participantId, Long messageId);
+
+    @Modifying
+    @Query("""
+            UPDATE ChatRoomParticipant p 
+            SET p.status = 'JOINED' 
+            WHERE p.id = :participantId
+            """)
+    void updateStatusToJoined(Long participantId);
 }

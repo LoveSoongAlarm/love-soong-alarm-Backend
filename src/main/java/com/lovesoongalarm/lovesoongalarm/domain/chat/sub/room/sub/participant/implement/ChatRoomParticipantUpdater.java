@@ -1,5 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement;
 
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.repository.ChatRoomParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,5 +15,9 @@ public class ChatRoomParticipantUpdater {
 
     public void updateLastReadMessageId(Long participantId, Long latestMessageId) {
         chatRoomParticipantRepository.updateLastReadMessageId(participantId, latestMessageId);
+    }
+
+    public void updateParticipantStatusToJoined(ChatRoomParticipant partnerParticipant) {
+        chatRoomParticipantRepository.updateStatusToJoined(partnerParticipant.getId());
     }
 }
