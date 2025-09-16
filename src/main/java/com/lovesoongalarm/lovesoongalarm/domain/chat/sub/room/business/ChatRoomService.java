@@ -88,4 +88,8 @@ public class ChatRoomService {
         chatRoomValidator.validateChatRoomAccess(userId, chatRoomId);
         subscriptionService.unsubscribeToChatRoom(session, chatRoomId, userId);
     }
+
+    public ChatRoom getChatRoomOrElseThrow(Long chatRoomId) {
+        return chatRoomRetriever.findById(chatRoomId);
+    }
 }

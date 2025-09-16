@@ -1,17 +1,15 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business;
 
-import com.lovesoongalarm.lovesoongalarm.domain.chat.application.dto.WebSocketMessageDTO;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.persistence.type.EWebSocketMessageType;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomListDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.business.ChatRoomService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.converter.MessageConverter;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.MessageListDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageRetriever;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageSender;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageValidator;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
+import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -34,10 +31,12 @@ public class MessageService {
 
     private final MessageConverter messageConverter;
 
+    private final ChatRoomService chatRoomService;
+    private final UserService userService;
+
     private static final int INITIAL_MESSAGE_LIMIT = 50;
     private static final int DEFAULT_PAGE_SIZE = 50;
     private static final int MAX_PAGE_SIZE = 100;
-    private final ChatRoomService chatRoomService;
 
     public ChatRoomListDTO.LastMessageInfo createLastMessageInfo(
             ChatRoom chatRoom, Long userId, ChatRoomParticipant myParticipant, ChatRoomParticipant partnerParticipant) {
@@ -123,8 +122,13 @@ public class MessageService {
         return messageConverter.toMessageListResponse(messageInfos, hasMoreMessages, nextCursor);
     }
 
-    public void sendMessage(WebSocketSession session, Long chatRoomId, String content, Long userId) {
+    @Transactional
+    public void sendMessage(WebSocketSession session, Long chatRoomId, String content, Long senderId) {
+        log.info("1:1 채팅 메시지 전송 시작 - chatRoomId: {}, senderId: {}", chatRoomId, senderId);
         messageValidator.validateMessage(content);
+
+        ChatRoom chatRoom = chatRoomService.getChatRoomOrElseThrow(chatRoomId);
+        User sender = userService.findUserOrElseThrow(senderId);
     }
 
     private boolean isMessageRead(Long messageId, Long lastReadMessageId) {

@@ -29,4 +29,9 @@ public class ChatRoomRetriever {
     public boolean existsById(Long roomId) {
         return chatRoomRepository.existsById(roomId);
     }
+
+    public ChatRoom findById(Long chatRoomId) {
+        return chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new CustomException(ChatRoomErrorCode.CHAT_ROOM_NOT_FOUND));
+    }
 }
