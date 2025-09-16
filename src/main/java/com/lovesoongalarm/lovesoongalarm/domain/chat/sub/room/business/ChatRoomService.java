@@ -69,9 +69,7 @@ public class ChatRoomService {
             throw new CustomException(UserErrorCode.USER_NOT_FOUND);
         }
 
-        ChatRoomListDTO.LastMessageInfo lastMessageInfo = messageService.createLastMessageInfo(
-                chatRoom, userId, myParticipant, partnerParticipant);
-
+        ChatRoomListDTO.LastMessageInfo lastMessageInfo = messageService.createLastMessageInfo(chatRoom, userId);
         return chatRoomConverter.toChatRoomInfo(chatRoom, partnerParticipant.getUser(), lastMessageInfo);
     }
 

@@ -40,12 +40,11 @@ public class ChatRoomConverter {
             User partner,
             List<Message> messages,
             Long currentUserId,
-            boolean hasMoreMessages,
-            Long partnerLastReadMessageId) {
+            boolean hasMoreMessages) {
 
         return ChatRoomDetailDTO.Response.builder()
                 .partner(toPartnerInfo(partner))
-                .recentMessages(toMessageInfos(messages, currentUserId, partnerLastReadMessageId))
+                .recentMessages(toMessageInfos(messages, currentUserId))
                 .hasMoreMessages(hasMoreMessages)
                 .oldestMessageId(messages.isEmpty() ? null :
                         messages.get(messages.size() - 1).getId())
@@ -74,20 +73,23 @@ public class ChatRoomConverter {
                 .toList();
     }
 
-    private List<ChatRoomDetailDTO.MessageInfo> toMessageInfos(
-            List<Message> messages, Long currentUserId, Long partnerLastReadMessageId) {
+    private List<ChatRoomDetailDTO.MessageInfo> toMessageInfos(List<Message> messages, Long currentUserId) {
         List<Message> sortedMessages = messages.stream()
                 .sorted(Comparator.comparing(Message::getId))
                 .toList();
 
         return sortedMessages.stream()
-                .map(message -> toMessageInfo(message, currentUserId, partnerLastReadMessageId))
+                .map(message -> toMessageInfo(message, currentUserId))
                 .toList();
     }
 
-    private ChatRoomDetailDTO.MessageInfo toMessageInfo(Message message, Long currentUserId, Long partnerLastReadMessageId) {
-        boolean isSentByMe = message.getUser().getId().equals(currentUserId);
-        boolean isRead = isSentByMe && (message.getId() <= partnerLastReadMessageId);
+    private ChatRoomDetailDTO.MessageInfo toMessageInfo(Message message, Long currentUserId) {
+        boolean isSentByMe = message.isSentBy(currentUserId);
+        boolean isRead = message.isRead();
+
+        if(!isSentByMe) {
+            isRead = true;
+        }
 
         return ChatRoomDetailDTO.MessageInfo.builder()
                 .messageId(message.getId())

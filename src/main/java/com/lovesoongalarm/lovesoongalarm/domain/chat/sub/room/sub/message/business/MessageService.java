@@ -45,8 +45,7 @@ public class MessageService {
     private static final int DEFAULT_PAGE_SIZE = 50;
     private static final int MAX_PAGE_SIZE = 100;
 
-    public ChatRoomListDTO.LastMessageInfo createLastMessageInfo(
-            ChatRoom chatRoom, Long userId, ChatRoomParticipant myParticipant, ChatRoomParticipant partnerParticipant) {
+    public ChatRoomListDTO.LastMessageInfo createLastMessageInfo(ChatRoom chatRoom, Long userId) {
         log.info("마지막 메시지 정보 생성 시작 - chatRoomId: {}, userId: {}", chatRoom.getId(), userId);
 
         Optional<Message> lastMessage = messageRetriever.findLastMessageByChatRoomId(chatRoom.getId());
@@ -60,24 +59,20 @@ public class MessageService {
         boolean isSentByMe = message.getUser().getId().equals(userId);
 
         if (isSentByMe) {
-            boolean isReadByPartner = isMessageRead(message.getId(), partnerParticipant.getLastReadMessageId());
-            log.info("내가 보낸 마지막 메시지 - messageId: {}, partnerLastReadMessageId: {}, isRead: {}",
-                    message.getId(), partnerParticipant.getLastReadMessageId(), isReadByPartner);
+            log.info("내가 보낸 마지막 메시지 - messageId: {}, isRead: {}", message.getId(), message.isRead());
 
             return ChatRoomListDTO.LastMessageInfo.sentByMe(
                     message.getContent(),
                     message.getCreatedAt(),
-                    isReadByPartner
+                    message.isRead()
             );
         } else {
-            boolean isReadByMe = isMessageRead(message.getId(), myParticipant.getLastReadMessageId());
-            log.info("상대방이 보낸 마지막 메시지 - messageId: {}, myLastReadMessageId: {}, isRead: {}",
-                    message.getId(), myParticipant.getLastReadMessageId(), isReadByMe);
+            log.info("상대방이 보낸 마지막 메시지 - messageId: {}, isRead: {}", message.getId(), message.isRead());
 
             return ChatRoomListDTO.LastMessageInfo.sentByPartner(
                     message.getContent(),
                     message.getCreatedAt(),
-                    isReadByMe
+                    message.isRead()
             );
         }
     }
@@ -99,7 +94,7 @@ public class MessageService {
     }
 
     public MessageListDTO.Response getPreviousMessages(
-            Long chatRoomId, Long userId, Long lastMessageId, Integer size, Long partnerLastReadMessageId) {
+            Long chatRoomId, Long userId, Long lastMessageId, Integer size) {
         log.info("과거 메시지 조회 시작 - chatRoomId: {}, userId: {}, lastMessageId: {}, size: {}",
                 chatRoomId, userId, lastMessageId, size);
 
@@ -120,7 +115,7 @@ public class MessageService {
                 .toList();
 
         List<MessageListDTO.MessageInfo> messageInfos = sortedMessages.stream()
-                .map(message -> messageConverter.toMessageInfo(message, userId, partnerLastReadMessageId))
+                .map(message -> messageConverter.toMessageInfo(message, userId))
                 .toList();
 
         log.info("과거 메시지 조회 완료 - chatRoomId: {}, 조회된 메시지 수: {}, hasMore: {}",
@@ -144,14 +139,6 @@ public class MessageService {
 
         messageNotificationService.notifyMessage(chatRoomId, savedMessage, senderId);
         log.info("1:1 채팅 메시지 전송 완료 - messageId: {}", savedMessage.getId());
-    }
-
-    private boolean isMessageRead(Long messageId, Long lastReadMessageId) {
-        if (lastReadMessageId == null) {
-            return false;
-        }
-
-        return messageId <= lastReadMessageId;
     }
 
     private int validateAndGetPageSize(Integer size) {

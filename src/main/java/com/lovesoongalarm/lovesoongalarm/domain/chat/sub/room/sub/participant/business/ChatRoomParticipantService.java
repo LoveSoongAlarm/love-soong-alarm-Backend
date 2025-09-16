@@ -42,11 +42,6 @@ public class ChatRoomParticipantService {
         log.info("채팅방에 유저 참여 로직 종료 - userId: {}, targetUserId: {}, chatRoomId: {}", userId, targetUserId, chatRoom.getId());
     }
 
-    public Long getPartnerLastReadMessageId(Long roomId, Long partnerId) {
-        return chatRoomParticipantRetriever.findByChatRoomIdAndUserId(roomId, partnerId)
-                .getLastReadMessageId();
-    }
-
     public void activatePartnerIfPending(ChatRoom chatRoom, Long senderId) {
         chatRoom.getParticipants().stream()
                 .filter(participant -> !participant.getUser().getId().equals(senderId))

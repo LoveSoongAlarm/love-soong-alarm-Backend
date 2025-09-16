@@ -29,7 +29,6 @@ public class ChatQueryService {
     private final MessageService messageService;
 
     private final ChatRoomConverter chatRoomConverter;
-    private final ChatRoomParticipantService chatRoomParticipantService;
 
     public ChatRoomListDTO.Response getChatRoomList(Long userId) {
         log.info("채팅방 목록 조회 시작 - userId = {}", userId);
@@ -46,25 +45,23 @@ public class ChatQueryService {
         chatRoomService.validateChatRoomAccess(userId, roomId);
 
         User partner = userService.getPartnerUser(roomId, userId);
-        Long partnerLastReadMessageId = chatRoomParticipantService.getPartnerLastReadMessageId(roomId, partner.getId());
-
         List<Message> recentMessages = messageService.getRecentMessages(roomId);
         boolean hasMoreMessages = messageService.hasMoreMessages(roomId, recentMessages);
 
         log.info("채팅방 상세 조회 완료 - chatRoomId: {}, partnerId: {}, messageCount: {}, hasMore: {}",
                 roomId, partner.getId(), recentMessages.size(), hasMoreMessages);
         return chatRoomConverter.toChatRoomDetailResponse(
-                partner, recentMessages, userId, hasMoreMessages, partnerLastReadMessageId);
+                partner, recentMessages, userId, hasMoreMessages);
     }
 
     public MessageListDTO.Response getChatRoomMessages(Long userId, Long roomId, Integer size, Long lastMessageId) {
         log.info("채팅방 과거 메시지 조회 시작 - userId: {}, roomId: {}, lastMessageId: {}, size: {}",
                 userId, roomId, lastMessageId, size);
         chatRoomService.validateChatRoomAccess(userId, roomId);
-        User partner = userService.getPartnerUser(roomId, userId);
-        Long partnerLastReadMessageId = chatRoomParticipantService.getPartnerLastReadMessageId(roomId, partner.getId());
         MessageListDTO.Response response = messageService.getPreviousMessages(
-                roomId, userId, lastMessageId, size, partnerLastReadMessageId);
+                roomId, userId, lastMessageId, size);
+        log.info("채팅방 과거 메시지 조회 완료 - userId: {}, roomId: {}, lastMessageId: {}, size: {}",
+                userId, roomId, lastMessageId, size);
         return response;
     }
 }

@@ -27,7 +27,6 @@ public class MessageReadService {
     private final MessageUpdater messageUpdater;
 
     private final UserService userService;
-    private final ChatRoomParticipantService chatRoomParticipantService;
     private final ChatSessionService chatSessionService;
     private final WebSocketMessageService webSocketMessageService;
 

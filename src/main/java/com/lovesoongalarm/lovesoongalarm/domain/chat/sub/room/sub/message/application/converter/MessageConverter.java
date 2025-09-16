@@ -18,12 +18,12 @@ public class MessageConverter {
                 .build();
     }
 
-    public MessageListDTO.MessageInfo toMessageInfo(Message message, Long userId, Long partnerLastReadMessageId) {
-        boolean isSentByMe = message.getUser().getId().equals(userId);
-        boolean isRead = false;
+    public MessageListDTO.MessageInfo toMessageInfo(Message message, Long userId) {
+        boolean isSentByMe = message.isSentBy(userId);
+        boolean isRead = message.isRead();
 
-        if (isSentByMe && partnerLastReadMessageId != null) {
-            isRead = message.getId() <= partnerLastReadMessageId;
+        if(!isSentByMe) {
+            isRead = true;
         }
 
         return MessageListDTO.MessageInfo.builder()
