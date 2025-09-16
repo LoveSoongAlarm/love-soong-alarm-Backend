@@ -42,7 +42,7 @@ public class ZoneResolver {
                 .filter(e -> e.getValue().covers(p))
                 .map(Map.Entry::getKey)
                 .findFirst()
-                .orElse(null);
+                .orElse("8");   // 우선은 구역을 벗어난 경우 zone 8 반환
     }
 
     private Polygon polygonFrom(JsonNode geom) {
