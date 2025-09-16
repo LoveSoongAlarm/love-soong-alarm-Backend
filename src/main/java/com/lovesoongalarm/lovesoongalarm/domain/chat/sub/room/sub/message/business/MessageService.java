@@ -6,6 +6,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.converter.MessageConverter;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.MessageListDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageRetriever;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageSaver;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageValidator;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
@@ -28,6 +29,7 @@ public class MessageService {
 
     private final MessageRetriever messageRetriever;
     private final MessageValidator messageValidator;
+    private final MessageSaver messageSaver;
 
     private final MessageConverter messageConverter;
 
@@ -129,6 +131,9 @@ public class MessageService {
 
         ChatRoom chatRoom = chatRoomService.getChatRoomOrElseThrow(chatRoomId);
         User sender = userService.findUserOrElseThrow(senderId);
+
+        Message message = Message.create(content, chatRoom, sender);
+        Message savedMessage = messageSaver.save(message);
     }
 
     private boolean isMessageRead(Long messageId, Long lastReadMessageId) {
