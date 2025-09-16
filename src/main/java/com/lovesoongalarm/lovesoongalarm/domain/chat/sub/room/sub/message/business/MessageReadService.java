@@ -14,6 +14,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
 @Service
@@ -54,6 +55,36 @@ public class MessageReadService {
             log.info("자동읽음 처리 완료 - lastReadMessageId: {}", latestMessageId);
         } catch (Exception e) {
             log.error("자동읽음 처리 중 오류 발생 - chatRoomId: {}, userId: {}", chatRoomId, userId, e);
+        }
+    }
+
+    @Transactional
+    public void processAutoReadOnMessageReceive(Long chatRoomId, Long userId, Long messageId) {
+        log.info("메시지 수신 시 자동읽음 처리 시작 - chatRoomId: {}, userId: {}, messageId: {}",
+                chatRoomId, userId, messageId);
+
+        try {
+            ChatRoomParticipant participant = chatRoomParticipantService.findByChatRoomIdAndUserId(chatRoomId, userId);
+            if (participant == null) {
+                log.warn("채팅방 참여자를 찾을 수 없습니다 - chatRoomId: {}, userId: {}", chatRoomId, userId);
+                return;
+            }
+
+            if (participant.getLastReadMessageId() == null || participant.getLastReadMessageId() < messageId) {
+                chatRoomParticipantService.updateLastReadMessageId(participant, messageId);
+
+                User partner = userService.getPartnerUser(chatRoomId, userId);
+                notifyReadStatusUpdate(chatRoomId, userId, partner.getId(), messageId);
+
+                log.info("메시지 수신 시 자동읽음 처리 완료 - lastReadMessageId: {}", messageId);
+            } else {
+                log.debug("이미 더 최신 메시지까지 읽음 처리됨 - currentLastRead: {}, newMessageId: {}",
+                        participant.getLastReadMessageId(), messageId);
+            }
+
+        } catch (Exception e) {
+            log.error("메시지 수신 시 자동읽음 처리 중 오류 발생 - chatRoomId: {}, userId: {}, messageId: {}",
+                    chatRoomId, userId, messageId, e);
         }
     }
 
