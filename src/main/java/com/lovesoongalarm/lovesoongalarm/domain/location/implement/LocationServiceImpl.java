@@ -103,6 +103,10 @@ public class LocationServiceImpl implements LocationService {
 
         Set<String> myInterests = stringRedisTemplate.opsForSet().members(USER_INTEREST_KEY + userId);
 
+        if (myInterests == null) {
+            myInterests = Collections.emptySet();
+        }
+
         List<Object> genderPipeResult = redisPipeline.pipe(ops -> {
             for (Long id : nearbyUsers) {
                 ops.opsForHash().get(USER_GENDER_KEY, String.valueOf(id));
@@ -132,7 +136,7 @@ public class LocationServiceImpl implements LocationService {
         Map<Long, Long> userMatchCounts = new HashMap<>();
 
         for (int i = 0; i < randomNearbyUsers.size(); i++) {
-            Long id = nearbyUsers.get(i);
+            Long id = randomNearbyUsers.get(i);
             Set<String> interests = (Set<String>) interestPipeResults.get(i);
 
             long overlap = (interests == null) ? 0 : interests.stream()

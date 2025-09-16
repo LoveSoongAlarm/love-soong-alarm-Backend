@@ -69,6 +69,7 @@ public class LocationFacade {
                         .major(user.major())
                         .lastSeen(time)
                         .emoji(user.emoji())
+                        .interests(user.interests())
                         .matchCount(matchingResult.userMatchCounts().getOrDefault(id, 0L))
                         .build());
             }
