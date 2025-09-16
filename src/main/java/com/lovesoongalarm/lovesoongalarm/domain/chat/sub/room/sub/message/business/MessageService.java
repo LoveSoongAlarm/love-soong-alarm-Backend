@@ -8,6 +8,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.applic
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.MessageListDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageSender;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageValidator;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ import java.util.Optional;
 public class MessageService {
 
     private final MessageRetriever messageRetriever;
+    private final MessageValidator messageValidator;
 
     private final MessageConverter messageConverter;
 
@@ -116,6 +118,10 @@ public class MessageService {
                 chatRoomId, messageInfos.size(), hasMoreMessages);
 
         return messageConverter.toMessageListResponse(messageInfos, hasMoreMessages, nextCursor);
+    }
+
+    public void validateMessage(String content) {
+        messageValidator.validateMessage(content);
     }
 
     private boolean isMessageRead(Long messageId, Long lastReadMessageId) {
