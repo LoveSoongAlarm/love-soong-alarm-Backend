@@ -1,10 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.user.business;
 
 import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
-import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.InterestUpdateRequestDTO;
-import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.OnBoardingRequestDTO;
-import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserResponseDTO;
-import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserUpdateRequestDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.*;
 import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.OnBoardingRequestDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.user.exception.UserErrorCode;
@@ -78,6 +75,12 @@ public class UserQueryService {
         int age = calculateAge(findUser.getBirthDate());
 
         return UserResponseDTO.from(findUser, age);
+    }
+
+    public UserMeResponseDTO getMe(Long userId){
+        User findUser = userRetriever.findById(userId);
+
+        return UserMeResponseDTO.from(findUser);
     }
 
     @Transactional

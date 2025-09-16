@@ -3,6 +3,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.user.application.controller;
 import com.lovesoongalarm.lovesoongalarm.common.BaseResponse;
 import com.lovesoongalarm.lovesoongalarm.common.annotation.UserId;
 import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.OnBoardingRequestDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserMeResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserUpdateRequestDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserQueryService;
@@ -35,13 +36,24 @@ public class UserController {
     @Operation(summary = "유저 프로필 상세 조회"
             , description = "유저 상세 조회하는 API 입니다.")
     @ApiResponse(responseCode = "200", description = "유저 상세 조회 성공")
-    @PatchMapping("/{user-id}")
+    @GetMapping("/{user-id}")
     public BaseResponse<UserResponseDTO> getUser(
             @UserId Long userId,
             @PathVariable("user-id") Long targetId
     ){
 
         return BaseResponse.success(userQueryService.getUser(targetId));
+    }
+
+    @Operation(summary = "유저 자신의 프로필 상세 조회"
+            , description = "유저 자신의 프로필을 상세 조회하는 API 입니다.")
+    @ApiResponse(responseCode = "200", description = "유저 자신의 프로필 상세 조회 성공")
+    @GetMapping("/me")
+    public BaseResponse<UserMeResponseDTO> getMe(
+            @UserId Long userId
+    ){
+
+        return BaseResponse.success(userQueryService.getMe(userId));
     }
 
     @Operation(summary = "유저 프로필 수정"
