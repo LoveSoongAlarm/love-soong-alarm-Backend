@@ -124,7 +124,7 @@ public class UserQueryService {
         return age;
     }
 
-    private void updateRedis(Long userId, EGender gender, List<Interest> interests) {
+    private void updateRedis(Long userId, EGender gender, List<Interest> interests) {=
         List<String> interestValues = interests.stream()
                 .map(interest -> interest.getLabel().name())
                 .toList();
