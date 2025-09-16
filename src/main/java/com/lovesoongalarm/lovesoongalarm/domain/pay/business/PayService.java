@@ -8,13 +8,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
-import com.lovesoongalarm.lovesoongalarm.domain.pay.application.PaySuccessResponseDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.pay.application.dto.PaySuccessResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.exception.PayErrorCode;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.implement.PayStripeClient;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.entity.Pay;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.repository.PayRepository;
-import com.lovesoongalarm.lovesoongalarm.domain.pay.sub.checkout.application.CreateCheckoutSessionDTO;
-import com.lovesoongalarm.lovesoongalarm.domain.pay.sub.coin.type.ECoinProductIdType;
+import com.lovesoongalarm.lovesoongalarm.domain.pay.application.dto.CreateCheckoutSessionDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.entity.type.ECoinProductIdType;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
 

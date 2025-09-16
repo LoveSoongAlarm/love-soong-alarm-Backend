@@ -1,8 +1,8 @@
 package com.lovesoongalarm.lovesoongalarm.domain.pay.application;
 
 
-import java.util.Map;
-
+import com.lovesoongalarm.lovesoongalarm.domain.pay.application.dto.PayItemRequestDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.pay.application.dto.PaySuccessResponseDTO;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.lovesoongalarm.lovesoongalarm.common.BaseResponse;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.business.PayService;
-import com.lovesoongalarm.lovesoongalarm.domain.pay.sub.checkout.application.CreateCheckoutSessionDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.pay.application.dto.CreateCheckoutSessionDTO;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,9 +28,9 @@ public class PayController {
 
     @PostMapping("/checkout")
     public BaseResponse<CreateCheckoutSessionDTO> createCheckOut(
-        @Valid @RequestBody Map<String, Integer> req
-    ){
-        return BaseResponse.success(service.createCheckoutSession(req)); // 요것도 일단 url 던지는걸로 구현햇는데, redirect도 좋을 것 같아요!
+            @Valid @RequestBody PayItemRequestDTO request
+            ){
+        return BaseResponse.success(service.createCheckoutSession(request)); // 요것도 일단 url 던지는걸로 구현햇는데, redirect도 좋을 것 같아요!
     }
 
     @GetMapping("/success")

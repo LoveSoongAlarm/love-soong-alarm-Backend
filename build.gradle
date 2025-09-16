@@ -66,15 +66,15 @@ dependencies {
 
     //kakao unlink
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+    // Payment
+    implementation "com.stripe:stripe-java:29.5.0"
 }
 
 dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
     }
-
-	// Payment
-	implementation "com.stripe:stripe-java:29.5.0"
 
 }
 

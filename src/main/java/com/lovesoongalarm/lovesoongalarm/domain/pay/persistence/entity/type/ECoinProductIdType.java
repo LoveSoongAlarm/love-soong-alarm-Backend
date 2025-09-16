@@ -1,4 +1,4 @@
-package com.lovesoongalarm.lovesoongalarm.domain.pay.sub.coin.type;
+package com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.entity.type;
 
 import lombok.Getter;
 

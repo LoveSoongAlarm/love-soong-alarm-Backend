@@ -1,4 +1,4 @@
-package com.lovesoongalarm.lovesoongalarm.domain.pay.application;
+package com.lovesoongalarm.lovesoongalarm.domain.pay.application.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
