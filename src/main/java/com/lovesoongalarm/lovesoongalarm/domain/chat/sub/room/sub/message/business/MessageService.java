@@ -3,6 +3,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.busin
 import com.lovesoongalarm.lovesoongalarm.domain.chat.application.dto.WebSocketMessageDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.persistence.type.EWebSocketMessageType;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomListDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.business.ChatRoomService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.converter.MessageConverter;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.MessageListDTO;
@@ -11,6 +12,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implem
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageValidator;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
+import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,6 +37,7 @@ public class MessageService {
     private static final int INITIAL_MESSAGE_LIMIT = 50;
     private static final int DEFAULT_PAGE_SIZE = 50;
     private static final int MAX_PAGE_SIZE = 100;
+    private final ChatRoomService chatRoomService;
 
     public ChatRoomListDTO.LastMessageInfo createLastMessageInfo(
             ChatRoom chatRoom, Long userId, ChatRoomParticipant myParticipant, ChatRoomParticipant partnerParticipant) {
@@ -120,7 +123,7 @@ public class MessageService {
         return messageConverter.toMessageListResponse(messageInfos, hasMoreMessages, nextCursor);
     }
 
-    public void validateMessage(String content) {
+    public void sendMessage(WebSocketSession session, Long chatRoomId, String content, Long userId) {
         messageValidator.validateMessage(content);
     }
 
@@ -138,5 +141,4 @@ public class MessageService {
         }
         return Math.min(size, MAX_PAGE_SIZE);
     }
-
 }
