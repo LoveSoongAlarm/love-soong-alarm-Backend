@@ -84,17 +84,18 @@ public class LocationServiceImpl implements LocationService {
         if (res == null || res.getContent().isEmpty()) {
             return MatchingResultDTO.builder()
                     .matchCount(0)
-                    .userIds(List.of())
+                    .zone(zone)
+                    .nearbyUsers(List.of())
                     .build();
         }
 
-        return matching(userId, res.getContent().stream()
+        return matching(userId, zone, res.getContent().stream()
                 .map(g -> Long.parseLong(g.getContent().getName()))
                 .filter(id -> !id.equals(userId))
                 .toList());
     }
 
-    private MatchingResultDTO matching(Long userId, List<Long> nearbyUsers) {
+    private MatchingResultDTO matching(Long userId, String zone, List<Long> nearbyUsers) {
         String myGender = (String) stringRedisTemplate.opsForHash().get(USER_GENDER_KEY, String.valueOf(userId));
         log.info("my gender : {}", myGender);
         if (myGender == null) {
@@ -154,8 +155,13 @@ public class LocationServiceImpl implements LocationService {
 
         return MatchingResultDTO.builder()
                 .matchCount(matchCount)
-                .userIds(randomNearbyUsers)
-                .userMatchCounts(userMatchCounts)
+                .zone(zone)
+                .nearbyUsers(randomNearbyUsers.stream()
+                        .map(id -> MatchingResultDTO.NearbyUserMatchDTO.builder()
+                                .userId(id)
+                                .matchCount(userMatchCounts.getOrDefault(id, 0L))
+                                .build())
+                        .toList())
                 .build();
     }
 }

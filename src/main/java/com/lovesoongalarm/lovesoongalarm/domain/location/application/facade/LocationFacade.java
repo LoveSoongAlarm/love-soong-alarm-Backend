@@ -11,6 +11,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserRespons
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,9 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.GEO_KEY;
+import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.LAST_SEEN_KEY;
 
 @Slf4j
 @Service
@@ -42,18 +46,19 @@ public class LocationFacade {
 
             log.info("matchingResult: {}", matchingResult);
 
-            List<Object> pipeLastSeenResults = redisPipeline.pipe(ops -> {
-                for (Long id : matchingResult.userIds()) {
-                    ops.opsForValue().get("lastseen:" + id);
+            List<Object> pipeResults = redisPipeline.pipe(ops -> {
+                for (MatchingResultDTO.NearbyUserMatchDTO userMatch : matchingResult.nearbyUsers()) {
+                    ops.opsForValue().get(LAST_SEEN_KEY + userMatch.userId());
+                    ops.opsForGeo().position(GEO_KEY + matchingResult.zone(), String.valueOf(userMatch.userId()));
                 }
             });
 
             int i = 0;
-            for (Long id : matchingResult.userIds()) {
-                UserResponseDTO user = userQueryService.getUser(id);
+            for (MatchingResultDTO.NearbyUserMatchDTO userMatch : matchingResult.nearbyUsers()) {
+                UserResponseDTO user = userQueryService.getUser(userMatch.userId());
                 log.info("userResponseDTO: {}", user);
 
-                String lastSeenStr = (String) pipeLastSeenResults.get(i++);
+                String lastSeenStr = (String) pipeResults.get(i++);
                 long lastSeen = (lastSeenStr != null) ? Long.parseLong(lastSeenStr) : 0L;
 
                 String time = LocalDateTime.ofInstant(
@@ -61,7 +66,16 @@ public class LocationFacade {
                         ZoneId.of("Asia/Seoul")
                 ).format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
 
-                log.info("{} lastSeen: {}", id, time);
+                List<Point> posList = (List<Point>) pipeResults.get(i++);
+                Double latitude = null;
+                Double longitude = null;
+                if(posList != null && !posList.isEmpty() && posList.get(0) != null) {
+                    longitude = posList.get(0).getX();
+                    latitude = posList.get(0).getY();
+                }
+                log.info("{} lastSeen : {}, lat: {}, lon: {}", userMatch.userId(), lastSeen, latitude, longitude);
+
+                log.info("{} lastSeen: {}", userMatch.userId(), time);
 
                 nearbyUserResponse.add(NearbyUserResponseDTO.builder()
                         .name(user.name())
@@ -70,7 +84,9 @@ public class LocationFacade {
                         .lastSeen(time)
                         .emoji(user.emoji())
                         .interests(user.interests())
-                        .matchCount(matchingResult.userMatchCounts().getOrDefault(id, 0L))
+                        .matchCount(userMatch.matchCount())
+                        .latitude(latitude)
+                        .longitude(longitude)
                         .build());
             }
 
