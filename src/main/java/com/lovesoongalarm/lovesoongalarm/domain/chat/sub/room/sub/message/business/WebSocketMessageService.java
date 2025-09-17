@@ -3,10 +3,10 @@ package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.busin
 import com.lovesoongalarm.lovesoongalarm.domain.chat.application.dto.WebSocketMessageDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.persistence.type.EWebSocketMessageType;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageSender;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.time.LocalDateTime;
@@ -65,13 +65,27 @@ public class WebSocketMessageService {
         messageSender.sendMessage(session, unsubscribeSuccess);
     }
 
-    public void sendReadMessage(WebSocketSession session, Long chatRoomId, Long lastReadMessageId) {
+    public void sendReadMessage(WebSocketSession session, Long chatRoomId, Long readerId) {
         WebSocketMessageDTO.MessageReadNotification messageReadNotification = WebSocketMessageDTO.MessageReadNotification.builder()
                 .type(EWebSocketMessageType.MESSAGE_READ)
                 .chatRoomId(chatRoomId)
-                .lastReadMessageId(lastReadMessageId)
+                .readerId(readerId)
                 .build();
 
         messageSender.sendMessage(session, messageReadNotification);
+    }
+
+    public void sendMessage(WebSocketSession session, Message message, boolean isSentByMe, Long chatRoomId, Long senderId) {
+        WebSocketMessageDTO.ChatMessage chatMessage = WebSocketMessageDTO.ChatMessage.builder()
+                .type(EWebSocketMessageType.CHAT_MESSAGE)
+                .chatRoomId(chatRoomId)
+                .senderId(senderId)
+                .messageId(message.getId())
+                .content(message.getContent())
+                .timestamp(message.getCreatedAt())
+                .isSentByMe(isSentByMe)
+                .build();
+
+        messageSender.sendMessage(session, chatMessage);
     }
 }
