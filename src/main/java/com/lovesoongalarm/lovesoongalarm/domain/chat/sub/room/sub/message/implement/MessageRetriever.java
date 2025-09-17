@@ -34,8 +34,7 @@ public class MessageRetriever {
         return messageRepository.findPreviousMessagesByChatRoomIdAndLastMessageId(chatRoomId, lastMessageId, pageable);
     }
 
-    public Long getLatestMessageId(Long chatRoomId) {
-        return messageRepository.findLatestMessageIdByChatRoomId(chatRoomId)
-                .orElse(null);
+    public int countUnreadMessagesForUser(Long userId) {
+        return messageRepository.countUnreadMessagesForUser(userId);
     }
 }

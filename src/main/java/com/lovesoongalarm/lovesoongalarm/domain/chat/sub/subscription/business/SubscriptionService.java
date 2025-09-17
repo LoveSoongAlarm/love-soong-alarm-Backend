@@ -1,6 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.business;
 
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.MessageReadService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.UnreadCountService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.WebSocketMessageService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.implement.RedisSubscriber;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ public class SubscriptionService {
     private final RedisSubscriber redisSubscriber;
     private final MessageReadService messageReadService;
     private final WebSocketMessageService webSocketMessageService;
+    private final UnreadCountService unreadCountService;
 
     @Transactional
     public void subscribeToChatRoom(WebSocketSession session, Long chatRoomId, Long userId) {
@@ -32,6 +34,8 @@ public class SubscriptionService {
 
     public void subscribeToUserChatUpdates(Long userId){
         redisSubscriber.subscribeToUserChatUpdates(userId);
+
+        int totalUnreadCount = unreadCountService.getTotalUnreadCount(userId);
     }
 
     public void unsubscribeFromUserChatUpdates(Long userId){

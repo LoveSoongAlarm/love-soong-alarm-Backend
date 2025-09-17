@@ -52,13 +52,6 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             @Param("lastMessageId") Long lastMessageId,
             Pageable pageable);
 
-    @Query("""
-            SELECT MAX(m.id)
-            FROM Message m
-            WHERE m.chatRoom.id = :chatRoomId
-             """)
-    Optional<Long> findLatestMessageIdByChatRoomId(Long chatRoomId);
-
     @Modifying
     @Query("UPDATE Message m SET m.isRead = true WHERE m.id = :messageId")
     void markAsRead(@Param("messageId") Long messageId);
@@ -76,7 +69,15 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             @Param("receiverId") Long receiverId
     );
 
-    @Modifying
-    @Query("UPDATE Message m SET m.isRead = true WHERE m.id IN :messageIds")
-    int markSpecificMessagesAsRead(@Param("messageIds") List<Long> messageIds);
+    @Query("""
+            SELECT COUNT(m) FROM Message m
+            WHERE m.user.id != :userId 
+            AND m.isRead = false
+            AND m.chatRoom.id IN (
+                SELECT cp.chatRoom.id 
+                FROM ChatRoomParticipant cp 
+                WHERE cp.user.id = :userId
+            )
+            """)
+    int countUnreadMessagesForUser(Long userId);
 }
