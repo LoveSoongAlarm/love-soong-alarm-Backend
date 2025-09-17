@@ -9,7 +9,8 @@ public class WebSocketMessageDTO {
 
     public record Request(
             EWebSocketMessageType type,
-            Long chatRoomId
+            Long chatRoomId,
+            String content
     ) {
     }
 
@@ -35,7 +36,19 @@ public class WebSocketMessageDTO {
     public record MessageReadNotification(
             EWebSocketMessageType type,
             Long chatRoomId,
-            Long lastReadMessageId
+            Long readerId
+    ) {
+    }
+
+    @Builder
+    public record ChatMessage(
+            EWebSocketMessageType type,
+            Long chatRoomId,
+            Long senderId,
+            Long messageId,
+            String content,
+            LocalDateTime timestamp,
+            boolean isSentByMe
     ) {
     }
 

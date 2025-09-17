@@ -24,8 +24,10 @@ public class ChatRoomValidator {
     }
 
     public void validateChatRoomAccess(Long userId, Long roomId) {
+        log.info("채팅방 조회 및 권한 검증 시작 - userId: {}, roomId: {}", userId, roomId);
         validateChatRoomExists(roomId);
         validateChatRoomAuthorization(userId, roomId);
+        log.info("채팅방 조회 및 권한 검증 완료 - roomId: {}", roomId);
     }
 
     private void validateNotSelfChat(Long userId, Long targetUserId) {

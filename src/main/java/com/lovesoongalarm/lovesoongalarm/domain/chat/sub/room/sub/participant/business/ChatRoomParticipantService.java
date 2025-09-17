@@ -5,11 +5,13 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.im
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantUpdater;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.type.EChatRoomParticipantStatus;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -41,22 +43,22 @@ public class ChatRoomParticipantService {
         log.info("채팅방에 유저 참여 로직 종료 - userId: {}, targetUserId: {}, chatRoomId: {}", userId, targetUserId, chatRoom.getId());
     }
 
-    public Long getPartnerLastReadMessageId(Long roomId, Long partnerId) {
-        return chatRoomParticipantRetriever.findByChatRoomIdAndUserId(roomId, partnerId)
-                .getLastReadMessageId();
-    }
-
-    public ChatRoomParticipant findByChatRoomIdAndUserId(Long chatRoomId, Long userId) {
-        return chatRoomParticipantRetriever.findByChatRoomIdAndUserId(chatRoomId, userId);
+    @Transactional
+    public void activatePartnerIfPending(ChatRoom chatRoom, Long senderId) {
+        chatRoom.getParticipants().stream()
+                .filter(participant -> !participant.getUser().getId().equals(senderId))
+                .filter(participant -> participant.getStatus() == EChatRoomParticipantStatus.PENDING)
+                .findFirst()
+                .ifPresent(partnerParticipant -> {
+                   log.info("상대방을 JOINED 상태로 변경 - partnerId: {}, chatRoomId: {}",
+                           partnerParticipant.getUser().getId(), chatRoom.getId());
+                   chatRoomParticipantUpdater.updateParticipantStatusToJoined(partnerParticipant);
+                });
     }
 
     private boolean isAlreadyParticipating(Long userId, Long targetUserId, ChatRoom chatRoom) {
         boolean userExists = chatRoomParticipantRetriever.existsByUserIdAndChatRoomId(userId, chatRoom.getId());
         boolean targetExists = chatRoomParticipantRetriever.existsByUserIdAndChatRoomId(targetUserId, chatRoom.getId());
         return userExists && targetExists;
-    }
-
-    public void updateLastReadMessageId(ChatRoomParticipant participant, Long latestMessageId) {
-        chatRoomParticipantUpdater.updateLastReadMessageId(participant.getId(), latestMessageId);
     }
 }

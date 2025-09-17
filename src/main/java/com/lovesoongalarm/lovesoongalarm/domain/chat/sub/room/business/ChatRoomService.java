@@ -69,16 +69,12 @@ public class ChatRoomService {
             throw new CustomException(UserErrorCode.USER_NOT_FOUND);
         }
 
-        ChatRoomListDTO.LastMessageInfo lastMessageInfo = messageService.createLastMessageInfo(
-                chatRoom, userId, myParticipant, partnerParticipant);
-
+        ChatRoomListDTO.LastMessageInfo lastMessageInfo = messageService.createLastMessageInfo(chatRoom, userId);
         return chatRoomConverter.toChatRoomInfo(chatRoom, partnerParticipant.getUser(), lastMessageInfo);
     }
 
     public void validateChatRoomAccess(Long userId, Long roomId) {
-        log.info("채팅방 조회 및 권한 검증 시작 - userId: {}, roomId: {}", userId, roomId);
         chatRoomValidator.validateChatRoomAccess(userId, roomId);
-        log.info("채팅방 조회 및 권한 검증 완료 - roomId: {}", roomId);
     }
 
     public void subscribeToChatRoom(WebSocketSession session, Long chatRoomId, Long userId) {
@@ -89,5 +85,9 @@ public class ChatRoomService {
     public void unsubscribeToChatRoom(WebSocketSession session, Long chatRoomId, Long userId) {
         chatRoomValidator.validateChatRoomAccess(userId, chatRoomId);
         subscriptionService.unsubscribeToChatRoom(session, chatRoomId, userId);
+    }
+
+    public ChatRoom getChatRoomOrElseThrow(Long chatRoomId) {
+        return chatRoomRetriever.findById(chatRoomId);
     }
 }

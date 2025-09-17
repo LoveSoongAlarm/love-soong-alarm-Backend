@@ -1,7 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.business;
 
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.MessageReadService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.WebSocketMessageService;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.sub.read.business.MessageReadService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.implement.RedisSubscriber;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
