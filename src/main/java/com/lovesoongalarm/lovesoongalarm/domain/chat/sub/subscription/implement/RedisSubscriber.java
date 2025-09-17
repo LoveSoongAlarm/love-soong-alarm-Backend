@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 
+import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.CHAT_ROOM_SUBSCRIBERS_KEY;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -14,13 +16,11 @@ public class RedisSubscriber {
 
     private final StringRedisTemplate stringRedisTemplate;
 
-    private static final String CHAT_ROOM_SUBSCRIBERS = "chatroom:subscribers:";
-
     private static final Duration SUBSCRIPTION_TTL = Duration.ofHours(2);
 
     public void addSubscriber(Long chatRoomId, Long userId) {
         try {
-            String subscribersKey = CHAT_ROOM_SUBSCRIBERS + chatRoomId;
+            String subscribersKey = CHAT_ROOM_SUBSCRIBERS_KEY + chatRoomId;
             stringRedisTemplate.opsForSet().add(subscribersKey, userId.toString());
             stringRedisTemplate.expire(subscribersKey, SUBSCRIPTION_TTL);
 
@@ -30,10 +30,10 @@ public class RedisSubscriber {
             log.error("Redis 구독 추가 실패 - 채팅방: {}, 유저: {}", chatRoomId, userId, e);
         }
     }
-    
+
     public void removeSubscriber(Long chatRoomId, Long userId) {
         try {
-            String subscribersKey = CHAT_ROOM_SUBSCRIBERS + chatRoomId;
+            String subscribersKey = CHAT_ROOM_SUBSCRIBERS_KEY + chatRoomId;
             stringRedisTemplate.opsForSet().remove(subscribersKey, userId.toString());
 
             Long remainingCount = stringRedisTemplate.opsForSet().size(subscribersKey);
@@ -53,7 +53,7 @@ public class RedisSubscriber {
 
     public boolean isUserSubscribed(Long chatRoomId, Long userId) {
         try {
-            String subscribersKey = CHAT_ROOM_SUBSCRIBERS + chatRoomId;
+            String subscribersKey = CHAT_ROOM_SUBSCRIBERS_KEY + chatRoomId;
             Boolean isMember = stringRedisTemplate.opsForSet().isMember(subscribersKey, userId.toString());
 
             boolean isSubscribed = Boolean.TRUE.equals(isMember);
