@@ -4,9 +4,8 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persis
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -15,7 +14,7 @@ public class MessageUpdater {
 
     private final MessageRepository messageRepository;
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void markAsRead(Long messageId) {
         messageRepository.markAsRead(messageId);
         log.info("메시지 읽음 처리 완료 - messageId: {}", messageId);
