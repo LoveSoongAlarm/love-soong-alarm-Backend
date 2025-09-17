@@ -92,6 +92,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
 
         if (userId != null) {
             chatService.removeSession(userId);
+            chatService.subscribeToUserChatUpdates(userId, session);
         }
     }
 

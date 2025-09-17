@@ -33,4 +33,8 @@ public class SubscriptionService {
     public void subscribeToUserChatUpdates(Long userId){
         redisSubscriber.subscribeToUserChatUpdates(userId);
     }
+
+    public void unsubscribeFromUserChatUpdates(Long userId){
+        redisSubscriber.unsubscribeFromUserChatUpdates(userId);
+    }
 }
