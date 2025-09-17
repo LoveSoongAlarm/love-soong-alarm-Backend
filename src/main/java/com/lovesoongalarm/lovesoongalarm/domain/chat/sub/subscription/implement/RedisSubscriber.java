@@ -16,7 +16,7 @@ public class RedisSubscriber {
 
     private final StringRedisTemplate stringRedisTemplate;
 
-    private static final Duration SUBSCRIPTION_TTL = Duration.ofHours(2);
+    private static final Duration SUBSCRIPTION_TTL = Duration.ofHours(24);
 
     public void addSubscriber(Long chatRoomId, Long userId) {
         try {
