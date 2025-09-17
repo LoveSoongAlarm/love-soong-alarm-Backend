@@ -86,6 +86,26 @@ public class MessageNotificationService {
         }
     }
 
+    public void publishUserChatUpdate(Long userId, UserChatUpdateDTO updateEvent) {
+        try {
+            if (!redisSubscriber.isUserSubscribed(userId)) {
+                log.debug("구독하지 않은 사용자에게는 업데이트를 보내지 않음 - userId: {}", userId);
+                return;
+            }
+
+            WebSocketSession session = chatSessionService.getSession(userId);
+            if (session == null || !session.isOpen()) {
+                log.debug("사용자 세션이 없거나 닫혀있음 - userId: {}", userId);
+                return;
+            }
+
+            webSocketMessageService.sendChatListUpdate(session, updateEvent);
+            log.info("사용자 채팅 업데이트 전송 완료 - userId: {}, chatRoomId: {}", userId, updateEvent.chatRoomId());
+
+        } catch (Exception e) {
+            log.error("사용자 채팅 업데이트 발행 실패 - userId: {}", userId, e);
+        }
+    }
 
     private void sendMessageToUser(Long chatRoomId, Long senderId, Message message, boolean isSentByMe) {
         try {
@@ -121,26 +141,5 @@ public class MessageNotificationService {
 
         log.debug("메시지 수신자 채팅방 목록 업데이트 - receiverId: {}, chatRoomId: {}, unreadCount: {}",
                 receiverId, chatRoomId, receiverUnreadCount);
-    }
-
-    private void publishUserChatUpdate(Long userId, UserChatUpdateDTO updateEvent) {
-        try {
-            if (!redisSubscriber.isUserSubscribed(userId)) {
-                log.debug("구독하지 않은 사용자에게는 업데이트를 보내지 않음 - userId: {}", userId);
-                return;
-            }
-
-            WebSocketSession session = chatSessionService.getSession(userId);
-            if (session == null || !session.isOpen()) {
-                log.debug("사용자 세션이 없거나 닫혀있음 - userId: {}", userId);
-                return;
-            }
-
-            webSocketMessageService.sendChatListUpdate(session, updateEvent);
-            log.info("사용자 채팅 업데이트 전송 완료 - userId: {}, chatRoomId: {}", userId, updateEvent.chatRoomId());
-
-        } catch (Exception e) {
-            log.error("사용자 채팅 업데이트 발행 실패 - userId: {}", userId, e);
-        }
     }
 }

@@ -1,5 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business;
 
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.UserChatUpdateDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageUpdater;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
@@ -86,6 +87,14 @@ public class MessageReadService {
 
     private void handleChatListUpdateOnRead(Long chatRoomId, Long userId, User partner, int readCount) {
         try {
+            Optional<Message> lastMessage = messageRetriever.findLastMessageByChatRoomId(chatRoomId);
+            if (lastMessage.isEmpty()) {
+                log.debug("마지막 메시지가 없어서 채팅방 목록 업데이트를 건너뜀 - chatRoomId: {}", chatRoomId);
+                return;
+            }
+            Message message = lastMessage.get();
+            notifyPartnerOfReadStatus(chatRoomId, partner.getId(), message);
+
             int updatedUnreadCount = unreadCountService.getTotalUnreadCount(userId);
             messageNotificationService.publishUnreadBadgeUpdate(userId, updatedUnreadCount);
 
@@ -94,6 +103,28 @@ public class MessageReadService {
 
         } catch (Exception e) {
             log.error("읽음 처리 시 채팅방 목록 업데이트 실패 - userId: {}, chatRoomId: {}", userId, chatRoomId, e);
+        }
+    }
+
+    private void notifyPartnerOfReadStatus(Long chatRoomId, Long partnerId, Message lastMessage) {
+        try {
+            boolean isPartnerMessage = lastMessage.getUser().getId().equals(partnerId);
+
+            if (isPartnerMessage) {
+                UserChatUpdateDTO partnerUpdate = UserChatUpdateDTO.builder()
+                        .chatRoomId(chatRoomId)
+                        .lastMessageContent(lastMessage.getContent())
+                        .timestamp(lastMessage.getCreatedAt())
+                        .isMyMessage(true)
+                        .isRead(lastMessage.isRead())
+                        .build();
+
+                messageNotificationService.publishUserChatUpdate(partnerId, partnerUpdate);
+                log.debug("상대방에게 읽음 상태 업데이트 알림 전송 - partnerId: {}, chatRoomId: {}", partnerId, chatRoomId);
+            }
+
+        } catch (Exception e) {
+            log.error("상대방 읽음 상태 알림 실패 - partnerId: {}, chatRoomId: {}", partnerId, chatRoomId, e);
         }
     }
 }
