@@ -66,6 +66,27 @@ public class MessageNotificationService {
         }
     }
 
+    public void publishUnreadBadgeUpdate(Long userId, int totalUnreadCount) {
+        try {
+            if (!redisSubscriber.isUserSubscribed(userId)) {
+                return;
+            }
+
+            WebSocketSession session = chatSessionService.getSession(userId);
+            if (session == null || !session.isOpen()) {
+                log.debug("사용자 세션이 없거나 닫혀있음 - userId: {}", userId);
+                return;
+            }
+
+            webSocketMessageService.sendUnreadBadgeUpdate(session, totalUnreadCount);
+            log.info("안 읽은 메시지 배지 업데이트 전송 완료 - userId: {}, count: {}", userId, totalUnreadCount);
+
+        } catch (Exception e) {
+            log.error("안 읽은 메시지 배지 업데이트 발행 실패 - userId: {}", userId, e);
+        }
+    }
+
+
     private void sendMessageToUser(Long chatRoomId, Long senderId, Message message, boolean isSentByMe) {
         try {
             WebSocketSession session = chatSessionService.getSession(senderId);
@@ -100,26 +121,6 @@ public class MessageNotificationService {
 
         log.debug("메시지 수신자 채팅방 목록 업데이트 - receiverId: {}, chatRoomId: {}, unreadCount: {}",
                 receiverId, chatRoomId, receiverUnreadCount);
-    }
-
-    private void publishUnreadBadgeUpdate(Long userId, int totalUnreadCount) {
-        try {
-            if (!redisSubscriber.isUserSubscribed(userId)) {
-                return;
-            }
-
-            WebSocketSession session = chatSessionService.getSession(userId);
-            if (session == null || !session.isOpen()) {
-                log.debug("사용자 세션이 없거나 닫혀있음 - userId: {}", userId);
-                return;
-            }
-
-            webSocketMessageService.sendUnreadBadgeUpdate(session, totalUnreadCount);
-            log.info("안 읽은 메시지 배지 업데이트 전송 완료 - userId: {}, count: {}", userId, totalUnreadCount);
-
-        } catch (Exception e) {
-            log.error("안 읽은 메시지 배지 업데이트 발행 실패 - userId: {}", userId, e);
-        }
     }
 
     private void publishUserChatUpdate(Long userId, UserChatUpdateDTO updateEvent) {

@@ -1,6 +1,8 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business;
 
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageUpdater;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.ChatSessionService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.implement.RedisSubscriber;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
@@ -11,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -18,23 +22,28 @@ public class MessageReadService {
 
     private final RedisSubscriber redisSubscriber;
     private final MessageUpdater messageUpdater;
+    private final MessageRetriever messageRetriever;
 
     private final UserService userService;
     private final ChatSessionService chatSessionService;
     private final WebSocketMessageService webSocketMessageService;
+    private final UnreadCountService unreadCountService;
+    private final MessageNotificationService messageNotificationService;
 
     public void processAutoReadOnSubscribe(Long chatRoomId, Long userId) {
         log.info("채팅방 구독 시 자동읽음 처리 시작 - chatRoomId: {}, userId: {}", chatRoomId, userId);
 
         try {
             int updatedCount = messageUpdater.markMessagesAsReadByChatRoomAndReceiver(chatRoomId, userId);
-            if(updatedCount == 0){
+            if (updatedCount == 0) {
                 log.info("읽음 처리할 메시지가 없으므로 자동읽음 처리 종료 - chatRoomId: {}, userId: {}", chatRoomId, userId);
                 return;
             }
 
             User partner = userService.getPartnerUser(chatRoomId, userId);
             notifyReadStatusUpdate(chatRoomId, userId, partner.getId());
+
+            handleChatListUpdateOnRead(chatRoomId, userId, partner, updatedCount);
 
             log.info("채팅방 구독 시 자동읽음 처리 완료 - chatRoomId: {}, userId: {}", chatRoomId, userId);
         } catch (Exception e) {
@@ -72,6 +81,19 @@ public class MessageReadService {
             log.info("읽음 상태 알림 완료 - partnerId: {}", partnerId);
         } else {
             log.debug("상대방의 세션이 없거나 닫혀있어 읽음 알림을 보내지 않음 - partnerId: {}", partnerId);
+        }
+    }
+
+    private void handleChatListUpdateOnRead(Long chatRoomId, Long userId, User partner, int readCount) {
+        try {
+            int updatedUnreadCount = unreadCountService.getTotalUnreadCount(userId);
+            messageNotificationService.publishUnreadBadgeUpdate(userId, updatedUnreadCount);
+
+            log.info("읽음 처리 시 채팅방 목록 업데이트 완료 - userId: {}, chatRoomId: {}, readCount: {}, newUnreadCount: {}",
+                    userId, chatRoomId, readCount, updatedUnreadCount);
+
+        } catch (Exception e) {
+            log.error("읽음 처리 시 채팅방 목록 업데이트 실패 - userId: {}, chatRoomId: {}", userId, chatRoomId, e);
         }
     }
 }
