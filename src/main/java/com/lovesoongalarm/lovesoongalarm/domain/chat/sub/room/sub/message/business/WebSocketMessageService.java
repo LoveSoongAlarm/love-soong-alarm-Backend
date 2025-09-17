@@ -107,7 +107,6 @@ public class WebSocketMessageService {
                 .timestamp(updateEvent.timestamp())
                 .isMyMessage(updateEvent.isMyMessage())
                 .isRead(updateEvent.isRead())
-                .totalUnreadCount(updateEvent.totalUnreadCount())
                 .build();
 
         messageSender.sendMessage(session, chatListUpdate);

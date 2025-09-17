@@ -10,7 +10,6 @@ public record UserChatUpdateDTO(
         String lastMessageContent,
         LocalDateTime timestamp,
         boolean isMyMessage,
-        boolean isRead,
-        int totalUnreadCount
+        boolean isRead
 ) {
 }

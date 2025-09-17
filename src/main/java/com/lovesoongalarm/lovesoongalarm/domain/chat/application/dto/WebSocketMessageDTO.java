@@ -63,13 +63,10 @@ public class WebSocketMessageDTO {
     public record ChatListUpdate(
             EWebSocketMessageType type,
             Long chatRoomId,
-            String partnerNickname,
-            String partnerEmoji,
             String lastMessageContent,
             LocalDateTime timestamp,
             boolean isMyMessage,
-            boolean isRead,
-            int totalUnreadCount
+            boolean isRead
     ) {
     }
 

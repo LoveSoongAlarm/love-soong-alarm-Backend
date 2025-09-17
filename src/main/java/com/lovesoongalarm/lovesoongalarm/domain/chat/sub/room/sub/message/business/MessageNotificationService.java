@@ -3,7 +3,6 @@ package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.busin
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.UserChatUpdateDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.ChatSessionService;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.business.SubscriptionService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.implement.RedisSubscriber;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
@@ -95,7 +94,6 @@ public class MessageNotificationService {
                 .timestamp(message.getCreatedAt())
                 .isMyMessage(false)
                 .isRead(message.isRead())
-                .totalUnreadCount(receiverUnreadCount)
                 .build();
 
         publishUserChatUpdate(receiverId, receiverUpdate);
