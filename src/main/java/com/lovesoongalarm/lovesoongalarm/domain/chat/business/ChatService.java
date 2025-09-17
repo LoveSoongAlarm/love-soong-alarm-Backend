@@ -5,6 +5,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.MessageService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.WebSocketMessageService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.ChatSessionService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.business.SubscriptionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class ChatService {
     private final ChatSessionService sessionService;
     private final WebSocketMessageService webSocketMessageService;
     private final ChatRoomService chatRoomService;
+    private final SubscriptionService subscriptionService;
     private final MessageService messageService;
 
     public void registerSession(Long userId, String userNickname, WebSocketSession session) {
@@ -51,5 +53,11 @@ public class ChatService {
         ChatRoom chatRoom = chatRoomService.getChatRoomOrElseThrow(chatRoomId);
         messageService.sendMessage(chatRoom, content, userId);
         log.info("메시지 송신 완료 - userId: {}, chatRoomId: {}", userId, chatRoomId);
+    }
+
+    public void subscribeToUserChatUpdates(Long userId, WebSocketSession session) {
+        log.info("사용자 채팅방 구독 시작 - userId: {}, sessionId: {}", userId, session.getId());
+        subscriptionService.subscribeToUserChatUpdates(userId);
+        log.info("사용자 채팅방 구독 완료 - userId: {}, sessionId: {}", userId, session.getId());
     }
 }
