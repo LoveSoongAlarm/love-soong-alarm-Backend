@@ -9,5 +9,12 @@ import java.util.Map;
 public record MatchingResultDTO(
         int matchCount,
         String zone,
-        List<Long> userIds
-) {}
+        List<NearbyUserMatchDTO> nearbyUsers
+) {
+    @Builder
+    public record NearbyUserMatchDTO(
+            Long userId,
+            boolean isMatching
+    ) {
+    }
+}
