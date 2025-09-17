@@ -96,4 +96,18 @@ public class RedisSubscriber {
             log.error("사용자 채팅 업데이트 구독 해제 실패 - userId: {}", userId, e);
         }
     }
+
+    public boolean isUserSubscribed(Long userId) {
+        try {
+            String subscribersKey = USER_CHAT_SUBSCRIBERS_KEY + userId;
+            Boolean isMember = stringRedisTemplate.opsForSet().isMember(subscribersKey, userId.toString());
+
+            boolean isSubscribed = Boolean.TRUE.equals(isMember);
+            log.debug("사용자 구독 상태 확인 - userId: {}, isSubscribed: {}", userId, isSubscribed);
+            return isSubscribed;
+        } catch (Exception e) {
+            log.error("사용자 구독 상태 체크 실패 - userId: {}", userId, e);
+            return false;
+        }
+    }
 }

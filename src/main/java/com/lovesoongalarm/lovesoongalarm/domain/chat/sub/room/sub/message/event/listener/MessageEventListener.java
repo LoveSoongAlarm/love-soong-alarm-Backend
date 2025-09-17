@@ -27,6 +27,12 @@ public class MessageEventListener {
                     event.senderId()
             );
 
+            messageNotificationService.handleChatListUpdate(
+                    event.chatRoomId(),
+                    event.message(),
+                    event.senderId()
+            );
+
             log.info("웹소켓 메시지 전송 완료 - messageId: {}", event.message().getId());
         } catch (Exception e) {
             log.error("웹소켓 메시지 전송 실패 - chatRoomId: {}, messageId: {}",
