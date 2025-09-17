@@ -88,4 +88,13 @@ public class WebSocketMessageService {
 
         messageSender.sendMessage(session, chatMessage);
     }
+
+    public void sendUnreadBadgeUpdate(WebSocketSession session, int totalUnreadCount) {
+        WebSocketMessageDTO.UnreadBadgeUpdate unreadBadgeUpdate = WebSocketMessageDTO.UnreadBadgeUpdate.builder()
+                .type(EWebSocketMessageType.UNREAD_BADGE_UPDATE)
+                .totalUnreadCount(totalUnreadCount)
+                .build();
+
+        messageSender.sendMessage(session, unreadBadgeUpdate);
+    }
 }

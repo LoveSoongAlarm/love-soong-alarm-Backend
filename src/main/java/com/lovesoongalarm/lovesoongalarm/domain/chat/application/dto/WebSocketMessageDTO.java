@@ -53,6 +53,13 @@ public class WebSocketMessageDTO {
     }
 
     @Builder
+    public record UnreadBadgeUpdate(
+            EWebSocketMessageType type,
+            int totalUnreadCount
+    ) {
+    }
+
+    @Builder
     public record ErrorResponse(
             EWebSocketMessageType type,
             String errorCode,

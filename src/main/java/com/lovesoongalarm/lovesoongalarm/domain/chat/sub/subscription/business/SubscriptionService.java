@@ -32,10 +32,11 @@ public class SubscriptionService {
         webSocketMessageService.sendUnsubscribeSuccessMessage(session, chatRoomId);
     }
 
-    public void subscribeToUserChatUpdates(Long userId){
+    public void subscribeToUserChatUpdates(WebSocketSession session, Long userId){
         redisSubscriber.subscribeToUserChatUpdates(userId);
 
         int totalUnreadCount = unreadCountService.getTotalUnreadCount(userId);
+        webSocketMessageService.sendUnreadBadgeUpdate(session, totalUnreadCount);
     }
 
     public void unsubscribeFromUserChatUpdates(Long userId){

@@ -57,7 +57,7 @@ public class ChatService {
 
     public void subscribeToUserChatUpdates(Long userId, WebSocketSession session) {
         log.info("사용자 채팅방 구독 시작 - userId: {}, sessionId: {}", userId, session.getId());
-        subscriptionService.subscribeToUserChatUpdates(userId);
+        subscriptionService.subscribeToUserChatUpdates(session, userId);
         log.info("사용자 채팅방 구독 완료 - userId: {}, sessionId: {}", userId, session.getId());
     }
 
