@@ -111,4 +111,5 @@ public class WebSocketMessageService {
 
         messageSender.sendMessage(session, chatListUpdate);
     }
+
 }

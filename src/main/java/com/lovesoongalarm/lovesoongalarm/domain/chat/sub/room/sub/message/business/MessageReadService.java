@@ -26,11 +26,13 @@ public class MessageReadService {
     private final MessageUpdater messageUpdater;
     private final MessageRetriever messageRetriever;
 
+
     private final UserService userService;
     private final ChatSessionService chatSessionService;
     private final WebSocketMessageService webSocketMessageService;
     private final UnreadCountService unreadCountService;
     private final UserChatSubscriptionService userChatSubscriptionService;
+
 
     public void processAutoReadOnSubscribe(Long chatRoomId, Long userId) {
         log.info("채팅방 구독 시 자동읽음 처리 시작 - chatRoomId: {}, userId: {}", chatRoomId, userId);
