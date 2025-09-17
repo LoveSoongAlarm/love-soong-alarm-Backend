@@ -33,9 +33,6 @@ public class Notice {
     @Enumerated(EnumType.STRING)
     private ENoticeStatus status;
 
-    @OneToMany(mappedBy = "notice", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<NoticeInterest> interests;
-
     @Column(name = "notice_time")
     private String noticeTime;
 
