@@ -58,6 +58,10 @@ public class RedisSubscriber {
             Boolean isMember = stringRedisTemplate.opsForSet().isMember(subscribersKey, userId.toString());
 
             boolean isSubscribed = Boolean.TRUE.equals(isMember);
+            if (isSubscribed) {
+                stringRedisTemplate.expire(subscribersKey, SUBSCRIPTION_TTL);
+            }
+            log.debug("채팅방 구독 상태 확인 - chatRoomId: {}, userId: {}, isSubscribed: {}", chatRoomId, userId, isSubscribed);
             return isSubscribed;
         } catch (Exception e) {
             log.error("Redis 구독 상태 체크 실패 - 채팅방: {}, 유저: {}", chatRoomId, userId, e);
@@ -103,6 +107,9 @@ public class RedisSubscriber {
             Boolean isMember = stringRedisTemplate.opsForSet().isMember(subscribersKey, userId.toString());
 
             boolean isSubscribed = Boolean.TRUE.equals(isMember);
+            if (isSubscribed) {
+                stringRedisTemplate.expire(subscribersKey, SUBSCRIPTION_TTL);
+            }
             log.debug("사용자 구독 상태 확인 - userId: {}, isSubscribed: {}", userId, isSubscribed);
             return isSubscribed;
         } catch (Exception e) {
