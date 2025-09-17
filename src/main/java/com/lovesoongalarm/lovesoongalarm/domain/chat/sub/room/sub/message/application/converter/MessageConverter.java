@@ -19,19 +19,12 @@ public class MessageConverter {
     }
 
     public MessageListDTO.MessageInfo toMessageInfo(Message message, Long userId) {
-        boolean isSentByMe = message.isSentBy(userId);
-        boolean isRead = message.isRead();
-
-        if(!isSentByMe) {
-            isRead = true;
-        }
-
         return MessageListDTO.MessageInfo.builder()
                 .messageId(message.getId())
                 .content(message.getContent())
                 .createdAt(message.getCreatedAt())
-                .isSentByMe(isSentByMe)
-                .isRead(isRead)
+                .isSentByMe(message.isSentBy(userId))
+                .isRead(message.isRead())
                 .build();
     }
 }

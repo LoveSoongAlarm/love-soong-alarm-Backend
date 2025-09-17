@@ -84,19 +84,12 @@ public class ChatRoomConverter {
     }
 
     private ChatRoomDetailDTO.MessageInfo toMessageInfo(Message message, Long currentUserId) {
-        boolean isSentByMe = message.isSentBy(currentUserId);
-        boolean isRead = message.isRead();
-
-        if(!isSentByMe) {
-            isRead = true;
-        }
-
         return ChatRoomDetailDTO.MessageInfo.builder()
                 .messageId(message.getId())
                 .content(message.getContent())
                 .createdAt(message.getCreatedAt())
-                .isSentByMe(isSentByMe)
-                .isRead(isRead)
+                .isSentByMe(message.isSentBy(currentUserId))
+                .isRead(message.isRead())
                 .build();
     }
 
