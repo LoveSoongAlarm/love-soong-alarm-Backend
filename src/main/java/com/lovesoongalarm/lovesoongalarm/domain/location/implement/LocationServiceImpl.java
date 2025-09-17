@@ -85,7 +85,7 @@ public class LocationServiceImpl implements LocationService {
             return MatchingResultDTO.builder()
                     .matchCount(0)
                     .zone(zone)
-                    .nearbyUsers(List.of())
+                    .userIds(List.of())
                     .build();
         }
 
@@ -134,7 +134,6 @@ public class LocationServiceImpl implements LocationService {
         });
 
         int matchCount = 0;
-        Map<Long, Long> userMatchCounts = new HashMap<>();
 
         for (int i = 0; i < randomNearbyUsers.size(); i++) {
             Long id = randomNearbyUsers.get(i);
@@ -144,9 +143,7 @@ public class LocationServiceImpl implements LocationService {
                     .filter(myInterests::contains)
                     .count();
 
-            userMatchCounts.put(id, overlap);
-
-            if (overlap == 2) {
+            if (overlap != 0) {
                 matchCount++;
             }
         }
@@ -156,12 +153,7 @@ public class LocationServiceImpl implements LocationService {
         return MatchingResultDTO.builder()
                 .matchCount(matchCount)
                 .zone(zone)
-                .nearbyUsers(randomNearbyUsers.stream()
-                        .map(id -> MatchingResultDTO.NearbyUserMatchDTO.builder()
-                                .userId(id)
-                                .matchCount(userMatchCounts.getOrDefault(id, 0L))
-                                .build())
-                        .toList())
+                .userIds(randomNearbyUsers)
                 .build();
     }
 }
