@@ -27,7 +27,11 @@ public class MessageReadService {
         log.info("채팅방 구독 시 자동읽음 처리 시작 - chatRoomId: {}, userId: {}", chatRoomId, userId);
 
         try {
-            messageUpdater.markMessagesAsReadByChatRoomAndReceiver(chatRoomId, userId);
+            int updatedCount = messageUpdater.markMessagesAsReadByChatRoomAndReceiver(chatRoomId, userId);
+            if(updatedCount == 0){
+                log.info("읽음 처리할 메시지가 없으므로 자동읽음 처리 종료 - chatRoomId: {}, userId: {}", chatRoomId, userId);
+                return;
+            }
 
             User partner = userService.getPartnerUser(chatRoomId, userId);
             notifyReadStatusUpdate(chatRoomId, userId, partner.getId());
