@@ -1,11 +1,14 @@
 package com.lovesoongalarm.lovesoongalarm.domain.notice.persistence.entity;
 
 import com.lovesoongalarm.lovesoongalarm.domain.notice.persistence.type.ENoticeStatus;
+import com.lovesoongalarm.lovesoongalarm.domain.notice.sub.interest.persistence.entity.NoticeInterest;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Getter
 @Entity
@@ -29,6 +32,9 @@ public class Notice {
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private ENoticeStatus status;
+
+    @OneToMany(mappedBy = "notice", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<NoticeInterest> interests;
 
     @Column(name = "notice_time")
     private String noticeTime;
