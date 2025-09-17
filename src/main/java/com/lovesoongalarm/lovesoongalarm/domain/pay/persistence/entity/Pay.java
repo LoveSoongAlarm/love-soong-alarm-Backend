@@ -17,7 +17,7 @@ public class Pay {
     @Column(nullable = false, unique = true, length = 100)
     private String sessionId; // Stripe에서 취급하는 결제 세션 ID
 
-    @Column(nullable = false, unique = true, length = 20)
+    @Column(nullable = false, length = 20)
     private String status; // PENDING, COMPLETED, FAILED
 
     public Pay (String sessionId, String status) {

@@ -25,12 +25,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class PayController {
     
     private final PayService service;
+    private final WebhookClient webhookClient;
 
     @PostMapping("/checkout")
     public BaseResponse<CreateCheckoutSessionDTO> createCheckOut(
             @Valid @RequestBody PayItemRequestDTO request
             ){
         return BaseResponse.success(service.createCheckoutSession(request)); // 요것도 일단 url 던지는걸로 구현햇는데, redirect도 좋을 것 같아요!
+    }
+
+    @PostMapping("/webhook")
+    public BaseResponse<Void> handleWebhook(@RequestBody String payload, @RequestHeader("Stripe-Signature") String sigHeader) {
+        webhookClient.handle(payload, sigHeader);
+        return BaseResponse.success(null);
     }
 
     @GetMapping("/success")
