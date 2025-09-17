@@ -33,6 +33,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
             Long userId = (Long) session.getAttributes().get("userId");
             String userNickname = userQueryService.getUserNickname(userId);
             chatService.registerSession(userId, userNickname, session);
+            chatService.subscribeToUserChatUpdates(userId, session);
         } catch (Exception e) {
             log.error("WebSocket 연결 처리 중 오류 발생", e);
             session.close();
@@ -91,6 +92,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
 
         if (userId != null) {
             chatService.removeSession(userId);
+            chatService.unsubscribeFromUserChatUpdates(userId, session);
         }
     }
 

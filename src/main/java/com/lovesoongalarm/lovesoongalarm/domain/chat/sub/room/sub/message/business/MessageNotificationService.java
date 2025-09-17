@@ -1,7 +1,9 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business;
 
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.UserChatUpdateDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.ChatSessionService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.business.UserChatSubscriptionService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.implement.RedisSubscriber;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
@@ -21,6 +23,8 @@ public class MessageNotificationService {
     private final UserService userService;
     private final MessageReadService messageReadService;
     private final WebSocketMessageService webSocketMessageService;
+    private final UnreadCountService unreadCountService;
+    private final UserChatSubscriptionService userChatSubscriptionService;
 
     public void notifyMessage(Long chatRoomId, Message message, Long senderId) {
         log.info("1:1 채팅 메시지 알림 전송 시작 - chatRoomId: {}, messageId: {}, senderId: {}",
@@ -48,6 +52,22 @@ public class MessageNotificationService {
         }
     }
 
+    public void handleChatListUpdate(Long chatRoomId, Message message, Long senderId) {
+        try {
+            User partner = userService.getPartnerUser(chatRoomId, senderId);
+            Long partnerId = partner.getId();
+
+            publishReceiverChatListUpdate(partnerId, chatRoomId, message);
+
+            log.info("채팅방 목록 양방향 업데이트 완료 - chatRoomId: {}, senderId: {}, partnerId: {}",
+                    chatRoomId, senderId, partnerId);
+
+        } catch (Exception e) {
+            log.error("채팅방 목록 업데이트 실패 - chatRoomId: {}, senderId: {}",
+                    chatRoomId, senderId, e);
+        }
+    }
+
     private void sendMessageToUser(Long chatRoomId, Long senderId, Message message, boolean isSentByMe) {
         try {
             WebSocketSession session = chatSessionService.getSession(senderId);
@@ -63,6 +83,27 @@ public class MessageNotificationService {
         } catch (Exception e) {
             log.error("사용자에게 메시지 전송 실패 - senderId: {}, messageId: {}",
                     senderId, message.getId(), e);
+        }
+    }
+
+    private void publishReceiverChatListUpdate(Long receiverId, Long chatRoomId, Message message) {
+        int receiverUnreadCount = unreadCountService.getTotalUnreadCount(receiverId);
+        userChatSubscriptionService.publishUnreadBadgeUpdate(receiverId, receiverUnreadCount);
+
+        boolean isPartnerSubscribedToRoom = redisSubscriber.isUserSubscribed(chatRoomId, receiverId);
+        if (!isPartnerSubscribedToRoom) {
+            UserChatUpdateDTO receiverUpdate = UserChatUpdateDTO.builder()
+                    .chatRoomId(chatRoomId)
+                    .lastMessageContent(message.getContent())
+                    .timestamp(message.getCreatedAt())
+                    .isMyMessage(false)
+                    .isRead(message.isRead())
+                    .build();
+
+            userChatSubscriptionService.publishUserChatUpdate(receiverId, receiverUpdate);
+
+            log.debug("메시지 수신자 채팅방 목록 업데이트 - receiverId: {}, chatRoomId: {}, unreadCount: {}",
+                    receiverId, chatRoomId, receiverUnreadCount);
         }
     }
 }
