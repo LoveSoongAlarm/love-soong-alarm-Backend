@@ -30,10 +30,10 @@ public class MessageNotificationService {
             User partner = userService.getPartnerUser(chatRoomId, senderId);
             Long partnerId = partner.getId();
 
-            sendMessageToUser(senderId, message, true);
+            sendMessageToUser(chatRoomId, senderId, message, true);
 
             if (redisSubscriber.isUserSubscribed(chatRoomId, partnerId)) {
-                sendMessageToUser(partnerId, message, false);
+                sendMessageToUser(chatRoomId, partnerId, message, false);
 
                 messageReadService.processAutoReadOnMessageReceive(chatRoomId, partnerId, message.getId());
 
@@ -48,21 +48,21 @@ public class MessageNotificationService {
         }
     }
 
-    private void sendMessageToUser(Long userId, Message message, boolean isSentByMe) {
+    private void sendMessageToUser(Long chatRoomId, Long senderId, Message message, boolean isSentByMe) {
         try {
-            WebSocketSession session = chatSessionService.getSession(userId);
+            WebSocketSession session = chatSessionService.getSession(senderId);
 
             if (session == null || !session.isOpen()) {
-                log.info("사용자 세션이 없거나 닫혀있음 - userId: {}", userId);
+                log.info("사용자 세션이 없거나 닫혀있음 - senderId: {}", senderId);
                 return;
             }
 
-            webSocketMessageService.sendMessage(session, message, isSentByMe);
+            webSocketMessageService.sendMessage(session, message, isSentByMe, chatRoomId, senderId);
 
-            log.info("메시지 전송 성공 - userId: {}, messageId: {}, isSentByMe: {}", userId, message.getId(), isSentByMe);
+            log.info("메시지 전송 성공 - senderId: {}, messageId: {}, isSentByMe: {}", senderId, message.getId(), isSentByMe);
         } catch (Exception e) {
-            log.error("사용자에게 메시지 전송 실패 - userId: {}, messageId: {}",
-                    userId, message.getId(), e);
+            log.error("사용자에게 메시지 전송 실패 - senderId: {}, messageId: {}",
+                    senderId, message.getId(), e);
         }
     }
 }

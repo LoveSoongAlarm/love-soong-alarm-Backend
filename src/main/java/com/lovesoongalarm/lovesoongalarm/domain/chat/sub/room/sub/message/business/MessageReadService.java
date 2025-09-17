@@ -64,7 +64,7 @@ public class MessageReadService {
 
         WebSocketSession partnerSession = chatSessionService.getSession(partnerId);
         if (partnerSession != null && partnerSession.isOpen()) {
-            webSocketMessageService.sendReadMessage(partnerSession, readerId);
+            webSocketMessageService.sendReadMessage(partnerSession, chatRoomId, readerId);
             log.info("읽음 상태 알림 완료 - partnerId: {}", partnerId);
         } else {
             log.debug("상대방의 세션이 없거나 닫혀있어 읽음 알림을 보내지 않음 - partnerId: {}", partnerId);

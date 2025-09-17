@@ -35,6 +35,7 @@ public class WebSocketMessageDTO {
     @Builder
     public record MessageReadNotification(
             EWebSocketMessageType type,
+            Long chatRoomId,
             Long readerId
     ) {
     }
@@ -42,6 +43,8 @@ public class WebSocketMessageDTO {
     @Builder
     public record ChatMessage(
             EWebSocketMessageType type,
+            Long chatRoomId,
+            Long senderId,
             Long messageId,
             String content,
             LocalDateTime timestamp,

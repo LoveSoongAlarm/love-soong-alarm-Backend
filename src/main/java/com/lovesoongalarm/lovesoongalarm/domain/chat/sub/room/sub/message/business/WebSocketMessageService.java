@@ -65,18 +65,21 @@ public class WebSocketMessageService {
         messageSender.sendMessage(session, unsubscribeSuccess);
     }
 
-    public void sendReadMessage(WebSocketSession session, Long readerId) {
+    public void sendReadMessage(WebSocketSession session, Long chatRoomId, Long readerId) {
         WebSocketMessageDTO.MessageReadNotification messageReadNotification = WebSocketMessageDTO.MessageReadNotification.builder()
                 .type(EWebSocketMessageType.MESSAGE_READ)
+                .chatRoomId(chatRoomId)
                 .readerId(readerId)
                 .build();
 
         messageSender.sendMessage(session, messageReadNotification);
     }
 
-    public void sendMessage(WebSocketSession session, Message message, boolean isSentByMe) {
+    public void sendMessage(WebSocketSession session, Message message, boolean isSentByMe, Long chatRoomId, Long senderId) {
         WebSocketMessageDTO.ChatMessage chatMessage = WebSocketMessageDTO.ChatMessage.builder()
                 .type(EWebSocketMessageType.CHAT_MESSAGE)
+                .chatRoomId(chatRoomId)
+                .senderId(senderId)
                 .messageId(message.getId())
                 .content(message.getContent())
                 .timestamp(message.getCreatedAt())
