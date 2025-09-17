@@ -79,5 +79,5 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
                 WHERE cp.user.id = :userId
             )
             """)
-    int countUnreadMessagesForUser(Long userId);
+    int countUnreadMessagesForUser(@Param("userId") Long userId);
 }
