@@ -90,17 +90,20 @@ public class MessageNotificationService {
         int receiverUnreadCount = unreadCountService.getTotalUnreadCount(receiverId);
         userChatSubscriptionService.publishUnreadBadgeUpdate(receiverId, receiverUnreadCount);
 
-        UserChatUpdateDTO receiverUpdate = UserChatUpdateDTO.builder()
-                .chatRoomId(chatRoomId)
-                .lastMessageContent(message.getContent())
-                .timestamp(message.getCreatedAt())
-                .isMyMessage(false)
-                .isRead(message.isRead())
-                .build();
+        boolean isPartnerSubscribedToRoom = redisSubscriber.isUserSubscribed(chatRoomId, receiverId);
+        if (!isPartnerSubscribedToRoom) {
+            UserChatUpdateDTO receiverUpdate = UserChatUpdateDTO.builder()
+                    .chatRoomId(chatRoomId)
+                    .lastMessageContent(message.getContent())
+                    .timestamp(message.getCreatedAt())
+                    .isMyMessage(false)
+                    .isRead(message.isRead())
+                    .build();
 
-        userChatSubscriptionService.publishUserChatUpdate(receiverId, receiverUpdate);
+            userChatSubscriptionService.publishUserChatUpdate(receiverId, receiverUpdate);
 
-        log.debug("메시지 수신자 채팅방 목록 업데이트 - receiverId: {}, chatRoomId: {}, unreadCount: {}",
-                receiverId, chatRoomId, receiverUnreadCount);
+            log.debug("메시지 수신자 채팅방 목록 업데이트 - receiverId: {}, chatRoomId: {}, unreadCount: {}",
+                    receiverId, chatRoomId, receiverUnreadCount);
+        }
     }
 }
