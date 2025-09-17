@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 public class NoticeConverter {
     public NoticeResponseDTO toNoticeResponseDTO(Notice notice) {
         return NoticeResponseDTO.builder()
-                .userId(notice.getUser().getId())
                 .matchingUserId(notice.getMatchingUserId())
                 .noticeTime(notice.getNoticeTime())
                 .message(notice.getMessage())
