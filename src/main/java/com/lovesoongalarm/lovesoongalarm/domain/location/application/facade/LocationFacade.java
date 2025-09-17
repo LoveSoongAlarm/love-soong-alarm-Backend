@@ -47,15 +47,15 @@ public class LocationFacade {
             log.info("matchingResult: {}", matchingResult);
 
             List<Object> pipeResults = redisPipeline.pipe(ops -> {
-                for (MatchingResultDTO.NearbyUserMatchDTO userMatch : matchingResult.nearbyUsers()) {
-                    ops.opsForValue().get(LAST_SEEN_KEY + userMatch.userId());
-                    ops.opsForGeo().position(GEO_KEY + matchingResult.zone(), String.valueOf(userMatch.userId()));
+                for (Long id : matchingResult.userIds()) {
+                    ops.opsForValue().get(LAST_SEEN_KEY + id);
+                    ops.opsForGeo().position(GEO_KEY + matchingResult.zone(), String.valueOf(id));
                 }
             });
 
             int i = 0;
-            for (MatchingResultDTO.NearbyUserMatchDTO userMatch : matchingResult.nearbyUsers()) {
-                UserResponseDTO user = userQueryService.getUser(userMatch.userId());
+            for (Long id : matchingResult.userIds()) {
+                UserResponseDTO user = userQueryService.getUser(id);
                 log.info("userResponseDTO: {}", user);
 
                 String lastSeenStr = (String) pipeResults.get(i++);
@@ -73,9 +73,9 @@ public class LocationFacade {
                     longitude = posList.get(0).getX();
                     latitude = posList.get(0).getY();
                 }
-                log.debug("{} lastSeen : {}, lat: {}, lon: {}", userMatch.userId(), lastSeen, latitude, longitude);
+                log.debug("{} lastSeen : {}, lat: {}, lon: {}", id, lastSeen, latitude, longitude);
 
-                log.info("{} lastSeen: {}", userMatch.userId(), time);
+                log.info("{} lastSeen: {}", id, time);
 
                 nearbyUserResponse.add(NearbyUserResponseDTO.builder()
                         .name(user.name())
@@ -84,7 +84,6 @@ public class LocationFacade {
                         .lastSeen(time)
                         .emoji(user.emoji())
                         .interests(user.interests())
-                        .matchCount(userMatch.matchCount())
                         .latitude(latitude)
                         .longitude(longitude)
                         .build());
