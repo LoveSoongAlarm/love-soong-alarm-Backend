@@ -4,6 +4,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.Ch
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.converter.MessageConverter;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.MessageListDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.event.MessageSentEvent;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageSaver;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageValidator;
@@ -13,6 +14,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +36,8 @@ public class MessageService {
     private final UserService userService;
     private final ChatRoomParticipantService chatRoomParticipantService;
     private final MessageNotificationService messageNotificationService;
+
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final int INITIAL_MESSAGE_LIMIT = 50;
     private static final int DEFAULT_PAGE_SIZE = 50;
@@ -129,7 +133,14 @@ public class MessageService {
 
         chatRoomParticipantService.activatePartnerIfPending(chatRoom, senderId);
 
-        messageNotificationService.notifyMessage(chatRoom.getId(), savedMessage, senderId);
+        eventPublisher.publishEvent(
+                MessageSentEvent.builder()
+                        .chatRoomId(chatRoom.getId())
+                        .message(message)
+                        .senderId(senderId)
+                        .build()
+        );
+
         log.info("1:1 채팅 메시지 전송 완료 - messageId: {}", savedMessage.getId());
     }
 
