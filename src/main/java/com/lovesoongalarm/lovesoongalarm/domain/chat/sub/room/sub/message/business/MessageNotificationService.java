@@ -3,6 +3,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.busin
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.UserChatUpdateDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.ChatSessionService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.business.UserChatSubscriptionService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.implement.RedisSubscriber;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
@@ -23,6 +24,7 @@ public class MessageNotificationService {
     private final MessageReadService messageReadService;
     private final WebSocketMessageService webSocketMessageService;
     private final UnreadCountService unreadCountService;
+    private final UserChatSubscriptionService userChatSubscriptionService;
 
     public void notifyMessage(Long chatRoomId, Message message, Long senderId) {
         log.info("1:1 채팅 메시지 알림 전송 시작 - chatRoomId: {}, messageId: {}, senderId: {}",
@@ -66,47 +68,6 @@ public class MessageNotificationService {
         }
     }
 
-    public void publishUnreadBadgeUpdate(Long userId, int totalUnreadCount) {
-        try {
-            if (!redisSubscriber.isUserSubscribed(userId)) {
-                return;
-            }
-
-            WebSocketSession session = chatSessionService.getSession(userId);
-            if (session == null || !session.isOpen()) {
-                log.debug("사용자 세션이 없거나 닫혀있음 - userId: {}", userId);
-                return;
-            }
-
-            webSocketMessageService.sendUnreadBadgeUpdate(session, totalUnreadCount);
-            log.info("안 읽은 메시지 배지 업데이트 전송 완료 - userId: {}, count: {}", userId, totalUnreadCount);
-
-        } catch (Exception e) {
-            log.error("안 읽은 메시지 배지 업데이트 발행 실패 - userId: {}", userId, e);
-        }
-    }
-
-    public void publishUserChatUpdate(Long userId, UserChatUpdateDTO updateEvent) {
-        try {
-            if (!redisSubscriber.isUserSubscribed(userId)) {
-                log.debug("구독하지 않은 사용자에게는 업데이트를 보내지 않음 - userId: {}", userId);
-                return;
-            }
-
-            WebSocketSession session = chatSessionService.getSession(userId);
-            if (session == null || !session.isOpen()) {
-                log.debug("사용자 세션이 없거나 닫혀있음 - userId: {}", userId);
-                return;
-            }
-
-            webSocketMessageService.sendChatListUpdate(session, updateEvent);
-            log.info("사용자 채팅 업데이트 전송 완료 - userId: {}, chatRoomId: {}", userId, updateEvent.chatRoomId());
-
-        } catch (Exception e) {
-            log.error("사용자 채팅 업데이트 발행 실패 - userId: {}", userId, e);
-        }
-    }
-
     private void sendMessageToUser(Long chatRoomId, Long senderId, Message message, boolean isSentByMe) {
         try {
             WebSocketSession session = chatSessionService.getSession(senderId);
@@ -127,7 +88,7 @@ public class MessageNotificationService {
 
     private void publishReceiverChatListUpdate(Long receiverId, Long chatRoomId, Message message) {
         int receiverUnreadCount = unreadCountService.getTotalUnreadCount(receiverId);
-        publishUnreadBadgeUpdate(receiverId, receiverUnreadCount);
+        userChatSubscriptionService.publishUnreadBadgeUpdate(receiverId, receiverUnreadCount);
 
         UserChatUpdateDTO receiverUpdate = UserChatUpdateDTO.builder()
                 .chatRoomId(chatRoomId)
@@ -137,7 +98,7 @@ public class MessageNotificationService {
                 .isRead(message.isRead())
                 .build();
 
-        publishUserChatUpdate(receiverId, receiverUpdate);
+        userChatSubscriptionService.publishUserChatUpdate(receiverId, receiverUpdate);
 
         log.debug("메시지 수신자 채팅방 목록 업데이트 - receiverId: {}, chatRoomId: {}, unreadCount: {}",
                 receiverId, chatRoomId, receiverUnreadCount);

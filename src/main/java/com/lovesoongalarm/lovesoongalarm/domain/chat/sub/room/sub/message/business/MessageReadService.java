@@ -5,6 +5,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implem
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageUpdater;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.ChatSessionService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.business.UserChatSubscriptionService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.implement.RedisSubscriber;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
@@ -29,7 +30,7 @@ public class MessageReadService {
     private final ChatSessionService chatSessionService;
     private final WebSocketMessageService webSocketMessageService;
     private final UnreadCountService unreadCountService;
-    private final MessageNotificationService messageNotificationService;
+    private final UserChatSubscriptionService userChatSubscriptionService;
 
     public void processAutoReadOnSubscribe(Long chatRoomId, Long userId) {
         log.info("채팅방 구독 시 자동읽음 처리 시작 - chatRoomId: {}, userId: {}", chatRoomId, userId);
@@ -96,7 +97,7 @@ public class MessageReadService {
             notifyPartnerOfReadStatus(chatRoomId, partner.getId(), message);
 
             int updatedUnreadCount = unreadCountService.getTotalUnreadCount(userId);
-            messageNotificationService.publishUnreadBadgeUpdate(userId, updatedUnreadCount);
+            userChatSubscriptionService.publishUnreadBadgeUpdate(userId, updatedUnreadCount);
 
             log.info("읽음 처리 시 채팅방 목록 업데이트 완료 - userId: {}, chatRoomId: {}, readCount: {}, newUnreadCount: {}",
                     userId, chatRoomId, readCount, updatedUnreadCount);
@@ -119,7 +120,7 @@ public class MessageReadService {
                         .isRead(lastMessage.isRead())
                         .build();
 
-                messageNotificationService.publishUserChatUpdate(partnerId, partnerUpdate);
+                userChatSubscriptionService.publishUserChatUpdate(partnerId, partnerUpdate);
                 log.debug("상대방에게 읽음 상태 업데이트 알림 전송 - partnerId: {}, chatRoomId: {}", partnerId, chatRoomId);
             }
 
