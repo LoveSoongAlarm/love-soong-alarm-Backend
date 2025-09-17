@@ -2,6 +2,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.busin
 
 import com.lovesoongalarm.lovesoongalarm.domain.chat.application.dto.WebSocketMessageDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.persistence.type.EWebSocketMessageType;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.UserChatUpdateDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageSender;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import lombok.RequiredArgsConstructor;
@@ -96,5 +97,19 @@ public class WebSocketMessageService {
                 .build();
 
         messageSender.sendMessage(session, unreadBadgeUpdate);
+    }
+
+    public void sendChatListUpdate(WebSocketSession session, UserChatUpdateDTO updateEvent) {
+        WebSocketMessageDTO.ChatListUpdate chatListUpdate = WebSocketMessageDTO.ChatListUpdate.builder()
+                .type(EWebSocketMessageType.CHAT_LIST_UPDATE)
+                .chatRoomId(updateEvent.chatRoomId())
+                .lastMessageContent(updateEvent.lastMessageContent())
+                .timestamp(updateEvent.timestamp())
+                .isMyMessage(updateEvent.isMyMessage())
+                .isRead(updateEvent.isRead())
+                .totalUnreadCount(updateEvent.totalUnreadCount())
+                .build();
+
+        messageSender.sendMessage(session, chatListUpdate);
     }
 }

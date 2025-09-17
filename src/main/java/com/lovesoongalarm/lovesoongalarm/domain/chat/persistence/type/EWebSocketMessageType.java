@@ -13,6 +13,7 @@ public enum EWebSocketMessageType {
     MESSAGE_READ("메시지 읽음"),
     CHAT_MESSAGE("채팅 메시지"),
     UNREAD_BADGE_UPDATE("안 읽은 메시지 배지 업데이트"),
+    CHAT_LIST_UPDATE("채팅방 목록 업데이트"),
     ERROR("에러");
 
     private final String value;

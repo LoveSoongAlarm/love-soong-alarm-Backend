@@ -1,5 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business;
 
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.UserChatUpdateDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.ChatSessionService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.business.SubscriptionService;
@@ -22,7 +23,6 @@ public class MessageNotificationService {
     private final UserService userService;
     private final MessageReadService messageReadService;
     private final WebSocketMessageService webSocketMessageService;
-    private final SubscriptionService subscriptionService;
     private final UnreadCountService unreadCountService;
 
     public void notifyMessage(Long chatRoomId, Message message, Long senderId) {
@@ -89,6 +89,17 @@ public class MessageNotificationService {
         int receiverUnreadCount = unreadCountService.getTotalUnreadCount(receiverId);
         publishUnreadBadgeUpdate(receiverId, receiverUnreadCount);
 
+        UserChatUpdateDTO receiverUpdate = UserChatUpdateDTO.builder()
+                .chatRoomId(chatRoomId)
+                .lastMessageContent(message.getContent())
+                .timestamp(message.getCreatedAt())
+                .isMyMessage(false)
+                .isRead(message.isRead())
+                .totalUnreadCount(receiverUnreadCount)
+                .build();
+
+        publishUserChatUpdate(receiverId, receiverUpdate);
+
         log.debug("메시지 수신자 채팅방 목록 업데이트 - receiverId: {}, chatRoomId: {}, unreadCount: {}",
                 receiverId, chatRoomId, receiverUnreadCount);
     }
@@ -110,6 +121,27 @@ public class MessageNotificationService {
 
         } catch (Exception e) {
             log.error("안 읽은 메시지 배지 업데이트 발행 실패 - userId: {}", userId, e);
+        }
+    }
+
+    private void publishUserChatUpdate(Long userId, UserChatUpdateDTO updateEvent) {
+        try {
+            if (!redisSubscriber.isUserSubscribed(userId)) {
+                log.debug("구독하지 않은 사용자에게는 업데이트를 보내지 않음 - userId: {}", userId);
+                return;
+            }
+
+            WebSocketSession session = chatSessionService.getSession(userId);
+            if (session == null || !session.isOpen()) {
+                log.debug("사용자 세션이 없거나 닫혀있음 - userId: {}", userId);
+                return;
+            }
+
+            webSocketMessageService.sendChatListUpdate(session, updateEvent);
+            log.info("사용자 채팅 업데이트 전송 완료 - userId: {}, chatRoomId: {}", userId, updateEvent.chatRoomId());
+
+        } catch (Exception e) {
+            log.error("사용자 채팅 업데이트 발행 실패 - userId: {}", userId, e);
         }
     }
 }

@@ -60,6 +60,20 @@ public class WebSocketMessageDTO {
     }
 
     @Builder
+    public record ChatListUpdate(
+            EWebSocketMessageType type,
+            Long chatRoomId,
+            String partnerNickname,
+            String partnerEmoji,
+            String lastMessageContent,
+            LocalDateTime timestamp,
+            boolean isMyMessage,
+            boolean isRead,
+            int totalUnreadCount
+    ) {
+    }
+
+    @Builder
     public record ErrorResponse(
             EWebSocketMessageType type,
             String errorCode,
