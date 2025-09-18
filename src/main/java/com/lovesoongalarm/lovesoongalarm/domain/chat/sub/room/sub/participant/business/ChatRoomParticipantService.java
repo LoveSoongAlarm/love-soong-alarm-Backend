@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -45,20 +46,20 @@ public class ChatRoomParticipantService {
 
     @Transactional
     public void activatePartnerIfPending(ChatRoom chatRoom, Long senderId) {
-        ChatRoomParticipant partnerParticipant = chatRoom.getParticipants().stream()
+        Optional<ChatRoomParticipant> partnerParticipant = chatRoom.getParticipants().stream()
                 .filter(participant -> !participant.getUser().getId().equals(senderId))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
 
-        if (partnerParticipant == null) {
+        if (partnerParticipant.isEmpty()) {
             log.warn("상대방 참여자를 찾을 수 없습니다 - chatRoomId: {}, senderId: {}",
                     chatRoom.getId(), senderId);
             return;
         }
 
-        if (partnerParticipant.getStatus() == EChatRoomParticipantStatus.PENDING) {
-            Long partnerId = partnerParticipant.getUser().getId();
-            chatRoomParticipantUpdater.updateParticipantStatusToJoined(partnerParticipant.getId());
+        ChatRoomParticipant partner = partnerParticipant.get();
+        if (partner.getStatus() == EChatRoomParticipantStatus.PENDING) {
+            Long partnerId = partner.getUser().getId();
+            chatRoomParticipantUpdater.updateParticipantStatusToJoined(partner.getId());
             userService.increaseMaxSlot(partnerId);
 
             log.info("상대방 활성화 및 슬롯 증가 완료 - partnerId: {}, chatRoomId: {}",
