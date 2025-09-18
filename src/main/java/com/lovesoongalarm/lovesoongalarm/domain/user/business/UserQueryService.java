@@ -42,7 +42,7 @@ public class UserQueryService {
 
     @Transactional
     public Void onBoardingUser(Long userId, OnBoardingRequestDTO request){
-        User findUser = userRetriever.findById(userId);
+        User findUser = userRetriever.findByIdOrElseThrow(userId);
         findUser.updateFromOnboardingAndProfile(request.nickname(), request.major(), request.birthDate(), EGender.valueOf(request.gender()), request.emoji());
 
         List<Interest> interests = request.interests().stream()
@@ -72,7 +72,7 @@ public class UserQueryService {
     }
 
     public UserResponseDTO getUser(Long targetId){
-        User findUser = userRetriever.findById(targetId);
+        User findUser = userRetriever.findByIdOrElseThrow(targetId);
 
         int age = calculateAge(findUser.getBirthDate());
 
@@ -80,14 +80,14 @@ public class UserQueryService {
     }
 
     public UserMeResponseDTO getMe(Long userId){
-        User findUser = userRetriever.findById(userId);
+        User findUser = userRetriever.findByIdOrElseThrow(userId);
 
         return UserMeResponseDTO.from(findUser);
     }
 
     @Transactional
     public Void updateUser(Long userId, UserUpdateRequestDTO request){
-        User findUser = userRetriever.findById(userId);
+        User findUser = userRetriever.findByIdOrElseThrow(userId);
         findUser.updateFromOnboardingAndProfile(request.nickname(), request.major(), request.birthDate(), EGender.valueOf(request.gender()), request.emoji());
 
         List<Interest> existingInterests = findUser.getInterests();
@@ -120,7 +120,7 @@ public class UserQueryService {
     }
 
     public UserSlotResponseDTO getUserSlots(Long userId) {
-        User user = userRetriever.findById(userId);
+        User user = userRetriever.findByIdOrElseThrow(userId);
         UserSlotResponseDTO slotInfo = userConverter.createSlotInfo(user);
         return slotInfo;
     }
