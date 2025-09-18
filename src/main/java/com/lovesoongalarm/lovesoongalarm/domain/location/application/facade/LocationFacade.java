@@ -7,7 +7,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.location.application.dto.NearbyR
 import com.lovesoongalarm.lovesoongalarm.domain.location.application.dto.NearbyUserResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.location.business.LocationService;
 import com.lovesoongalarm.lovesoongalarm.domain.location.implement.RedisPipeline;
-import com.lovesoongalarm.lovesoongalarm.domain.notice.business.NoticeQueryService;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.business.NotificationQueryService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserQueryService;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,7 @@ public class LocationFacade {
     private final LocationService locationService;
     private final UserQueryService userQueryService;
     private final RedisPipeline redisPipeline;
-    private final NoticeQueryService noticeQueryService;
+    private final NotificationQueryService notificationQueryService;
 
     @Transactional
     public void updateLocation(Long userId, double latitude, double longitude) {
@@ -113,7 +113,7 @@ public class LocationFacade {
     }
 
     private void sendNotification(Long userId, Long matchingUserId, List<String> interests) {
-        noticeQueryService.sendNotice(userId, matchingUserId, interests);
-        noticeQueryService.sendNotice(matchingUserId, userId, interests);
+        notificationQueryService.sendNotification(userId, matchingUserId, interests);
+        notificationQueryService.sendNotification(matchingUserId, userId, interests);
     }
 }

@@ -4,7 +4,6 @@ import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import com.lovesoongalarm.lovesoongalarm.domain.location.application.dto.MatchingResultDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.location.business.LocationService;
 import com.lovesoongalarm.lovesoongalarm.domain.location.exception.LocationErrorCode;
-import com.lovesoongalarm.lovesoongalarm.domain.notice.business.NoticeQueryService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.exception.UserErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,18 +1,16 @@
-package com.lovesoongalarm.lovesoongalarm.domain.notice.business;
+package com.lovesoongalarm.lovesoongalarm.domain.notification.business;
 
-import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
-import com.lovesoongalarm.lovesoongalarm.domain.notice.application.converter.NoticeConverter;
-import com.lovesoongalarm.lovesoongalarm.domain.notice.application.dto.NoticeResponseDTO;
-import com.lovesoongalarm.lovesoongalarm.domain.notice.implement.NoticeRetriever;
-import com.lovesoongalarm.lovesoongalarm.domain.notice.implement.NoticeSaver;
-import com.lovesoongalarm.lovesoongalarm.domain.notice.persistence.entity.Notice;
-import com.lovesoongalarm.lovesoongalarm.domain.notice.persistence.type.ENoticeStatus;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.application.converter.NotificationConverter;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.application.dto.NotificationResponseDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.implement.NotificationRetriever;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.implement.NotificationSaver;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.entity.Notification;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.type.ENotificationStatus;
 import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.persistence.type.EDetailLabel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,21 +24,21 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class NoticeQueryService {
+public class NotificationQueryService {
     private final UserRetriever userRetriever;
-    private final NoticeRetriever noticeRetriever;
-    private final NoticeConverter noticeConverter;
-    private final NoticeSaver noticeSaver;
+    private final NotificationRetriever notificationRetriever;
+    private final NotificationConverter notificationConverter;
+    private final NotificationSaver notificationSaver;
 
     @Transactional
-    public List<NoticeResponseDTO> notice(Long userId) {
-        return noticeRetriever.findNoticesByUserId(userId).stream()
-                .map(noticeConverter::toNoticeResponseDTO)
+    public List<NotificationResponseDTO> notification(Long userId) {
+        return notificationRetriever.findNoticesByUserId(userId).stream()
+                .map(notificationConverter::toNoticeResponseDTO)
                 .toList();
     }
 
     @Transactional
-    public void sendNotice(Long userId, Long matchingUserId, List<String> interests) {
+    public void sendNotification(Long userId, Long matchingUserId, List<String> interests) {
         User user = userRetriever.findById(userId);
         String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
 
@@ -54,14 +52,14 @@ public class NoticeQueryService {
 
         LocalDate today = LocalDate.now();
 
-        boolean isNotificationExists = noticeRetriever.existsByUserIdAndMatchingUserIdAndDate(userId, matchingUserId, today);
+        boolean isNotificationExists = notificationRetriever.existsByUserIdAndMatchingUserIdAndDate(userId, matchingUserId, today);
 
         if(isNotificationExists) {
             log.info("중복 알림 : userId={}, matchingUserId={}, now={}", userId, matchingUserId, today);
             return;
         }
 
-        Notice notice = Notice.create(user, matchingUserId, message, ENoticeStatus.NOT_READ, now, today);
-        noticeSaver.save(notice);
+        Notification notification = Notification.create(user, matchingUserId, message, ENotificationStatus.NOT_READ, now, today);
+        notificationSaver.save(notification);
     }
 }
