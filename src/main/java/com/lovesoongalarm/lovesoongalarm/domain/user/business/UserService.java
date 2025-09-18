@@ -29,11 +29,7 @@ public class UserService {
         return partner;
     }
 
-    public void validateTargetUserExists(Long targetUserId) {
-        userValidator.validateTargetUserExists(targetUserId);
-    }
-
-    public void validateUserSlotAvailability(Long userId) {
-        userValidator.validateUserSlotAvailability(userId);
+    public void validateChatRoomCreation(Long userId, Long targetUserId) {
+        userValidator.validateChatRoomCreation(userId, targetUserId);
     }
 }
