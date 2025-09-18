@@ -1,6 +1,10 @@
 package com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.entity;
 
+import com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.entity.type.EItem;
+import com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.entity.type.EItemStatus;
+import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -17,14 +21,35 @@ public class Pay {
     @Column(nullable = false, unique = true, length = 100)
     private String sessionId; // Stripe에서 취급하는 결제 세션 ID
 
-    @Column(nullable = false, length = 20)
-    private String status; // PENDING, COMPLETED, FAILED
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private EItemStatus status;
 
-    public Pay (String sessionId, String status) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EItem item; // 예: COIN_1000, COIN_5000
+
+    @Builder
+    public Pay (String sessionId, EItemStatus status, User user, EItem item) {
         this.sessionId = sessionId;
         this.status = status;
+        this.user = user;
+        this.item = item;
     }
 
-    public void complete() { this.status = "COMPLETED"; }
-    public void fail() { this.status = "FAILED"; }
+    public static Pay create(String sessionId, EItemStatus status, User user, EItem item){
+        return Pay.builder()
+                .sessionId(sessionId)
+                .status(status)
+                .user(user)
+                .item(item)
+                .build();
+    }
+
+    public void complete() { this.status = EItemStatus.COMPLETED; }
+    public void fail() { this.status = EItemStatus.FAILED; }
 }
