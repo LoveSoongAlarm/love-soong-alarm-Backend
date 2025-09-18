@@ -23,7 +23,7 @@ public class NotificationController {
         return BaseResponse.success(notificationQueryService.notification(userId));
     }
 
-    @PatchMapping("/{notificationId}")
+    @PatchMapping("/read/{notificationId}")
     public BaseResponse<Void> readNotification(
             @UserId Long userId,
             @PathVariable Long notificationId
@@ -32,7 +32,7 @@ public class NotificationController {
         return BaseResponse.success(null);
     }
 
-    @PatchMapping("")
+    @PatchMapping("read-all")
     public BaseResponse<Void> readAllNotifications(
             @UserId Long userId
     ) {
