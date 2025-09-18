@@ -4,8 +4,8 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.applic
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageUpdater;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.ChatSessionService;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.business.UserChatSubscriptionService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.SessionService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.business.UserSubscriptionService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.implement.RedisSubscriber;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
@@ -28,10 +28,10 @@ public class MessageReadService {
 
 
     private final UserService userService;
-    private final ChatSessionService chatSessionService;
-    private final WebSocketMessageService webSocketMessageService;
+    private final SessionService sessionService;
+    private final MessageSender messageSender;
     private final UnreadCountService unreadCountService;
-    private final UserChatSubscriptionService userChatSubscriptionService;
+    private final UserSubscriptionService userSubscriptionService;
 
 
     public void processAutoReadOnSubscribe(Long chatRoomId, Long userId) {
@@ -79,9 +79,9 @@ public class MessageReadService {
 
         if (!redisSubscriber.isUserSubscribed(chatRoomId, partnerId)) return;
 
-        WebSocketSession partnerSession = chatSessionService.getSession(partnerId);
+        WebSocketSession partnerSession = sessionService.getSession(partnerId);
         if (partnerSession != null && partnerSession.isOpen()) {
-            webSocketMessageService.sendReadMessage(partnerSession, chatRoomId, readerId);
+            messageSender.sendReadMessage(partnerSession, chatRoomId, readerId);
             log.info("읽음 상태 알림 완료 - partnerId: {}", partnerId);
         } else {
             log.debug("상대방의 세션이 없거나 닫혀있어 읽음 알림을 보내지 않음 - partnerId: {}", partnerId);
@@ -99,7 +99,7 @@ public class MessageReadService {
             notifyPartnerOfReadStatus(chatRoomId, partner.getId(), message);
 
             int updatedUnreadCount = unreadCountService.getTotalUnreadCount(userId);
-            userChatSubscriptionService.publishUnreadBadgeUpdate(userId, updatedUnreadCount);
+            userSubscriptionService.publishUnreadBadgeUpdate(userId, updatedUnreadCount);
 
             log.info("읽음 처리 시 채팅방 목록 업데이트 완료 - userId: {}, chatRoomId: {}, readCount: {}, newUnreadCount: {}",
                     userId, chatRoomId, readCount, updatedUnreadCount);
@@ -122,7 +122,7 @@ public class MessageReadService {
                         .isRead(lastMessage.isRead())
                         .build();
 
-                userChatSubscriptionService.publishUserChatUpdate(partnerId, partnerUpdate);
+                userSubscriptionService.publishUserChatUpdate(partnerId, partnerUpdate);
                 log.debug("상대방에게 읽음 상태 업데이트 알림 전송 - partnerId: {}, chatRoomId: {}", partnerId, chatRoomId);
             }
 

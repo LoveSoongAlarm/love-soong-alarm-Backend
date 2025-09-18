@@ -1,12 +1,12 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business;
 
 import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.WebSocketMessageService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.MessageSender;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.exception.ChatRoomParticipantErrorCode;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantUpdater;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.ChatSessionService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.SessionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,8 +21,8 @@ public class ChatTicketService {
     private final ChatRoomParticipantRetriever chatRoomParticipantRetriever;
     private final ChatRoomParticipantUpdater chatRoomParticipantUpdater;
 
-    private final WebSocketMessageService webSocketMessageService;
-    private final ChatSessionService chatSessionService;
+    private final MessageSender messageSender;
+    private final SessionService sessionService;
 
     private static final int FREE_MESSAGE_LIMIT = 10;
 
@@ -33,14 +33,14 @@ public class ChatTicketService {
 
         if (participant.hasUnlimitedChat()) return;
 
-        WebSocketSession session = chatSessionService.getSession(userId);
+        WebSocketSession session = sessionService.getSession(userId);
         if (session == null || !session.isOpen()) {
             log.debug("사용자 세션이 없거나 닫혀있음 - userId: {}", userId);
             return;
         }
 
         if (participant.getFreeMessageCount() >= FREE_MESSAGE_LIMIT) {
-            webSocketMessageService.sendMessageCountLimit(session);
+            messageSender.sendMessageCountLimit(session);
             throw new CustomException(ChatRoomParticipantErrorCode.EXCEED_MESSAGE_LIMIT);
         }
         chatRoomParticipantUpdater.incrementFreeMessageCount(participant.getId());

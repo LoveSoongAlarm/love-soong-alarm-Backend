@@ -2,8 +2,8 @@ package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.busin
 
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.UserChatUpdateDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.ChatSessionService;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.business.UserChatSubscriptionService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.SessionService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.business.UserSubscriptionService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.implement.RedisSubscriber;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
@@ -15,16 +15,16 @@ import org.springframework.web.socket.WebSocketSession;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class MessageNotificationService {
+public class MessageNotifier {
 
     private final RedisSubscriber redisSubscriber;
 
-    private final ChatSessionService chatSessionService;
+    private final SessionService sessionService;
     private final UserService userService;
     private final MessageReadService messageReadService;
-    private final WebSocketMessageService webSocketMessageService;
+    private final MessageSender messageSender;
     private final UnreadCountService unreadCountService;
-    private final UserChatSubscriptionService userChatSubscriptionService;
+    private final UserSubscriptionService userSubscriptionService;
 
     public void notifyMessage(Long chatRoomId, Message message, Long senderId) {
         log.info("1:1 채팅 메시지 알림 전송 시작 - chatRoomId: {}, messageId: {}, senderId: {}",
@@ -70,14 +70,14 @@ public class MessageNotificationService {
 
     private void sendMessageToUser(Long chatRoomId, Long senderId, Message message, boolean isSentByMe) {
         try {
-            WebSocketSession session = chatSessionService.getSession(senderId);
+            WebSocketSession session = sessionService.getSession(senderId);
 
             if (session == null || !session.isOpen()) {
                 log.info("사용자 세션이 없거나 닫혀있음 - senderId: {}", senderId);
                 return;
             }
 
-            webSocketMessageService.sendMessage(session, message, isSentByMe, chatRoomId, senderId);
+            messageSender.sendMessage(session, message, isSentByMe, chatRoomId, senderId);
 
             log.info("메시지 전송 성공 - senderId: {}, messageId: {}, isSentByMe: {}", senderId, message.getId(), isSentByMe);
         } catch (Exception e) {
@@ -88,7 +88,7 @@ public class MessageNotificationService {
 
     private void publishReceiverChatListUpdate(Long receiverId, Long chatRoomId, Message message) {
         int receiverUnreadCount = unreadCountService.getTotalUnreadCount(receiverId);
-        userChatSubscriptionService.publishUnreadBadgeUpdate(receiverId, receiverUnreadCount);
+        userSubscriptionService.publishUnreadBadgeUpdate(receiverId, receiverUnreadCount);
 
         boolean isPartnerSubscribedToRoom = redisSubscriber.isUserSubscribed(chatRoomId, receiverId);
         if (!isPartnerSubscribedToRoom) {
@@ -100,7 +100,7 @@ public class MessageNotificationService {
                     .isRead(message.isRead())
                     .build();
 
-            userChatSubscriptionService.publishUserChatUpdate(receiverId, receiverUpdate);
+            userSubscriptionService.publishUserChatUpdate(receiverId, receiverUpdate);
 
             log.debug("메시지 수신자 채팅방 목록 업데이트 - receiverId: {}, chatRoomId: {}, unreadCount: {}",
                     receiverId, chatRoomId, receiverUnreadCount);

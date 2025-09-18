@@ -1,6 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.event.listener;
 
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.MessageNotificationService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.MessageNotifier;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.event.MessageSentEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class MessageEventListener {
 
-    private final MessageNotificationService messageNotificationService;
+    private final MessageNotifier messageNotifier;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleMessageSent(MessageSentEvent event) {
@@ -21,13 +21,13 @@ public class MessageEventListener {
                 event.chatRoomId(), event.message().getId());
 
         try {
-            messageNotificationService.notifyMessage(
+            messageNotifier.notifyMessage(
                     event.chatRoomId(),
                     event.message(),
                     event.senderId()
             );
 
-            messageNotificationService.handleChatListUpdate(
+            messageNotifier.handleChatListUpdate(
                     event.chatRoomId(),
                     event.message(),
                     event.senderId()

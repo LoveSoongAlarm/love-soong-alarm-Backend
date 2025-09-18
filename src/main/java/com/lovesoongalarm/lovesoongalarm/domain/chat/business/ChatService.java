@@ -3,8 +3,8 @@ package com.lovesoongalarm.lovesoongalarm.domain.chat.business;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.business.ChatRoomService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.MessageService;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.WebSocketMessageService;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.ChatSessionService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.MessageSender;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.SessionService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.business.SubscriptionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +17,8 @@ import org.springframework.web.socket.WebSocketSession;
 @RequiredArgsConstructor
 public class ChatService {
 
-    private final ChatSessionService sessionService;
-    private final WebSocketMessageService webSocketMessageService;
+    private final SessionService sessionService;
+    private final MessageSender messageSender;
     private final ChatRoomService chatRoomService;
     private final SubscriptionService subscriptionService;
     private final MessageService messageService;
@@ -26,7 +26,7 @@ public class ChatService {
     public void registerSession(Long userId, String userNickname, WebSocketSession session) {
         log.info("사용자 연결 시작 - userId: {}, sessionId: {}", userId, session.getId());
         sessionService.addSession(userId, session);
-        webSocketMessageService.sendConnectionSuccessMessage(userId, userNickname, session);
+        messageSender.sendConnectionSuccessMessage(userId, userNickname, session);
         log.info("사용자 연결 완료 - userId: {}, sessionId: {}", userId, session.getId());
     }
 
