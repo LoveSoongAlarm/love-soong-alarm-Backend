@@ -8,6 +8,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.Ch
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomDetailDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomListDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.MessageListDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.application.dto.UseTicketDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -83,5 +84,18 @@ public class ChatController {
             @RequestParam(required = false, defaultValue = "50") Integer size,
             @RequestParam Long lastMessageId) {
         return BaseResponse.success(chatQueryService.getChatRoomMessages(userId, roomId, size, lastMessageId));
+    }
+
+    @PostMapping("/tickets")
+    @Operation(summary = "채팅 티켓 사용",
+            description = """
+            회원이 특정 채팅방에 티켓을 사용합니다.
+            그 채팅방에 대해서는 발신 제한이 해제됩니다.
+            """)
+    @ApiResponse(responseCode = "200", description = "채팅 티켓 성공")
+    public BaseResponse<UseTicketDTO.Response> useTicket(
+            @UserId Long userId,
+            @RequestBody UseTicketDTO.Request request) {
+        return BaseResponse.success(chatCommandService.useTicket(userId, request));
     }
 }
