@@ -6,6 +6,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.notice.persistence.repository.No
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -15,5 +16,9 @@ public class NoticeRetriever {
 
     public List<Notice> findNoticesByUserId(Long userId) {
         return noticeRepository.findByUserId(userId);
+    }
+
+    public boolean existsByUserIdAndMatchingUserIdAndDate(Long userId, Long matchingUserId, LocalDate date) {
+        return noticeRepository.existsByUserIdAndMatchingUserIdAndDate(userId, matchingUserId, date);
     }
 }

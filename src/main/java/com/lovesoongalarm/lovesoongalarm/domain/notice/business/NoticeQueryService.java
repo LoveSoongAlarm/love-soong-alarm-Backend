@@ -1,5 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.notice.business;
 
+import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import com.lovesoongalarm.lovesoongalarm.domain.notice.application.converter.NoticeConverter;
 import com.lovesoongalarm.lovesoongalarm.domain.notice.application.dto.NoticeResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.notice.implement.NoticeRetriever;
@@ -10,14 +11,18 @@ import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.persistence.type.EDetailLabel;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -47,8 +52,16 @@ public class NoticeQueryService {
 
         String message = String.format("내 주변 50m에 %s를 좋아하는 %s이 있어요!", interestTags, user.getGender().getValue());
 
-        Notice notice = Notice.create(user, matchingUserId, message, ENoticeStatus.NOT_READ, now);
+        LocalDate today = LocalDate.now();
 
+        boolean isNotificationExists = noticeRetriever.existsByUserIdAndMatchingUserIdAndDate(userId, matchingUserId, today);
+
+        if(isNotificationExists) {
+            log.info("중복 알림 : userId={}, matchingUserId={}, now={}", userId, matchingUserId, today);
+            return;
+        }
+
+        Notice notice = Notice.create(user, matchingUserId, message, ENoticeStatus.NOT_READ, now, today);
         noticeSaver.save(notice);
     }
 }

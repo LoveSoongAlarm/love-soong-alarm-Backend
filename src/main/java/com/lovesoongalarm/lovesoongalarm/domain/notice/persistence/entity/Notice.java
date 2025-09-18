@@ -8,10 +8,17 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "notice")
+@Table(name = "notice", uniqueConstraints = {
+        @UniqueConstraint(
+                name = "unique_user_matching",
+                columnNames = {"user_id", "matching_user_id", "date"}
+        )
+})
 public class Notice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,22 +41,27 @@ public class Notice {
     @Column(name = "notice_time")
     private String noticeTime;
 
+    @Column(name = "date")
+    private LocalDate date;
+
     @Builder
-    public Notice(User user, Long matchingUserId, String message, ENoticeStatus status, String noticeTime) {
+    public Notice(User user, Long matchingUserId, String message, ENoticeStatus status, String noticeTime, LocalDate date) {
         this.user = user;
         this.matchingUserId = matchingUserId;
         this.message = message;
         this.status = status;
         this.noticeTime = noticeTime;
+        this.date = date;
     }
 
-    public static Notice create(User user, Long matchingUserId, String message, ENoticeStatus status, String noticeTime) {
+    public static Notice create(User user, Long matchingUserId, String message, ENoticeStatus status, String noticeTime, LocalDate date) {
         return Notice.builder()
                 .user(user)
                 .matchingUserId(matchingUserId)
                 .message(message)
                 .status(status)
                 .noticeTime(noticeTime)
+                .date(date)
                 .build();
     }
 
