@@ -31,7 +31,7 @@ public class PayService {
         List<SessionCreateParams.LineItem> lineItems = new ArrayList<>();
 
         for (Map.Entry<String, Integer> entry: req.entrySet()) {
-            int quantity = entry.getValue() == null ? 0 : entry.getValue(); // "coin_1000": 1에서 수량 추출
+            long quantity = entry.getValue() == null ? 0 : entry.getValue(); // "coin_1000": 1에서 수량 추출
             if (quantity == 0) continue;
 
             ECoinProductIdType coin = ECoinProductIdType.fromKey(entry.getKey()); // "coin_1000" 값 추출
@@ -40,7 +40,7 @@ public class PayService {
             String priceId = stripe.retrieveDefaultPrice(coin.getProductId()); // Stripe 고유 Product ID 추출
             lineItems.add(SessionCreateParams.LineItem.builder()
                 .setPrice(priceId)
-                .setQuantity((long) quantity) // 이게 맞을까요? 정말 송구스러운 마음뿐입니다
+                .setQuantity(quantity)
                 .build()
             );
 
