@@ -1,6 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.user.business;
 
 import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomListDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.user.exception.UserErrorCode;
 import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserUpdater;
@@ -44,5 +45,32 @@ public class UserService {
         if (updatedRows == 0) {
             throw new CustomException(UserErrorCode.INSUFFICIENT_CHAT_SLOTS);
         }
+    }
+
+    public ChatRoomListDTO.UserSlotInfo createUserSlotInfo(User user) {
+        return ChatRoomListDTO.UserSlotInfo.builder()
+                .isPrepass(user.isPrePass())
+                .maxSlot(user.getMaxSlot())
+                .remainingSlot(user.getRemainingSlot())
+                .build();
+    }
+
+    @Transactional
+    public void increaseMaxSlot(Long userId) {
+        User user = userRetriever.findByIdOrElseThrow(userId);
+        if (user.isPrePass()) {
+            return;
+        }
+
+        int updatedRows = userUpdater.increaseMaxSlot(userId);
+        if (updatedRows > 0) {
+            log.info("maxSlot 증가 완료 - userId: {}", userId);
+        } else {
+            log.warn("maxSlot 증가 실패 - 사용자가 존재하지 않거나 이미 처리됨 - userId: {}", userId);
+        }
+    }
+
+    public void validateChatTicket(User user) {
+        userValidator.validateChatTicket(user);
     }
 }

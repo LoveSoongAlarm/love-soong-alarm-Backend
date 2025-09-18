@@ -1,4 +1,4 @@
-package com.lovesoongalarm.lovesoongalarm.domain.chat.interceptor;
+package com.lovesoongalarm.lovesoongalarm.domain.websocket.interceptor;
 
 import com.lovesoongalarm.lovesoongalarm.common.constant.Constants;
 import com.lovesoongalarm.lovesoongalarm.utils.JwtUtil;

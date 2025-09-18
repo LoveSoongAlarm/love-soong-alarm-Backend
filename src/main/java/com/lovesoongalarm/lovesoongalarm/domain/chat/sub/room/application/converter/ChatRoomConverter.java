@@ -22,8 +22,9 @@ public class ChatRoomConverter {
                 .build();
     }
 
-    public ChatRoomListDTO.Response toChatRoomListResponse(List<ChatRoomListDTO.ChatRoomInfo> chatRoomInfos) {
-        return new ChatRoomListDTO.Response(chatRoomInfos);
+    public ChatRoomListDTO.Response toChatRoomListResponse(
+            ChatRoomListDTO.UserSlotInfo userSlotInfo, List<ChatRoomListDTO.ChatRoomInfo> chatRoomInfos) {
+        return new ChatRoomListDTO.Response(userSlotInfo, chatRoomInfos);
     }
 
     public ChatRoomListDTO.ChatRoomInfo toChatRoomInfo(

@@ -1,8 +1,10 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business;
 
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.application.converter.ChatRoomParticipantConverter;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.application.dto.UseTicketDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantSaver;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantUpdater;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.type.EChatRoomParticipantStatus;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -25,6 +28,7 @@ public class ChatRoomParticipantService {
     private final ChatRoomParticipantSaver chatRoomParticipantSaver;
     private final ChatRoomParticipantRetriever chatRoomParticipantRetriever;
     private final ChatRoomParticipantUpdater chatRoomParticipantUpdater;
+    private final ChatRoomParticipantConverter chatRoomParticipantConverter;
 
     public void addParticipant(Long userId, Long targetUserId, ChatRoom chatRoom) {
         log.info("채팅방에 유저 참여 로직 시작 - userId: {}, targetUserId: {}, chatRoomId: {}", userId, targetUserId, chatRoom.getId());
@@ -45,15 +49,38 @@ public class ChatRoomParticipantService {
 
     @Transactional
     public void activatePartnerIfPending(ChatRoom chatRoom, Long senderId) {
-        chatRoom.getParticipants().stream()
+        Optional<ChatRoomParticipant> partnerParticipant = chatRoom.getParticipants().stream()
                 .filter(participant -> !participant.getUser().getId().equals(senderId))
-                .filter(participant -> participant.getStatus() == EChatRoomParticipantStatus.PENDING)
-                .findFirst()
-                .ifPresent(partnerParticipant -> {
-                   log.info("상대방을 JOINED 상태로 변경 - partnerId: {}, chatRoomId: {}",
-                           partnerParticipant.getUser().getId(), chatRoom.getId());
-                   chatRoomParticipantUpdater.updateParticipantStatusToJoined(partnerParticipant);
-                });
+                .findFirst();
+
+        if (partnerParticipant.isEmpty()) {
+            log.warn("상대방 참여자를 찾을 수 없습니다 - chatRoomId: {}, senderId: {}",
+                    chatRoom.getId(), senderId);
+            return;
+        }
+
+        ChatRoomParticipant partner = partnerParticipant.get();
+        if (partner.getStatus() == EChatRoomParticipantStatus.PENDING) {
+            Long partnerId = partner.getUser().getId();
+            chatRoomParticipantUpdater.updateParticipantStatusToJoined(partner.getId());
+            userService.increaseMaxSlot(partnerId);
+
+            log.info("상대방 활성화 및 슬롯 증가 완료 - partnerId: {}, chatRoomId: {}",
+                    partnerId, chatRoom.getId());
+        }
+    }
+
+    @Transactional
+    public UseTicketDTO.Response useTicket(Long userId, Long chatRoomId) {
+        ChatRoomParticipant participant = chatRoomParticipantRetriever.findByUserIdAndChatRoomId(userId, chatRoomId);
+        User user = participant.getUser();
+
+        userService.validateChatTicket(user);
+        user.decreaseChatTicket();
+        participant.setTicketUsed();
+
+        ChatRoomParticipant savedParticipant = chatRoomParticipantSaver.save(participant);
+        return chatRoomParticipantConverter.toUseTicketResponse(savedParticipant);
     }
 
     private boolean isAlreadyParticipating(Long userId, Long targetUserId, ChatRoom chatRoom) {

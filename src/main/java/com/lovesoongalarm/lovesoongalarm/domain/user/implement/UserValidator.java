@@ -32,4 +32,11 @@ public class UserValidator {
             throw new CustomException(UserErrorCode.INSUFFICIENT_CHAT_SLOTS);
         }
     }
+
+    public void validateChatTicket(User user) {
+        Integer chatTicket = user.getChatTicket();
+        if (chatTicket <= 0) {
+            throw new CustomException(UserErrorCode.INSUFFICIENT_CHAT_TICKETS);
+        }
+    }
 }
