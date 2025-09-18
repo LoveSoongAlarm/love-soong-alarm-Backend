@@ -4,6 +4,7 @@ import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import com.lovesoongalarm.lovesoongalarm.domain.location.application.dto.MatchingResultDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.location.business.LocationService;
 import com.lovesoongalarm.lovesoongalarm.domain.location.exception.LocationErrorCode;
+import com.lovesoongalarm.lovesoongalarm.domain.notice.business.NoticeQueryService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.exception.UserErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.*;
 
@@ -142,9 +144,12 @@ public class LocationServiceImpl implements LocationService {
             Long id = randomNearbyUsers.get(i);
             Set<String> interests = (Set<String>) interestPipeResults.get(i);
 
-            long overlap = (interests == null) ? 0 : interests.stream()
-                    .filter(myInterests::contains)
-                    .count();
+            Set<String> overlapInterests = (interests == null) ? Set.of() :
+                    interests.stream()
+                            .filter(myInterests::contains)
+                            .collect(Collectors.toSet());
+
+            long overlap = overlapInterests.size();
 
             if (overlap != 0) {
                 matchCount++;
@@ -154,6 +159,7 @@ public class LocationServiceImpl implements LocationService {
             nearby.add(MatchingResultDTO.NearbyUserMatchDTO.builder()
                     .userId(id)
                     .isMatching(isMatching)
+                    .overlapInterests(overlapInterests)
                     .build());
         }
 

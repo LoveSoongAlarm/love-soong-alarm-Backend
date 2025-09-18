@@ -4,6 +4,7 @@ import lombok.Builder;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Builder
 public record MatchingResultDTO(
@@ -14,6 +15,7 @@ public record MatchingResultDTO(
     @Builder
     public record NearbyUserMatchDTO(
             Long userId,
+            Set<String> overlapInterests,
             boolean isMatching
     ) {
     }
