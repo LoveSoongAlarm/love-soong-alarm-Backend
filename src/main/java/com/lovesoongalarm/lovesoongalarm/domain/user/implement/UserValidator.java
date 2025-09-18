@@ -14,6 +14,12 @@ public class UserValidator {
 
     private final UserRetriever userRetriever;
 
+    public void validateTargetUserExists(Long targetUserId) {
+        if (!userRetriever.existsById(targetUserId)) {
+            throw new CustomException(UserErrorCode.USER_NOT_FOUND);
+        }
+    }
+
     public void validateUserSlotAvailability(Long userId) {
         User user = userRetriever.findByIdOrElseThrow(userId);
         if(!user.hasAvailableSlot()){

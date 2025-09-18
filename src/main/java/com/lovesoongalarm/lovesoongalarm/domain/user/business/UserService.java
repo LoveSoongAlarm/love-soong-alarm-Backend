@@ -30,9 +30,7 @@ public class UserService {
     }
 
     public void validateTargetUserExists(Long targetUserId) {
-        if (!userRetriever.existsById(targetUserId)) {
-            throw new CustomException(UserErrorCode.USER_NOT_FOUND);
-        }
+        userValidator.validateTargetUserExists(targetUserId);
     }
 
     public void validateUserSlotAvailability(Long userId) {
