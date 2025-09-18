@@ -80,12 +80,8 @@ public class ReadProcessingService {
             Message message = lastMessage.get();
             notifyPartnerOfReadStatus(chatRoomId, partnerId, message);
 
-            int updatedUnreadCount = unreadCountService.getTotalUnreadCount(userId);
-            userSubscriptionService.publishUnreadBadgeUpdate(userId, updatedUnreadCount);
-
-            log.info("읽음 처리 시 채팅방 목록 업데이트 완료 - userId: {}, chatRoomId: {}, readCount: {}, newUnreadCount: {}",
-                    userId, chatRoomId, readCount, updatedUnreadCount);
-
+            log.info("읽음 처리 시 채팅방 목록 업데이트 완료 - userId: {}, chatRoomId: {}, readCount: {}",
+                    userId, chatRoomId, readCount);
         } catch (Exception e) {
             log.error("읽음 처리 시 채팅방 목록 업데이트 실패 - userId: {}, chatRoomId: {}", userId, chatRoomId, e);
         }
