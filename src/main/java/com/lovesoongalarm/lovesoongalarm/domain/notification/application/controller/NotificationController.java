@@ -39,4 +39,21 @@ public class NotificationController {
         notificationQueryService.changeAllStatus(userId);
         return BaseResponse.success(null);
     }
+
+    @DeleteMapping("/{notificationId}")
+    public BaseResponse<Void> deleteNotification(
+            @UserId Long userId,
+            @PathVariable Long notificationId
+    ) {
+        notificationQueryService.deleteNotification(userId, notificationId);
+        return BaseResponse.success(null);
+    }
+
+    @DeleteMapping("")
+    public BaseResponse<Void> deleteAllNotifications(
+            @UserId Long userId
+    ) {
+        notificationQueryService.deleteAllNotifications(userId);
+        return BaseResponse.success(null);
+    }
 }

@@ -5,6 +5,7 @@ import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.application.converter.NotificationConverter;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.application.dto.NotificationResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.exception.NotificationErrorCode;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.implement.NotificationDeleter;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.implement.NotificationRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.implement.NotificationSaver;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.entity.Notification;
@@ -34,6 +35,7 @@ public class NotificationQueryService {
     private final NotificationRetriever notificationRetriever;
     private final NotificationConverter notificationConverter;
     private final NotificationSaver notificationSaver;
+    private final NotificationDeleter notificationDeleter;
 
     @Transactional
     public List<NotificationResponseDTO> notification(Long userId) {
@@ -108,6 +110,35 @@ public class NotificationQueryService {
         } catch (Exception e) {
             log.error("알림 일괄 읽음 처리 실패. userId={}", userId, e);
             throw new CustomException(NotificationErrorCode.CHANGE_NOTIFICATION_STATUS_ERROR);
+        }
+    }
+
+    @Transactional
+    public void deleteNotification(Long userId, Long notificationId) {
+        Notification notification = notificationRetriever.findByNotificationIdOrElseThrow(notificationId);
+
+        if(!notification.getUser().getId().equals(userId)) {
+            log.error("잘못된 접근입니다. userId={}가 notificationId={}를 삭제 시도", userId, notificationId);
+            throw new CustomException(NotificationErrorCode.UNAUTHORIZED_NOTIFICATION_ACCESS);
+        }
+
+        try {
+            notificationDeleter.delete(notification);
+        } catch (Exception e) {
+            log.error("알림 삭제 실패. notificationId={}", notificationId, e);
+            throw new CustomException(NotificationErrorCode.DELETE_NOTIFICATION_ERROR);
+        }
+    }
+
+    @Transactional
+    public void deleteAllNotifications(Long userId) {
+        List<Notification> notifications = notificationRetriever.findNoticesByUserId(userId);
+
+        try {
+            notificationDeleter.deleteAll(notifications);
+        } catch (Exception e) {
+            log.error("알림 일괄 삭제 실패.", e);
+            throw new CustomException(NotificationErrorCode.DELETE_NOTIFICATION_ERROR);
         }
     }
 }
