@@ -23,8 +23,8 @@ public class ChatRoomConverter {
     }
 
     public ChatRoomListDTO.Response toChatRoomListResponse(
-            User user, List<ChatRoomListDTO.ChatRoomInfo> chatRoomInfos) {
-        return new ChatRoomListDTO.Response(user.getMaxSlot(), user.getRemainingSlot(), chatRoomInfos);
+            ChatRoomListDTO.UserSlotInfo userSlotInfo, List<ChatRoomListDTO.ChatRoomInfo> chatRoomInfos) {
+        return new ChatRoomListDTO.Response(userSlotInfo, chatRoomInfos);
     }
 
     public ChatRoomListDTO.ChatRoomInfo toChatRoomInfo(

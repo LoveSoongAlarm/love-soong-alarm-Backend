@@ -1,6 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.user.business;
 
 import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomListDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.user.exception.UserErrorCode;
 import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserUpdater;
@@ -44,5 +45,13 @@ public class UserService {
         if (updatedRows == 0) {
             throw new CustomException(UserErrorCode.INSUFFICIENT_CHAT_SLOTS);
         }
+    }
+
+    public ChatRoomListDTO.UserSlotInfo createUserSlotInfo(User user) {
+        return ChatRoomListDTO.UserSlotInfo.builder()
+                .isPrepass(user.isPrePass())
+                .maxSlot(user.getMaxSlot())
+                .remainingSlot(user.getRemainingSlot())
+                .build();
     }
 }

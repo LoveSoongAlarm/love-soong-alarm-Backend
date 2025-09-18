@@ -10,9 +10,16 @@ public class ChatRoomListDTO {
 
     @Schema(name = "ChatRoomListResponse", description = "채팅방 목록 조회 응답")
     public record Response(
+            UserSlotInfo userSlotInfo,
+            List<ChatRoomInfo> chatRooms
+    ) {
+    }
+
+    @Builder
+    public record UserSlotInfo(
             Integer maxSlot,
             Integer remainingSlot,
-            List<ChatRoomInfo> chatRooms
+            boolean isPrepass
     ) {
     }
 
