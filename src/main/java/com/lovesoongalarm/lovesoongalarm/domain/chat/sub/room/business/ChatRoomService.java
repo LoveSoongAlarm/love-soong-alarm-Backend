@@ -15,6 +15,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.user.exception.UserErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.List;
@@ -35,6 +36,7 @@ public class ChatRoomService {
 
     private final ChatRoomConverter chatRoomConverter;
 
+    @Transactional
     public ChatRoom createChatRoom(Long userId, Long targetUserId) {
         log.info("개인 채팅방 생성 시작 - 본인: {}, 상대방: {}", userId, targetUserId);
         userService.validateChatRoomCreation(userId, targetUserId);

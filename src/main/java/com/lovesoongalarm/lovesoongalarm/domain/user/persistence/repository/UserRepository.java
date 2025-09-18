@@ -38,5 +38,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
             WHERE u.id = :userId 
             AND u.remainingSlot > 0
             """)
-    void decreaseRemainingSlot(@Param("userId") Long userId);
+    int decreaseRemainingSlot(@Param("userId") Long userId);
 }
