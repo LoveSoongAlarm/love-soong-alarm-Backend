@@ -1,6 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.user.business;
 
 import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
+import com.lovesoongalarm.lovesoongalarm.domain.user.application.converter.UserConverter;
 import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.*;
 import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.OnBoardingRequestDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserResponseDTO;
@@ -32,6 +33,7 @@ public class UserQueryService {
     private final UserRetriever userRetriever;
     private final InterestSaver interestSaver;
     private final StringRedisTemplate stringRedisTemplate;
+    private final UserConverter userConverter;
 
     public String getUserNickname(Long userId) {
         User user = userRetriever.findByIdOrElseThrow(userId);
@@ -40,7 +42,7 @@ public class UserQueryService {
 
     @Transactional
     public Void onBoardingUser(Long userId, OnBoardingRequestDTO request){
-        User findUser = userRetriever.findById(userId);
+        User findUser = userRetriever.findByIdOrElseThrow(userId);
         findUser.updateFromOnboardingAndProfile(request.nickname(), request.major(), request.birthDate(), EGender.valueOf(request.gender()), request.emoji());
 
         List<Interest> interests = request.interests().stream()
@@ -70,7 +72,7 @@ public class UserQueryService {
     }
 
     public UserResponseDTO getUser(Long targetId){
-        User findUser = userRetriever.findById(targetId);
+        User findUser = userRetriever.findByIdOrElseThrow(targetId);
 
         int age = calculateAge(findUser.getBirthDate());
 
@@ -78,14 +80,14 @@ public class UserQueryService {
     }
 
     public UserMeResponseDTO getMe(Long userId){
-        User findUser = userRetriever.findById(userId);
+        User findUser = userRetriever.findByIdOrElseThrow(userId);
 
         return UserMeResponseDTO.from(findUser);
     }
 
     @Transactional
     public Void updateUser(Long userId, UserUpdateRequestDTO request){
-        User findUser = userRetriever.findById(userId);
+        User findUser = userRetriever.findByIdOrElseThrow(userId);
         findUser.updateFromOnboardingAndProfile(request.nickname(), request.major(), request.birthDate(), EGender.valueOf(request.gender()), request.emoji());
 
         List<Interest> existingInterests = findUser.getInterests();
@@ -117,6 +119,12 @@ public class UserQueryService {
         return null;
     }
 
+    public UserSlotResponseDTO getUserSlots(Long userId) {
+        User user = userRetriever.findByIdOrElseThrow(userId);
+        UserSlotResponseDTO slotInfo = userConverter.createSlotInfo(user);
+        return slotInfo;
+    }
+
     private int calculateAge(Integer birthDate){
         int currentYear = LocalDate.now().getYear();
         int age = currentYear - birthDate + 1;
@@ -140,5 +148,4 @@ public class UserQueryService {
 
         stringRedisTemplate.opsForHash().put(USER_GENDER_KEY, String.valueOf(userId), gender.name());
     }
-
 }

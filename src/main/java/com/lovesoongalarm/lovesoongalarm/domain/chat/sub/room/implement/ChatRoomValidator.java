@@ -14,13 +14,11 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ChatRoomValidator {
 
-    private final UserRetriever userRetriever;
     private final ChatRoomParticipantRetriever chatRoomParticipantRetriever;
     private final ChatRoomRetriever chatRoomRetriever;
 
     public void validateChatRoomCreation(Long userId, Long targetUserId) {
         validateNotSelfChat(userId, targetUserId);
-        validateTargetUserExists(targetUserId);
     }
 
     public void validateChatRoomAccess(Long userId, Long roomId) {
@@ -33,12 +31,6 @@ public class ChatRoomValidator {
     private void validateNotSelfChat(Long userId, Long targetUserId) {
         if (userId.equals(targetUserId)) {
             throw new CustomException(ChatRoomErrorCode.CANNOT_CHAT_WITH_SELF);
-        }
-    }
-
-    private void validateTargetUserExists(Long targetUserId) {
-        if (!userRetriever.existsById(targetUserId)) {
-            throw new CustomException(UserErrorCode.USER_NOT_FOUND);
         }
     }
 

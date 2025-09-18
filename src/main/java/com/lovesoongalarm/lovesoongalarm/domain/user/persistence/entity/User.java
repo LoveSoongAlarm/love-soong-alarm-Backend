@@ -5,8 +5,9 @@ import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EPl
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.ERole;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EUserStatus;
 import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.persistence.entity.Interest;
-import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.sub.hashtag.persistence.entity.Hashtag;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -58,48 +59,45 @@ public class User {
     private String emoji;
 
     @Column(name = "chat_ticket")
-    private Integer chatTicket;
+    @NotNull @Min(0)
+    private Integer chatTicket = 0;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Interest> interests = new ArrayList<>();
 
     @Column(name = "pre_pass")
-    private boolean prePass;
+    private boolean prePass = false;
 
-    @Column(name = "slot")
-    private Integer slot;
+    @Column(name = "max_slot", nullable = false)
+    @NotNull @Min(1)
+    private Integer maxSlot = 1;
+
+    @Column(name = "remaining_slot", nullable = false)
+    @NotNull @Min(0)
+    private Integer remainingSlot = 1;
 
     @Builder
-    public User(Long id, String nickname, EPlatform platform, ERole role, String serialId, EUserStatus status, String major, Integer birthDate, EGender gender, String emoji, Integer chatTicket, Integer slot, boolean prePass) {
-        this.id = id;
-        this.nickname = nickname;
+    private User(EPlatform platform, ERole role, String serialId, EUserStatus status, Integer chatTicket, Integer maxSlot, Integer remainingSlot, boolean prePass) {
         this.platform = platform;
         this.role = role;
         this.serialId = serialId;
         this.status = status;
-        this.major = major;
-        this.birthDate = birthDate;
-        this.gender = gender;
-        this.emoji = emoji;
         this.chatTicket = chatTicket;
-        this.slot = slot;
+        this.maxSlot = maxSlot;
+        this.remainingSlot = remainingSlot;
         this.prePass = prePass;
     }
 
-    public static User create(String nickname, EPlatform platform, ERole role, String serialId, EUserStatus status, String major, Integer birthDate, EGender gender, String emoji, Integer chatTicket, Integer slot, boolean prePass) {
+    public static User create(String serialId, EPlatform platform, ERole role, EUserStatus status) {
         return User.builder()
-                .nickname(nickname)
                 .platform(platform)
                 .serialId(serialId)
                 .role(role)
                 .status(status)
-                .major(major)
-                .birthDate(birthDate)
-                .gender(gender)
-                .emoji(emoji)
-                .chatTicket(chatTicket)
-                .slot(slot)
-                .prePass(prePass)
+                .chatTicket(0)
+                .maxSlot(1)
+                .remainingSlot(1)
+                .prePass(false)
                 .build();
     }
 
@@ -126,9 +124,16 @@ public class User {
     public void updateFromOnboardingAndProfile(String nickname, String major, Integer birthDate, EGender gender, String emoji) {
         this.nickname = nickname;
         this.major = major;
-        this.birthDate =birthDate;
+        this.birthDate = birthDate;
         this.gender = gender;
         this.emoji = emoji;
         this.status = EUserStatus.ACTIVE;
+    }
+
+    public boolean hasAvailableSlot() {
+        if( this.remainingSlot != null && this.remainingSlot > 0 ) {
+            return true;
+        }
+        return false;
     }
 }

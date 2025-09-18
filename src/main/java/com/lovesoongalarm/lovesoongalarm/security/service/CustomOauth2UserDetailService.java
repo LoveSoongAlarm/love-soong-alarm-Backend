@@ -44,13 +44,7 @@ public class CustomOauth2UserDetailService extends DefaultOAuth2UserService {
 
                     // 새 User 엔티티 생성 및 저장
                     User newUser = userRepository.save(
-                            User.builder()
-                                    .serialId(oauth2UserInfo.getId())
-                                    .platform(platform)
-                                    .role(ERole.USER)
-                                    .status(EUserStatus.INACTIVE)
-                                    .build()
-                    );
+                            User.create(oauth2UserInfo.getId(), platform, ERole.USER, EUserStatus.INACTIVE));
                     return UserSecurityForm.invoke(newUser);
                 });
         log.info("oauth2 사용자 조회 성공");
