@@ -31,12 +31,14 @@ public class ChatQueryService {
 
     public ChatRoomListDTO.Response getChatRoomList(Long userId) {
         log.info("채팅방 목록 조회 시작 - userId = {}", userId);
+        User user = userService.findUserOrElseThrow(userId);
+        ChatRoomListDTO.UserSlotInfo userSlotInfo = userService.createUserSlotInfo(user);
         List<ChatRoom> chatRoomList = chatRoomService.getUserChatRooms(userId);
         List<ChatRoomListDTO.ChatRoomInfo> chatRoomInfos = chatRoomList.stream()
                 .map(chatRoom -> chatRoomService.createChatRoomInfo(chatRoom, userId))
                 .toList();
         log.info("채팅방 목록 조회 종료 - userId = {}", userId);
-        return chatRoomConverter.toChatRoomListResponse(chatRoomInfos);
+        return chatRoomConverter.toChatRoomListResponse(userSlotInfo, chatRoomInfos);
     }
 
     public ChatRoomDetailDTO.Response getChatRoomDetail(Long userId, Long roomId) {
