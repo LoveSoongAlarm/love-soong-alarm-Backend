@@ -23,6 +23,7 @@ public class WebSocketConnectionService {
         Long userId = extractUserId(session);
         String userNickname = userQueryService.getUserNickname(userId);
         sessionService.addSession(userId, session);
+        subscriptionService.subscribeToUserChatUpdates(session, userId);
         messageSender.sendConnectionSuccessMessage(userId, userNickname, session);
     }
 

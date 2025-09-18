@@ -1,6 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.event.listener;
 
-import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging.MessageNotifier;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging.ChatMessageNotificationService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.event.MessageSentEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class MessageEventListener {
 
-    private final MessageNotifier messageNotifier;
+    private final ChatMessageNotificationService chatMessageNotificationService;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleMessageSent(MessageSentEvent event) {
@@ -21,18 +21,11 @@ public class MessageEventListener {
                 event.chatRoomId(), event.message().getId());
 
         try {
-            messageNotifier.notifyMessage(
+            chatMessageNotificationService.notifyNewMessage(
                     event.chatRoomId(),
                     event.message(),
                     event.senderId()
             );
-
-            messageNotifier.handleChatListUpdate(
-                    event.chatRoomId(),
-                    event.message(),
-                    event.senderId()
-            );
-
             log.info("웹소켓 메시지 전송 완료 - messageId: {}", event.message().getId());
         } catch (Exception e) {
             log.error("웹소켓 메시지 전송 실패 - chatRoomId: {}, messageId: {}",
