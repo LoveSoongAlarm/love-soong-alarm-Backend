@@ -57,19 +57,19 @@ public class User {
     private String emoji;
 
     @Column(name = "chat_ticket")
-    private Integer chatTicket;
+    private Integer chatTicket = 0;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Interest> interests = new ArrayList<>();
 
     @Column(name = "pre_pass")
-    private boolean prePass;
+    private boolean prePass = false;
 
     @Column(name = "max_slot")
-    private Integer maxSlot;
+    private Integer maxSlot = 1;
 
     @Column(name = "remaining_slot")
-    private Integer remainingSlot;
+    private Integer remainingSlot = 1;
 
     @Builder
     private User(EPlatform platform, ERole role, String serialId, EUserStatus status, Integer chatTicket, Integer maxSlot, Integer remainingSlot, boolean prePass) {
@@ -91,7 +91,7 @@ public class User {
                 .status(status)
                 .chatTicket(0)
                 .maxSlot(1)
-                .remainingSlot(0)
+                .remainingSlot(1)
                 .prePass(false)
                 .build();
     }
@@ -123,5 +123,12 @@ public class User {
         this.gender = gender;
         this.emoji = emoji;
         this.status = EUserStatus.ACTIVE;
+    }
+
+    public boolean hasAvailableSlot() {
+        if( this.remainingSlot != null && this.remainingSlot > 0 ) {
+            return true;
+        }
+        return false;
     }
 }
