@@ -27,10 +27,10 @@ public class PayController {
 
     @PostMapping("/checkout")
     public BaseResponse<CreateCheckoutSessionDTO> createCheckOut(
-            @Valid @RequestBody Map<String, Integer> req,
+            @Valid @RequestBody PayItemRequestDTO request,
             @UserId Long userId
             ){
-        return BaseResponse.success(service.createCheckoutSession(req)); // 요것도 일단 url 던지는걸로 구현햇는데, redirect도 좋을 것 같아요!
+        return BaseResponse.success(service.createCheckoutSession(request, userId)); // 요것도 일단 url 던지는걸로 구현햇는데, redirect도 좋을 것 같아요!
     }
 
     @PostMapping("/webhook")
