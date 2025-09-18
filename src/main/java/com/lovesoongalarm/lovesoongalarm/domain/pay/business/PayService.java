@@ -78,6 +78,15 @@ public class PayService {
     }
 
     @Transactional
+    public void handleCheckoutCancel(String sessionId) {
+        // JWT 검증해서 해당 유저의 결제만 Cancel할 수 있는 것 필요 ...
+        Session expired = stripe.expireCheckoutSession(sessionId);
+        Pay canceledPay = repo.findBySessionId(expired.getId()).orElseThrow(() -> new CustomException(PayErrorCode.PAYMENT_NOT_FOUND));
+
+        canceledPay.cancel();
+    }
+
+    @Transactional
     public PaySuccessResponseDTO verifySuccess(String sessionId, String ipAddress) {
         Session session = stripe.retrieveSession(sessionId);
 

@@ -24,7 +24,7 @@ public class Pay {
     private String sessionId; // Stripe에서 취급하는 결제 세션 ID
 
     @Column(nullable = false, length = 20)
-    private String status; // PENDING, COMPLETED, FAILED
+    private String status; // PENDING, COMPLETED, FAILED, CANCELED
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -40,5 +40,6 @@ public class Pay {
 
     public void complete() { this.status = "COMPLETED"; }
     public void fail() { this.status = "FAILED"; }
+    public void cancel() { this.status = "CANCELED"; }
 
 }

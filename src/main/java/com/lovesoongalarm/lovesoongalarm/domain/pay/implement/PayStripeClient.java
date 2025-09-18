@@ -6,6 +6,8 @@ import com.stripe.Stripe;
 import com.stripe.model.Product;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
+import com.stripe.param.checkout.SessionExpireParams;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -17,6 +19,9 @@ public class PayStripeClient {
 
     @Value("${spring.data.stripe.success_callback}")
     private String successUrl; // 콜백 URL이였으면 좋겠습니다, api/v1/success
+
+    @Value("${spring.data.stripe.cancel_callback}")
+    private String cancelUrl; // 콜백 URL이였으면 좋겠습니다, api/v1/cancel
 
     public PayStripeClient(@Value("${spring.data.stripe.secret}") String secretKey) {
         Stripe.apiKey = secretKey; // 이 부분 슬랙 참고해주세요
@@ -40,6 +45,7 @@ public class PayStripeClient {
                 SessionCreateParams.builder()
                     .setMode(SessionCreateParams.Mode.PAYMENT)
                     .setSuccessUrl(successUrl+"?session_id={CHECKOUT_SESSION_ID}")
+                    .setSuccessUrl(cancelUrl+"?session_id={CHECKOUT_SESSION_ID}")
                     .addAllLineItem(lineItems)
                     .setPaymentMethodOptions(
                         SessionCreateParams.PaymentMethodOptions.builder()
@@ -52,14 +58,22 @@ public class PayStripeClient {
                         )
                         .build()
                     )
-                .build();
-
-            Session session = Session.create(params);
-            
-            return session;
+                .build();            
+            return Session.create(params);
         } catch (Exception e) {
             throw new CustomException(PayErrorCode.SESSION_CREATE_ERROR);
         }
+    }
+
+    public Session expireCheckoutSession(String sessionId) {
+        try {
+            Session expireTargetSession = this.retrieveSession(sessionId);
+            SessionExpireParams params = SessionExpireParams.builder().build();
+            return expireTargetSession.expire(params);
+        } catch (Exception e) {
+            throw new CustomException(PayErrorCode.SESSION_EXPIRE_ERROR);
+        }
+        
     }
 
     public Session retrieveSession(String sessionId) {

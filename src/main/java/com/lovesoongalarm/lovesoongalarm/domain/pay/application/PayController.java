@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 @RestController
 @RequestMapping("api/v1/pay")
 @RequiredArgsConstructor
-public class PayController {
+public class PayController { 
     
     private final PayService service;
     private final WebhookClient webhookClient;
@@ -52,6 +52,14 @@ public class PayController {
     ){
         String ipAddress = extractClientIp(request);
         return BaseResponse.success(service.verifySuccess(sessionId, ipAddress)); // 일단 이렇게 두긴 했는데, 프엔에서 "결제 완료되었습니다!" 구현하려면 redirect도 괜찮을 것 같아요!
+    }
+
+    @GetMapping("/cancel")
+    public BaseResponse<Void> handleCheckoutCancel(
+        @RequestParam("session_id") String sessionId
+    ){
+        service.handleCheckoutCancel(sessionId);
+        return BaseResponse.success(null);
     }
 
 
