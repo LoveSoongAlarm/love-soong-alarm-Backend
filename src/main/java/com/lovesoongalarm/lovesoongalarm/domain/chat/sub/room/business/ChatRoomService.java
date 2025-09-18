@@ -10,6 +10,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.MessageService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.business.SubscriptionService;
+import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.exception.UserErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,11 +31,13 @@ public class ChatRoomService {
 
     private final MessageService messageService;
     private final SubscriptionService subscriptionService;
+    private final UserService userService;
 
     private final ChatRoomConverter chatRoomConverter;
 
     public ChatRoom createChatRoom(Long userId, Long targetUserId) {
         log.info("개인 채팅방 생성 시작 - 본인: {}, 상대방: {}", userId, targetUserId);
+        userService.validateTargetUserExists(targetUserId);
         chatRoomValidator.validateChatRoomCreation(userId, targetUserId);
 
         Optional<ChatRoom> existing = chatRoomRetriever.findByIdAndTargetUserId(userId, targetUserId);
