@@ -33,4 +33,8 @@ public class MessageRetriever {
         Pageable pageable = PageRequest.of(0, pageSize);
         return messageRepository.findPreviousMessagesByChatRoomIdAndLastMessageId(chatRoomId, lastMessageId, pageable);
     }
+
+    public int countUnreadMessagesForUser(Long userId) {
+        return messageRepository.countUnreadMessagesForUser(userId);
+    }
 }

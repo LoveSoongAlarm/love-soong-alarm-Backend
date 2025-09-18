@@ -1,10 +1,8 @@
 package com.lovesoongalarm.lovesoongalarm.domain.user.business;
 
 import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
-import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.InterestUpdateRequestDTO;
-import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.OnBoardingRequestDTO;
-import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserResponseDTO;
-import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserUpdateRequestDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.user.application.converter.UserConverter;
+import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.*;
 import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.OnBoardingRequestDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.user.exception.UserErrorCode;
@@ -24,6 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
+import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.USER_GENDER_KEY;
+import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.USER_INTEREST_KEY;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -32,6 +33,7 @@ public class UserQueryService {
     private final UserRetriever userRetriever;
     private final InterestSaver interestSaver;
     private final StringRedisTemplate stringRedisTemplate;
+    private final UserConverter userConverter;
 
     public String getUserNickname(Long userId) {
         User user = userRetriever.findByIdOrElseThrow(userId);
@@ -40,7 +42,7 @@ public class UserQueryService {
 
     @Transactional
     public Void onBoardingUser(Long userId, OnBoardingRequestDTO request){
-        User findUser = userRetriever.findById(userId);
+        User findUser = userRetriever.findByIdOrElseThrow(userId);
         findUser.updateFromOnboardingAndProfile(request.nickname(), request.major(), request.birthDate(), EGender.valueOf(request.gender()), request.emoji());
 
         List<Interest> interests = request.interests().stream()
@@ -64,22 +66,28 @@ public class UserQueryService {
         interestSaver.saveAll(interests);
 
         // Redis에 취향 정보 저장
-        updateRedis(userId, interests);
+        updateRedis(userId, EGender.valueOf(request.gender()), interests);
       
         return null;
     }
 
     public UserResponseDTO getUser(Long targetId){
-        User findUser = userRetriever.findById(targetId);
+        User findUser = userRetriever.findByIdOrElseThrow(targetId);
 
         int age = calculateAge(findUser.getBirthDate());
 
         return UserResponseDTO.from(findUser, age);
     }
 
+    public UserMeResponseDTO getMe(Long userId){
+        User findUser = userRetriever.findByIdOrElseThrow(userId);
+
+        return UserMeResponseDTO.from(findUser);
+    }
+
     @Transactional
     public Void updateUser(Long userId, UserUpdateRequestDTO request){
-        User findUser = userRetriever.findById(userId);
+        User findUser = userRetriever.findByIdOrElseThrow(userId);
         findUser.updateFromOnboardingAndProfile(request.nickname(), request.major(), request.birthDate(), EGender.valueOf(request.gender()), request.emoji());
 
         List<Interest> existingInterests = findUser.getInterests();
@@ -106,9 +114,15 @@ public class UserQueryService {
         }
 
         // Redis 업데이트
-        updateRedis(userId, existingInterests);
+        updateRedis(userId, EGender.valueOf(request.gender()), existingInterests);
 
         return null;
+    }
+
+    public UserSlotResponseDTO getUserSlots(Long userId) {
+        User user = userRetriever.findByIdOrElseThrow(userId);
+        UserSlotResponseDTO slotInfo = userConverter.createSlotInfo(user);
+        return slotInfo;
     }
 
     private int calculateAge(Integer birthDate){
@@ -121,16 +135,17 @@ public class UserQueryService {
         return age;
     }
 
-    private void updateRedis(Long userId, List<Interest> interests) {
+    private void updateRedis(Long userId, EGender gender, List<Interest> interests) {
         List<String> interestValues = interests.stream()
-                .map(interest -> interest.getLabel().name())
+                .map(interest -> interest.getDetailLabel().name())
                 .toList();
 
-        stringRedisTemplate.delete("user:interests:" + userId);
+        stringRedisTemplate.delete(USER_INTEREST_KEY + userId);
 
         if (!interestValues.isEmpty()) {
-            stringRedisTemplate.opsForSet().add("user:interests:" + userId, interestValues.toArray(new String[0]));
+            stringRedisTemplate.opsForSet().add(USER_INTEREST_KEY + userId, interestValues.toArray(new String[0]));
         }
-    }
 
+        stringRedisTemplate.opsForHash().put(USER_GENDER_KEY, String.valueOf(userId), gender.name());
+    }
 }

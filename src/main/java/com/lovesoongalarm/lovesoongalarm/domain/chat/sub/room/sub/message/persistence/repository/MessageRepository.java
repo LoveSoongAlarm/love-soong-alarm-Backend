@@ -3,6 +3,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persi
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -38,7 +39,7 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     Long countMessagesByChatRoomIdAndIdLessThan(
             @Param("chatRoomId") Long chatRoomId,
             @Param("messageId") Long messageId);
-           
+
     @Query("""
             SELECT m FROM Message m
             JOIN FETCH m.user
@@ -50,4 +51,33 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             @Param("chatRoomId") Long chatRoomId,
             @Param("lastMessageId") Long lastMessageId,
             Pageable pageable);
+
+    @Modifying
+    @Query("UPDATE Message m SET m.isRead = true WHERE m.id = :messageId")
+    void markAsRead(@Param("messageId") Long messageId);
+
+    @Modifying
+    @Query("""
+            UPDATE Message m 
+            SET m.isRead = true 
+            WHERE m.chatRoom.id = :chatRoomId 
+            AND m.user.id != :receiverId 
+            AND m.isRead = false
+            """)
+    int markUnreadMessagesAsRead(
+            @Param("chatRoomId") Long chatRoomId,
+            @Param("receiverId") Long receiverId
+    );
+
+    @Query("""
+            SELECT COUNT(m) FROM Message m
+            WHERE m.user.id != :userId 
+            AND m.isRead = false
+            AND m.chatRoom.id IN (
+                SELECT cp.chatRoom.id 
+                FROM ChatRoomParticipant cp 
+                WHERE cp.user.id = :userId
+            )
+            """)
+    int countUnreadMessagesForUser(@Param("userId") Long userId);
 }

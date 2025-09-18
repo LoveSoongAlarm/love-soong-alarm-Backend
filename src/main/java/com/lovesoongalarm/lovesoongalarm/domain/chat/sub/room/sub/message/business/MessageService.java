@@ -1,22 +1,23 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business;
 
-import com.lovesoongalarm.lovesoongalarm.domain.chat.application.dto.WebSocketMessageDTO;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.persistence.type.EWebSocketMessageType;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomListDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.converter.MessageConverter;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.MessageListDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.event.MessageSentEvent;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageRetriever;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageSender;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageSaver;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageValidator;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business.ChatRoomParticipantService;
+import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
+import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.socket.WebSocketSession;
 
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -26,30 +27,23 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MessageService {
 
-    private final MessageSender messageSender;
     private final MessageRetriever messageRetriever;
+    private final MessageValidator messageValidator;
+    private final MessageSaver messageSaver;
 
     private final MessageConverter messageConverter;
+
+    private final UserService userService;
+    private final ChatRoomParticipantService chatRoomParticipantService;
+    private final MessageNotificationService messageNotificationService;
+
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final int INITIAL_MESSAGE_LIMIT = 50;
     private static final int DEFAULT_PAGE_SIZE = 50;
     private static final int MAX_PAGE_SIZE = 100;
 
-    @Transactional
-    public void sendConnectionSuccessMessage(Long userId, String userNickname, WebSocketSession session) {
-        WebSocketMessageDTO.ConnectionInfo connectionInfo = WebSocketMessageDTO.ConnectionInfo.builder()
-                .type(EWebSocketMessageType.CONNECTION_SUCCESS)
-                .userId(userId)
-                .userNickname(userNickname)
-                .timestamp(LocalDateTime.now())
-                .message("WebSocket 연결이 성공했습니다.")
-                .build();
-
-        messageSender.sendMessage(session, connectionInfo);
-    }
-
-    public ChatRoomListDTO.LastMessageInfo createLastMessageInfo(
-            ChatRoom chatRoom, Long userId, ChatRoomParticipant myParticipant, ChatRoomParticipant partnerParticipant) {
+    public ChatRoomListDTO.LastMessageInfo createLastMessageInfo(ChatRoom chatRoom, Long userId) {
         log.info("마지막 메시지 정보 생성 시작 - chatRoomId: {}, userId: {}", chatRoom.getId(), userId);
 
         Optional<Message> lastMessage = messageRetriever.findLastMessageByChatRoomId(chatRoom.getId());
@@ -63,24 +57,20 @@ public class MessageService {
         boolean isSentByMe = message.getUser().getId().equals(userId);
 
         if (isSentByMe) {
-            boolean isReadByPartner = isMessageRead(message.getId(), partnerParticipant.getLastReadMessageId());
-            log.info("내가 보낸 마지막 메시지 - messageId: {}, partnerLastReadMessageId: {}, isRead: {}",
-                    message.getId(), partnerParticipant.getLastReadMessageId(), isReadByPartner);
+            log.info("내가 보낸 마지막 메시지 - messageId: {}, isRead: {}", message.getId(), message.isRead());
 
             return ChatRoomListDTO.LastMessageInfo.sentByMe(
                     message.getContent(),
                     message.getCreatedAt(),
-                    isReadByPartner
+                    message.isRead()
             );
         } else {
-            boolean isReadByMe = isMessageRead(message.getId(), myParticipant.getLastReadMessageId());
-            log.info("상대방이 보낸 마지막 메시지 - messageId: {}, myLastReadMessageId: {}, isRead: {}",
-                    message.getId(), myParticipant.getLastReadMessageId(), isReadByMe);
+            log.info("상대방이 보낸 마지막 메시지 - messageId: {}, isRead: {}", message.getId(), message.isRead());
 
             return ChatRoomListDTO.LastMessageInfo.sentByPartner(
                     message.getContent(),
                     message.getCreatedAt(),
-                    isReadByMe
+                    message.isRead()
             );
         }
     }
@@ -102,7 +92,7 @@ public class MessageService {
     }
 
     public MessageListDTO.Response getPreviousMessages(
-            Long chatRoomId, Long userId, Long lastMessageId, Integer size, Long partnerLastReadMessageId) {
+            Long chatRoomId, Long userId, Long lastMessageId, Integer size) {
         log.info("과거 메시지 조회 시작 - chatRoomId: {}, userId: {}, lastMessageId: {}, size: {}",
                 chatRoomId, userId, lastMessageId, size);
 
@@ -123,7 +113,7 @@ public class MessageService {
                 .toList();
 
         List<MessageListDTO.MessageInfo> messageInfos = sortedMessages.stream()
-                .map(message -> messageConverter.toMessageInfo(message, userId, partnerLastReadMessageId))
+                .map(message -> messageConverter.toMessageInfo(message, userId))
                 .toList();
 
         log.info("과거 메시지 조회 완료 - chatRoomId: {}, 조회된 메시지 수: {}, hasMore: {}",
@@ -132,12 +122,27 @@ public class MessageService {
         return messageConverter.toMessageListResponse(messageInfos, hasMoreMessages, nextCursor);
     }
 
-    private boolean isMessageRead(Long messageId, Long lastReadMessageId) {
-        if (lastReadMessageId == null) {
-            return false;
-        }
+    @Transactional
+    public void sendMessage(ChatRoom chatRoom, String content, Long senderId) {
+        log.info("1:1 채팅 메시지 전송 시작 - chatRoomId: {}, senderId: {}", chatRoom.getId(), senderId);
+        messageValidator.validateMessage(content);
 
-        return messageId <= lastReadMessageId;
+        User sender = userService.findUserOrElseThrow(senderId);
+
+        Message message = Message.create(content, chatRoom, sender);
+        Message savedMessage = messageSaver.save(message);
+
+        chatRoomParticipantService.activatePartnerIfPending(chatRoom, senderId);
+
+        eventPublisher.publishEvent(
+                MessageSentEvent.builder()
+                        .chatRoomId(chatRoom.getId())
+                        .message(savedMessage)
+                        .senderId(senderId)
+                        .build()
+        );
+
+        log.info("1:1 채팅 메시지 전송 완료 - messageId: {}", savedMessage.getId());
     }
 
     private int validateAndGetPageSize(Integer size) {
@@ -146,5 +151,4 @@ public class MessageService {
         }
         return Math.min(size, MAX_PAGE_SIZE);
     }
-
 }
