@@ -5,7 +5,6 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.MessageService;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging.MessageSender;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.session.SessionService;
-import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.business.SubscriptionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,6 @@ public class ChatService {
     private final SessionService sessionService;
     private final MessageSender messageSender;
     private final ChatRoomService chatRoomService;
-    private final SubscriptionService subscriptionService;
     private final MessageService messageService;
 
     public void registerSession(Long userId, String userNickname, WebSocketSession session) {
