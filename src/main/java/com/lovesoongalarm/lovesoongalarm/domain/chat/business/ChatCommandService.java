@@ -30,11 +30,11 @@ public class ChatCommandService {
         return chatRoomConverter.toCreateChatRoomResponse(chatRoom.getId());
     }
 
-    public UseTicketDTO.Response useTicket(Long userId, UseTicketDTO.Request request) {
-        log.info("채팅방 채팅 티켓 사용 시작 - userId: {}, chatRoomId: {}", userId, request.chatRoomId());
-        chatRoomService.validateUseTicket(request.chatRoomId());
-        UseTicketDTO.Response response = chatRoomParticipantService.useTicket(userId, request.chatRoomId());
-        log.info("채팅방 채팅 티켓 사용 완료 - userId: {}, chatRoomId: {}", userId, request.chatRoomId());
+    public UseTicketDTO.Response useTicket(Long userId, Long chatRoomId) {
+        log.info("채팅방 채팅 티켓 사용 시작 - userId: {}, chatRoomId: {}", userId, chatRoomId);
+        chatRoomService.validateUseTicket(chatRoomId);
+        UseTicketDTO.Response response = chatRoomParticipantService.useTicket(userId, chatRoomId);
+        log.info("채팅방 채팅 티켓 사용 완료 - userId: {}, chatRoomId: {}", userId, chatRoomId);
         return response;
     }
 }

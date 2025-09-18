@@ -86,7 +86,7 @@ public class ChatController {
         return BaseResponse.success(chatQueryService.getChatRoomMessages(userId, roomId, size, lastMessageId));
     }
 
-    @PostMapping("/tickets")
+    @PostMapping("/rooms/{roomId}/tickets")
     @Operation(summary = "채팅 티켓 사용",
             description = """
             회원이 특정 채팅방에 티켓을 사용합니다.
@@ -95,7 +95,7 @@ public class ChatController {
     @ApiResponse(responseCode = "200", description = "채팅 티켓 성공")
     public BaseResponse<UseTicketDTO.Response> useTicket(
             @UserId Long userId,
-            @RequestBody UseTicketDTO.Request request) {
-        return BaseResponse.success(chatCommandService.useTicket(userId, request));
+            @PathVariable Long roomId) {
+        return BaseResponse.success(chatCommandService.useTicket(userId, roomId));
     }
 }
