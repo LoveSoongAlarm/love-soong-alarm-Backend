@@ -6,6 +6,8 @@ import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.ERo
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EUserStatus;
 import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.persistence.entity.Interest;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -57,6 +59,7 @@ public class User {
     private String emoji;
 
     @Column(name = "chat_ticket")
+    @NotNull @Min(0)
     private Integer chatTicket = 0;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -65,10 +68,12 @@ public class User {
     @Column(name = "pre_pass")
     private boolean prePass = false;
 
-    @Column(name = "max_slot")
+    @Column(name = "max_slot", nullable = false)
+    @NotNull @Min(1)
     private Integer maxSlot = 1;
 
-    @Column(name = "remaining_slot")
+    @Column(name = "remaining_slot", nullable = false)
+    @NotNull @Min(0)
     private Integer remainingSlot = 1;
 
     @Builder
