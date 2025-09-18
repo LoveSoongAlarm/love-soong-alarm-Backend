@@ -4,6 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.lovesoongalarm.lovesoongalarm.domain.pay.application.dto.PayItemRequestDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.pay.config.PriceIdConfig;
+import com.lovesoongalarm.lovesoongalarm.domain.pay.implement.PayRetriever;
+import com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.entity.type.EItem;
+import com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.entity.type.EItemStatus;
+import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserRetriever;
+import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,33 +31,32 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PayService {
     private final PayStripeClient stripe;
-    private final PayRepository repo;
+    private final PayRepository payRepository;
+    private final PriceIdConfig priceIdConfig;
+    private final UserRetriever userRetriever;
+    private final PayRetriever payRetriever;
 
     @Transactional
-    public CreateCheckoutSessionDTO createCheckoutSession(Map<String, Integer> req) {
-        List<SessionCreateParams.LineItem> lineItems = new ArrayList<>();
+    public CreateCheckoutSessionDTO createCheckoutSession(PayItemRequestDTO request, Long userId) {
 
-        for (Map.Entry<String, Integer> entry: req.entrySet()) {
-            int quantity = entry.getValue() == null ? 0 : entry.getValue(); // "coin_1000": 1에서 수량 추출
-            if (quantity == 0) continue;
+        User findUser = userRetriever.findByIdOrElseThrow(userId);
 
-            ECoinProductIdType coin = ECoinProductIdType.fromKey(entry.getKey()); // "coin_1000" 값 추출
-            if (coin == null) throw new CustomException(PayErrorCode.INVALID_ARGUMENT);
-
-            String priceId = stripe.retrieveDefaultPrice(coin.getProductId()); // Stripe 고유 Product ID 추출
-            lineItems.add(SessionCreateParams.LineItem.builder()
-                .setPrice(priceId)
-                .setQuantity((long) quantity) // 이게 맞을까요? 정말 송구스러운 마음뿐입니다
-                .build()
-            );
-
+        SessionCreateParams.LineItem lineItem;
+        try {
+            String priceId = stripe.retrieveDefaultPrice(priceIdConfig.getPriceId(EItem.valueOf(request.item())));
+            lineItem = SessionCreateParams.LineItem.builder()
+                    .setPrice(priceId)   // 결제할 Price ID
+                    .setQuantity(1L)           // 수량
+                    .build();
+        } catch (IllegalArgumentException e){
+            throw new CustomException(PayErrorCode.INVALID_ARGUMENT);
         }
 
-        if (lineItems.isEmpty()) throw new CustomException(PayErrorCode.INVALID_ARGUMENT);
+        Session session = stripe.createCheckoutSession(lineItem); // PayStripeClient에서 새 결제 생성
 
-        Session session = stripe.createCheckoutSession(lineItems); // PayStripeClient에서 새 결제 생성
-
-        repo.findBySessionId(session.getId()).orElseGet(() -> repo.save(new Pay(session.getId(), "PENDING")));
+        payRetriever.createOrLoadPay(session, findUser, EItem.valueOf(request.item()));
+//        payRepository.findBySessionId(session.getId())
+//                .orElseGet(() -> payRepository.save(Pay.create(session.getId(), EItemStatus.PENDING)));
 
         return new CreateCheckoutSessionDTO(session.getUrl()); // 사용자가 결제 가능한 URL을 넘깁니다
     }
@@ -62,18 +68,21 @@ public class PayService {
         String paymentStatus = session.getPaymentStatus(); 
         String sessionStatus = session.getStatus();
 
-        Pay singlePay = repo.findBySessionId(sessionId)
-            .orElseThrow(() -> new CustomException(PayErrorCode.PAYMENT_NOT_FOUND));
+        Pay findPay = payRetriever.findBySessionId(sessionId);
 
-        if ("COMPLETED".equalsIgnoreCase(singlePay.getStatus()) || "FAILED".equalsIgnoreCase(singlePay.getStatus())) {
+        //세션 id를 통해 상태 확인
+        if (EItemStatus.COMPLETED.equals(findPay.getStatus())
+                || EItemStatus.FAILED.equals(findPay.getStatus())) {
             return;
         }
 
         if ("paid".equalsIgnoreCase(paymentStatus) || "complete".equalsIgnoreCase(sessionStatus)) {
-            singlePay.complete();
+            findPay.complete(); //상태 완료로 변경
             // 코인은 여기서 주는 것
+            User findPayUser = findPay.getUser();
+            findPayUser.buyTicket(findPay.getItem());
         } else {
-            singlePay.fail();
+            findPay.fail();
         }
     }
 
@@ -84,19 +93,11 @@ public class PayService {
         String status = session.getPaymentStatus();
         Long totalAmount = session.getAmountTotal();
 
-        Pay singlePay = repo.findBySessionId(sessionId)
-            .orElseThrow(() -> new CustomException(PayErrorCode.PAYMENT_NOT_FOUND));
+        Pay findPay = payRetriever.findBySessionId(sessionId);
 
         if ("paid".equalsIgnoreCase(status) || "complete".equalsIgnoreCase(session.getStatus())) {
-            if (!"COMPLETED".equalsIgnoreCase(singlePay.getStatus())) {
-                singlePay.complete();
-                // 여기서 코인 주기? 안되면?? 흠 ...
-            }
             return new PaySuccessResponseDTO(session.getId(), status, totalAmount);
         } else {
-            if (!"FAILED".equalsIgnoreCase(singlePay.getStatus())) {
-                singlePay.fail();
-            }
             throw new CustomException(PayErrorCode.PAYMENT_NOT_FOUND);
         }
     }
