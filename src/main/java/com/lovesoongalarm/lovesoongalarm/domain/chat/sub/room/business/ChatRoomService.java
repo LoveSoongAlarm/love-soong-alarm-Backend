@@ -48,6 +48,9 @@ public class ChatRoomService {
 
         ChatRoom newRoom = ChatRoom.create();
         ChatRoom savedRoom = chatRoomSaver.save(newRoom);
+
+        userService.decreaseRemainingSlot(userId);
+
         log.info("개인 채팅방 생성 완료 -  chatRoomId: {}", savedRoom.getId());
         return savedRoom;
     }

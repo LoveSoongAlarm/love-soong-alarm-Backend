@@ -1,11 +1,9 @@
 package com.lovesoongalarm.lovesoongalarm.domain.user.business;
 
-import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
-import com.lovesoongalarm.lovesoongalarm.domain.user.exception.UserErrorCode;
 import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserRetriever;
+import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserUpdater;
 import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserValidator;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
-import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,6 +15,7 @@ public class UserService {
 
     private final UserRetriever userRetriever;
     private final UserValidator userValidator;
+    private final UserUpdater userUpdater;
 
     public User findUserOrElseThrow(Long userId) {
         return userRetriever.findByIdOrElseThrow(userId);
@@ -31,5 +30,9 @@ public class UserService {
 
     public void validateChatRoomCreation(Long userId, Long targetUserId) {
         userValidator.validateChatRoomCreation(userId, targetUserId);
+    }
+
+    public void decreaseRemainingSlot(Long userId) {
+        userUpdater.decreaseRemainingSlot(userId);
     }
 }
