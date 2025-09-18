@@ -5,7 +5,7 @@ import com.lovesoongalarm.lovesoongalarm.common.annotation.UserId;
 import com.lovesoongalarm.lovesoongalarm.domain.notice.application.dto.NoticeResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.notice.business.NoticeQueryService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,7 +17,7 @@ import java.util.List;
 public class NoticeController {
     private final NoticeQueryService noticeQueryService;
 
-    @PostMapping("")
+    @GetMapping("")
     public BaseResponse<List<NoticeResponseDTO>> notice(
             @UserId Long userId
     ) {

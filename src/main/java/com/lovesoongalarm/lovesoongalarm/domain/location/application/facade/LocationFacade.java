@@ -7,6 +7,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.location.application.dto.NearbyR
 import com.lovesoongalarm.lovesoongalarm.domain.location.application.dto.NearbyUserResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.location.business.LocationService;
 import com.lovesoongalarm.lovesoongalarm.domain.location.implement.RedisPipeline;
+import com.lovesoongalarm.lovesoongalarm.domain.notice.business.NoticeQueryService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserQueryService;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class LocationFacade {
     private final LocationService locationService;
     private final UserQueryService userQueryService;
     private final RedisPipeline redisPipeline;
+    private final NoticeQueryService noticeQueryService;
 
     @Transactional
     public void updateLocation(Long userId, double latitude, double longitude) {
@@ -71,7 +73,7 @@ public class LocationFacade {
                 List<Point> posList = (List<Point>) pipeResults.get(i++);
                 Double latitude = null;
                 Double longitude = null;
-                if(posList != null && !posList.isEmpty() && posList.get(0) != null) {
+                if (posList != null && !posList.isEmpty() && posList.get(0) != null) {
                     longitude = posList.get(0).getX();
                     latitude = posList.get(0).getY();
                 }
@@ -90,6 +92,10 @@ public class LocationFacade {
                         .latitude(latitude)
                         .longitude(longitude)
                         .build());
+
+                if (userMatch.isMatching()) {
+                    sendNotification(userId, userMatch.userId(), new ArrayList<>(userMatch.overlapInterests()));
+                }
             }
 
             log.info("nearbyUserResponse: {}", nearbyUserResponse);
@@ -104,5 +110,10 @@ public class LocationFacade {
             log.error("findNearby() failed. userId={}", userId, e);
             throw new CustomException(GlobalErrorCode.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private void sendNotification(Long userId, Long matchingUserId, List<String> interests) {
+        noticeQueryService.sendNotice(userId, matchingUserId, interests);
+        noticeQueryService.sendNotice(matchingUserId, userId, interests);
     }
 }
