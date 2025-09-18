@@ -2,6 +2,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.b
 
 import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.WebSocketMessageService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.exception.ChatRoomParticipantErrorCode;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantUpdater;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
@@ -40,6 +41,7 @@ public class ChatTicketService {
 
         if (participant.getFreeMessageCount() >= FREE_MESSAGE_LIMIT) {
             webSocketMessageService.sendMessageCountLimit(session);
+            throw new CustomException(ChatRoomParticipantErrorCode.EXCEED_MESSAGE_LIMIT);
         }
         chatRoomParticipantUpdater.incrementFreeMessageCount(participant.getId());
     }

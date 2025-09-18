@@ -116,5 +116,7 @@ public class WebSocketMessageService {
         WebSocketMessageDTO.MessageCountLimit messageCountLimit = WebSocketMessageDTO.MessageCountLimit.builder()
                 .type(EWebSocketMessageType.MESSAGE_COUNT_LIMIT)
                 .build();
+
+        messageSender.sendMessage(session, messageCountLimit);
     }
 }
