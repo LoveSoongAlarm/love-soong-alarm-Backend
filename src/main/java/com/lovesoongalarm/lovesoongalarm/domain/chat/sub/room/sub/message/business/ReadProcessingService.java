@@ -3,7 +3,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.busin
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.UserChatUpdateDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
-import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging.ChatMessageNotificationService;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging.WebSocketNotificationSender;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.business.UserSubscriptionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +16,10 @@ import java.util.Optional;
 @Slf4j
 public class ReadProcessingService {
 
-    private final ChatMessageNotificationService notificationService;
     private final MessageRetriever messageRetriever;
     private final UnreadCountService unreadCountService;
     private final UserSubscriptionService userSubscriptionService;
+    private final WebSocketNotificationSender webSocketNotificationSender;
 
     public void handleSubscribeReadResult(MessageReadService.ReadResult readResult) {
         if (!readResult.hasUpdate()) {
@@ -30,11 +30,13 @@ public class ReadProcessingService {
                 readResult.readCount(), readResult.partnerId());
 
         try {
-            notificationService.notifyReadStatusUpdate(
+            webSocketNotificationSender.sendReadNotification(
                     readResult.chatRoomId(),
                     readResult.readerId(),
                     readResult.partnerId()
             );
+
+            updateMyUnreadBadge(readResult.readerId());
 
             handleChatListUpdateOnRead(
                     readResult.chatRoomId(),
@@ -56,7 +58,7 @@ public class ReadProcessingService {
         log.info("메시지 수신 시 읽음 후처리 시작 - partnerId: {}", readResult.partnerId());
 
         try {
-            notificationService.notifyReadStatusUpdate(
+            webSocketNotificationSender.sendReadNotification(
                     readResult.chatRoomId(),
                     readResult.readerId(),
                     readResult.partnerId()
@@ -66,7 +68,6 @@ public class ReadProcessingService {
             log.error("메시지 수신 시 읽음 후처리 중 오류", e);
         }
     }
-
 
     private void handleChatListUpdateOnRead(Long chatRoomId, Long userId, Long partnerId, int readCount) {
         try {
@@ -109,6 +110,16 @@ public class ReadProcessingService {
 
         } catch (Exception e) {
             log.error("상대방 읽음 상태 알림 실패 - partnerId: {}, chatRoomId: {}", partnerId, chatRoomId, e);
+        }
+    }
+
+    private void updateMyUnreadBadge(Long userId) {
+        try {
+            int myUnreadCount = unreadCountService.getTotalUnreadCount(userId);
+            userSubscriptionService.publishUnreadBadgeUpdate(userId, myUnreadCount);
+            log.info("구독자 배지 업데이트 완료 - userId: {}, unreadCount: {}", userId, myUnreadCount);
+        } catch (Exception e) {
+            log.error("구독자 배지 업데이트 실패 - userId: {}", userId, e);
         }
     }
 }

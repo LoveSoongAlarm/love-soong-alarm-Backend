@@ -17,7 +17,7 @@ public class ChatListUpdateService {
     private final UnreadCountService unreadCountService;
     private final WebSocketNotificationSender webSocketNotificationSender;
 
-    public void updateAfterNewMessage(Long chatRoomId, Message message, Long senderId, Long partnerId) {
+    public void updateAfterNewMessage(Long chatRoomId, Message message, Long partnerId) {
         log.info("새 메시지 후 채팅방 목록 업데이트 - chatRoomId: {}, partnerId: {}", chatRoomId, partnerId);
 
         try {
@@ -27,17 +27,6 @@ public class ChatListUpdateService {
         } catch (Exception e) {
             log.error("채팅방 목록 업데이트 실패 - chatRoomId: {}, partnerId: {}",
                     chatRoomId, partnerId, e);
-        }
-    }
-
-    public void updateReadStatus(Long userId, Long chatRoomId) {
-        log.info("읽음 상태 변경 후 채팅방 목록 업데이트 - userId: {}, chatRoomId: {}", userId, chatRoomId);
-
-        try {
-            updateUnreadBadge(userId);
-            log.info("읽음 상태 업데이트 완료 - userId: {}", userId);
-        } catch (Exception e) {
-            log.error("읽음 상태 업데이트 실패 - userId: {}, chatRoomId: {}", userId, chatRoomId, e);
         }
     }
 

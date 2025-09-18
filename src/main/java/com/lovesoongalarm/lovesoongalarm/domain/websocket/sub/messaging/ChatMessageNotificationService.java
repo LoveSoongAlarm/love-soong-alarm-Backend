@@ -41,22 +41,11 @@ public class ChatMessageNotificationService {
                 readProcessingService.handleMessageReceiveReadResult(readResult);
             }
 
-            chatListUpdateService.updateAfterNewMessage(chatRoomId, message, senderId, partnerId);
+            chatListUpdateService.updateAfterNewMessage(chatRoomId, message, partnerId);
             log.info("새 메시지 알림 정책 결정 완료 - partnerId: {}", partnerId);
         } catch (Exception e) {
             log.error("메시지 알림 정책 결정 중 오류 - chatRoomId: {}, messageId: {}",
                     chatRoomId, message.getId(), e);
-        }
-    }
-
-    public void notifyReadStatusUpdate(Long chatRoomId, Long readerId, Long partnerId) {
-        log.info("읽음 상태 알림 정책 결정 - chatRoomId: {}, readerId: {}, partnerId: {}",
-                chatRoomId, readerId, partnerId);
-        try {
-            webSocketNotificationSender.sendReadNotification(partnerId, chatRoomId, readerId);
-            chatListUpdateService.updateReadStatus(partnerId, chatRoomId);
-        } catch (Exception e) {
-            log.error("읽음 상태 알림 정책 결정 중 오류", e);
         }
     }
 }
