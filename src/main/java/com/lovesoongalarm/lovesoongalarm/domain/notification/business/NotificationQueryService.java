@@ -94,4 +94,20 @@ public class NotificationQueryService {
             throw new CustomException(NotificationErrorCode.CHANGE_NOTIFICATION_STATUS_ERROR);
         }
     }
+
+    @Transactional
+    public void changeAllStatus(Long userId) {
+        List<Notification> notifications = notificationRetriever.findNoticesByUserId(userId);
+
+        try {
+            for(Notification notification : notifications) {
+                if(notification.getStatus() != ENotificationStatus.READ) {
+                    notification.updateStatus(ENotificationStatus.READ);
+                }
+            }
+        } catch (Exception e) {
+            log.error("알림 일괄 읽음 처리 실패. userId={}", userId, e);
+            throw new CustomException(NotificationErrorCode.CHANGE_NOTIFICATION_STATUS_ERROR);
+        }
+    }
 }
