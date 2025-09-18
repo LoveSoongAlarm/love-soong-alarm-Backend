@@ -5,7 +5,6 @@ import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EPl
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.ERole;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EUserStatus;
 import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.persistence.entity.Interest;
-import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.sub.hashtag.persistence.entity.Hashtag;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -69,41 +68,31 @@ public class User {
     @Column(name = "max_slot")
     private Integer maxSlot;
 
-    @Column(name = "slot")
-    private Integer slot;
+    @Column(name = "remaining_slot")
+    private Integer remainingSlot;
 
     @Builder
-    public User(Long id, String nickname, EPlatform platform, ERole role, String serialId, EUserStatus status, String major, Integer birthDate, EGender gender, String emoji, Integer chatTicket, Integer maxSlot, Integer slot, boolean prePass) {
-        this.id = id;
-        this.nickname = nickname;
+    private User(EPlatform platform, ERole role, String serialId, EUserStatus status, Integer chatTicket, Integer maxSlot, Integer remainingSlot, boolean prePass) {
         this.platform = platform;
         this.role = role;
         this.serialId = serialId;
         this.status = status;
-        this.major = major;
-        this.birthDate = birthDate;
-        this.gender = gender;
-        this.emoji = emoji;
         this.chatTicket = chatTicket;
         this.maxSlot = maxSlot;
-        this.slot = slot;
+        this.remainingSlot = remainingSlot;
         this.prePass = prePass;
     }
 
-    public static User create(String nickname, EPlatform platform, ERole role, String serialId, EUserStatus status, String major, Integer birthDate, EGender gender, String emoji, Integer chatTicket, Integer slot, boolean prePass) {
+    public static User create(String serialId, EPlatform platform, ERole role, EUserStatus status) {
         return User.builder()
-                .nickname(nickname)
                 .platform(platform)
                 .serialId(serialId)
                 .role(role)
                 .status(status)
-                .major(major)
-                .birthDate(birthDate)
-                .gender(gender)
-                .emoji(emoji)
-                .chatTicket(chatTicket)
-                .slot(slot)
-                .prePass(prePass)
+                .chatTicket(0)
+                .maxSlot(1)
+                .remainingSlot(0)
+                .prePass(false)
                 .build();
     }
 
@@ -130,7 +119,7 @@ public class User {
     public void updateFromOnboardingAndProfile(String nickname, String major, Integer birthDate, EGender gender, String emoji) {
         this.nickname = nickname;
         this.major = major;
-        this.birthDate =birthDate;
+        this.birthDate = birthDate;
         this.gender = gender;
         this.emoji = emoji;
         this.status = EUserStatus.ACTIVE;
