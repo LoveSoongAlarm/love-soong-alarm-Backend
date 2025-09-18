@@ -33,6 +33,9 @@ public class UserService {
     }
 
     public void decreaseRemainingSlot(Long userId) {
+        User user = userRetriever.findByIdOrElseThrow(userId);
+        if (user.isPrePass()) return;
+
         userUpdater.decreaseRemainingSlot(userId);
     }
 }

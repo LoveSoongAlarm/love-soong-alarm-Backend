@@ -27,6 +27,7 @@ public class UserValidator {
 
     private void validateUserSlotAvailability(Long userId) {
         User user = userRetriever.findByIdOrElseThrow(userId);
+        if (user.isPrePass()) return;
         if(!user.hasAvailableSlot()){
             throw new CustomException(UserErrorCode.INSUFFICIENT_CHAT_SLOTS);
         }
