@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface ChatRoomParticipantRepository extends JpaRepository<ChatRoomParticipant, Long> {
 
     boolean existsByUser_IdAndChatRoom_Id(Long userId, Long chatRoomId);
@@ -17,4 +19,6 @@ public interface ChatRoomParticipantRepository extends JpaRepository<ChatRoomPar
             WHERE p.id = :participantId
             """)
     void updateStatusToJoined(@Param("participantId") Long participantId);
+
+    Optional<ChatRoomParticipant> findByUser_IdAndChatRoom_Id(Long userId, Long chatRoomId);
 }

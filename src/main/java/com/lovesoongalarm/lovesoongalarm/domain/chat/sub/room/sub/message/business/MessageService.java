@@ -10,6 +10,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implem
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageValidator;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business.ChatRoomParticipantService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business.ChatTicketService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,7 @@ public class MessageService {
 
     private final UserService userService;
     private final ChatRoomParticipantService chatRoomParticipantService;
-    private final MessageNotificationService messageNotificationService;
+    private final ChatTicketService chatTicketService;
 
     private final ApplicationEventPublisher eventPublisher;
 
@@ -125,6 +126,7 @@ public class MessageService {
     @Transactional
     public void sendMessage(ChatRoom chatRoom, String content, Long senderId) {
         log.info("1:1 채팅 메시지 전송 시작 - chatRoomId: {}, senderId: {}", chatRoom.getId(), senderId);
+        chatTicketService.validateAndProcessMessage(senderId, chatRoom.getId());
         messageValidator.validateMessage(content);
 
         User sender = userService.findUserOrElseThrow(senderId);
