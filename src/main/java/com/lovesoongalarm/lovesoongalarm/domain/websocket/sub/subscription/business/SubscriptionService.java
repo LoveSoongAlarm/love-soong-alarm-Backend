@@ -24,10 +24,10 @@ public class SubscriptionService {
 
     @Transactional
     public void subscribeToChatRoom(WebSocketSession session, Long chatRoomId, Long userId) {
-        MessageReadService.ReadResult readResult = messageReadService.markUnreadMessagesAsRead(chatRoomId, userId);
-        readProcessingService.handleSubscribeReadResult(readResult);
         redisSubscriber.addSubscriber(chatRoomId, userId);
         messageSender.sendSubscribeSuccessMessage(session, chatRoomId);
+        MessageReadService.ReadResult readResult = messageReadService.markUnreadMessagesAsRead(chatRoomId, userId);
+        readProcessingService.handleSubscribeReadResult(readResult);
     }
 
     public void unsubscribeToChatRoom(WebSocketSession session, Long chatRoomId, Long userId) {

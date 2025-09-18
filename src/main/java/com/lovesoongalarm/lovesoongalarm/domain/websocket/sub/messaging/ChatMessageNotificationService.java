@@ -31,13 +31,12 @@ public class ChatMessageNotificationService {
             User partner = userService.getPartnerUser(chatRoomId, senderId);
             Long partnerId = partner.getId();
 
-            webSocketNotificationSender.sendMessageToUser(partnerId, message, false);
             webSocketNotificationSender.sendMessageToUser(senderId, message, true);
 
             if (redisSubscriber.isUserSubscribed(chatRoomId, partnerId)) {
+                webSocketNotificationSender.sendMessageToUser(partnerId, message, false);
                 MessageReadService.ReadResult readResult =
                         messageReadService.markSingleMessageAsRead(message.getId(), chatRoomId, partnerId);
-
                 readProcessingService.handleMessageReceiveReadResult(readResult);
             }
 

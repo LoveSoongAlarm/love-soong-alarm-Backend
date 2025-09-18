@@ -35,21 +35,21 @@ public class WebSocketNotificationSender {
         }
     }
 
-    public void sendReadNotification(Long userId, Long chatRoomId, Long readerId) {
-        log.info("읽음 상태 알림 전송 - userId: {}, chatRoomId: {}, readerId: {}",
-                userId, chatRoomId, readerId);
+    public void sendReadNotification(Long chatRoomId, Long readerId, Long partnerId) {
+        log.info("읽음 상태 알림 전송 - readerId: {}, chatRoomId: {}, partnerId: {}",
+                readerId, chatRoomId, partnerId);
 
         try {
-            WebSocketSession session = sessionService.getSession(userId);
+            WebSocketSession session = sessionService.getSession(partnerId);
             if (session == null || !session.isOpen()) {
-                log.debug("읽음 알림 전송 불가 - 세션 없음, userId: {}", userId);
+                log.debug("읽음 알림 전송 불가 - 세션 없음, partnerId: {}", partnerId);
                 return;
             }
 
             messageSender.sendReadMessage(session, chatRoomId, readerId);
-            log.info("읽음 상태 알림 전송 완료 - userId: {}", userId);
+            log.info("읽음 상태 알림 전송 완료 - partnerId: {}", partnerId);
         } catch (Exception e) {
-            log.error("읽음 상태 알림 전송 실패 - userId: {}", userId, e);
+            log.error("읽음 상태 알림 전송 실패 - partnerId: {}", partnerId, e);
         }
     }
 
