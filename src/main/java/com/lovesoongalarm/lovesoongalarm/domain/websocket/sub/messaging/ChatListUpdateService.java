@@ -39,7 +39,7 @@ public class ChatListUpdateService {
                 .isRead(message.isRead())
                 .build();
 
-        userSubscriptionService.publishUserChatUpdate(partnerId, updateEvent);
+        userSubscriptionService.publishUserChatUpdate(chatRoomId, partnerId, updateEvent);
         log.debug("상대방 채팅방 목록 업데이트 전송 - partnerId: {}, chatRoomId: {}", partnerId, chatRoomId);
     }
 
