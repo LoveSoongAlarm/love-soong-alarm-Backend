@@ -41,7 +41,18 @@ public class PayStripeClient {
                     .setMode(SessionCreateParams.Mode.PAYMENT)
                     .setSuccessUrl(successUrl+"?session_id={CHECKOUT_SESSION_ID}")
                     .addAllLineItem(lineItems)
-                    .build();
+                    .setPaymentMethodOptions(
+                        SessionCreateParams.PaymentMethodOptions.builder()
+                        .setCard(
+                            SessionCreateParams.PaymentMethodOptions.Card.builder()
+                            .setRequestThreeDSecure(
+                                SessionCreateParams.PaymentMethodOptions.Card.RequestThreeDSecure.ANY
+                            )
+                            .build()
+                        )
+                        .build()
+                    )
+                .build();
 
             return Session.create(params);
         } catch (Exception e) {
