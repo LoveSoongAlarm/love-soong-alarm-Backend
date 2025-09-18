@@ -1,10 +1,16 @@
 package com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.entity;
 
+import java.time.LocalDateTime;
+
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "payments")
 @Getter
 @NoArgsConstructor
@@ -20,11 +26,19 @@ public class Pay {
     @Column(nullable = false, length = 20)
     private String status; // PENDING, COMPLETED, FAILED
 
-    public Pay (String sessionId, String status) {
+    @CreatedDate
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false, length = 50)
+    private String ipAddress;
+
+    public Pay (String sessionId, String status, String ipAddress) {
         this.sessionId = sessionId;
         this.status = status;
+        this.ipAddress = ipAddress;
     }
 
     public void complete() { this.status = "COMPLETED"; }
     public void fail() { this.status = "FAILED"; }
+
 }

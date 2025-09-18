@@ -54,7 +54,9 @@ public class PayStripeClient {
                     )
                 .build();
 
-            return Session.create(params);
+            Session session = Session.create(params);
+            
+            return session;
         } catch (Exception e) {
             throw new CustomException(PayErrorCode.SESSION_CREATE_ERROR);
         }

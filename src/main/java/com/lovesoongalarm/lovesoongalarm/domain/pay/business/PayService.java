@@ -27,7 +27,7 @@ public class PayService {
     private final PayRepository repo;
 
     @Transactional
-    public CreateCheckoutSessionDTO createCheckoutSession(Map<String, Integer> req) {
+    public CreateCheckoutSessionDTO createCheckoutSession(Map<String, Integer> req, String ipAddress) {
         List<SessionCreateParams.LineItem> lineItems = new ArrayList<>();
 
         for (Map.Entry<String, Integer> entry: req.entrySet()) {
@@ -50,7 +50,7 @@ public class PayService {
 
         Session session = stripe.createCheckoutSession(lineItems); // PayStripeClient에서 새 결제 생성
 
-        repo.findBySessionId(session.getId()).orElseGet(() -> repo.save(new Pay(session.getId(), "PENDING")));
+        repo.findBySessionId(session.getId()).orElseGet(() -> repo.save(new Pay(session.getId(), "PENDING", ipAddress)));
 
         return new CreateCheckoutSessionDTO(session.getUrl()); // 사용자가 결제 가능한 URL을 넘깁니다
     }
@@ -78,7 +78,7 @@ public class PayService {
     }
 
     @Transactional
-    public PaySuccessResponseDTO verifySuccess(String sessionId) {
+    public PaySuccessResponseDTO verifySuccess(String sessionId, String ipAddress) {
         Session session = stripe.retrieveSession(sessionId);
 
         String status = session.getPaymentStatus();
@@ -87,11 +87,8 @@ public class PayService {
         Pay singlePay = repo.findBySessionId(sessionId)
             .orElseThrow(() -> new CustomException(PayErrorCode.PAYMENT_NOT_FOUND));
 
-        if ("paid".equalsIgnoreCase(status) || "complete".equalsIgnoreCase(session.getStatus())) {
-            if (!"COMPLETED".equalsIgnoreCase(singlePay.getStatus())) {
-                singlePay.complete();
-                // 여기서 코인 주기? 안되면?? 흠 ...
-            }
+        if (("paid".equalsIgnoreCase(status) || "complete".equalsIgnoreCase(session.getStatus()))
+            && ipAddress == singlePay.getIpAddress()) {
             return new PaySuccessResponseDTO(session.getId(), status, totalAmount);
         } else {
             if (!"FAILED".equalsIgnoreCase(singlePay.getStatus())) {
