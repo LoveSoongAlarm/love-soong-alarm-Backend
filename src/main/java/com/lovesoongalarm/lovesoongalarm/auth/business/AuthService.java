@@ -54,7 +54,7 @@ public class AuthService {
 
     @Transactional
     public Void withdraw(Long userId, HttpServletResponse response) {
-        User findUser = userRetriever.findById(userId);
+        User findUser = userRetriever.findByIdOrElseThrow(userId);
         oAuthUserInfo.revoke(findUser.getPlatform(), findUser.getSerialId());
         CookieUtil.logoutCookie(response, domain);
         refreshTokenService.deleteRefreshToken(userId);
