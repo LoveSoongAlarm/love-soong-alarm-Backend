@@ -71,6 +71,12 @@ public class WebSocketMessageDTO {
     }
 
     @Builder
+    public record MessageCountLimit(
+            EWebSocketMessageType type
+    ) {
+    }
+
+    @Builder
     public record ErrorResponse(
             EWebSocketMessageType type,
             String errorCode,

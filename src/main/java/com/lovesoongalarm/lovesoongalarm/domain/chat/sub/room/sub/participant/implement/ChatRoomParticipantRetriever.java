@@ -1,5 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement;
 
+import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.exception.ChatRoomErrorCode;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.repository.ChatRoomParticipantRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,5 +17,10 @@ public class ChatRoomParticipantRetriever {
 
     public boolean existsByUserIdAndChatRoomId(Long userId, Long chatRoomId) {
         return chatRoomParticipantRepository.existsByUser_IdAndChatRoom_Id(userId, chatRoomId);
+    }
+
+    public ChatRoomParticipant findByUserIdAndChatRoomId(Long userId, Long chatRoomId) {
+        return chatRoomParticipantRepository.findByUser_IdAndChatRoom_Id(userId, chatRoomId)
+                .orElseThrow(() -> new CustomException(ChatRoomErrorCode.CHAT_ROOM_ACCESS_DENIED));
     }
 }
