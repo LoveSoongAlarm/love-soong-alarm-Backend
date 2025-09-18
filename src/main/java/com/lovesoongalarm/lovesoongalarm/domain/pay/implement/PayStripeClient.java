@@ -6,20 +6,28 @@ import com.stripe.Stripe;
 import com.stripe.model.Product;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
 import java.util.List;
 
 @Slf4j
 @Component
-public class PayStripeClient {
+@RequiredArgsConstructor
+public class PayStripeClient implements InitializingBean {
 
     @Value("${spring.data.stripe.success_callback}")
     private String successUrl; // 콜백 URL이였으면 좋겠습니다, api/v1/success
 
-    public PayStripeClient(@Value("${spring.data.stripe.secret}") String secretKey) {
-        Stripe.apiKey = secretKey; // 이 부분 슬랙 참고해주세요
+    @Value("${spring.data.stripe.secret}")
+    private String secretKey;
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        Stripe.apiKey = this.secretKey;
     }
 
     public String retrieveDefaultPrice(String productId) {
@@ -36,10 +44,10 @@ public class PayStripeClient {
 
     public Session createCheckoutSession(List<SessionCreateParams.LineItem> lineItems) {
         try {
-            SessionCreateParams params =
-                SessionCreateParams.builder()
+            SessionCreateParams params = SessionCreateParams
+                    .builder()
                     .setMode(SessionCreateParams.Mode.PAYMENT)
-                    .setSuccessUrl(successUrl+"?session_id={CHECKOUT_SESSION_ID}")
+                    .setSuccessUrl(successUrl + "?session_id={CHECKOUT_SESSION_ID}")
                     .addAllLineItem(lineItems)
                     .build();
 
@@ -49,6 +57,7 @@ public class PayStripeClient {
         }
     }
 
+
     public Session retrieveSession(String sessionId) {
         try {
             return Session.retrieve(sessionId);
@@ -56,5 +65,4 @@ public class PayStripeClient {
             throw new CustomException(PayErrorCode.PAYMENT_NOT_FOUND);
         }
     }
-
 }

@@ -1,12 +1,11 @@
-package com.lovesoongalarm.lovesoongalarm.domain.pay.application;
+package com.lovesoongalarm.lovesoongalarm.domain.pay.application.controller;
 
 
+import com.lovesoongalarm.lovesoongalarm.common.annotation.UserId;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.application.dto.PayItemRequestDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.application.dto.PaySuccessResponseDTO;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestBody;
+import com.lovesoongalarm.lovesoongalarm.domain.pay.sub.webhook.implement.WebhookClient;
+import org.springframework.web.bind.annotation.*;
 
 import com.lovesoongalarm.lovesoongalarm.common.BaseResponse;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.business.PayService;
@@ -15,12 +14,11 @@ import com.lovesoongalarm.lovesoongalarm.domain.pay.application.dto.CreateChecko
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import java.util.Map;
 
 
 @RestController
-@RequestMapping("api/v1/pay")
+@RequestMapping("api/pay")
 @RequiredArgsConstructor
 public class PayController {
     
@@ -29,13 +27,15 @@ public class PayController {
 
     @PostMapping("/checkout")
     public BaseResponse<CreateCheckoutSessionDTO> createCheckOut(
-            @Valid @RequestBody PayItemRequestDTO request
+            @Valid @RequestBody Map<String, Integer> req,
+            @UserId Long userId
             ){
-        return BaseResponse.success(service.createCheckoutSession(request)); // 요것도 일단 url 던지는걸로 구현햇는데, redirect도 좋을 것 같아요!
+        return BaseResponse.success(service.createCheckoutSession(req)); // 요것도 일단 url 던지는걸로 구현햇는데, redirect도 좋을 것 같아요!
     }
 
     @PostMapping("/webhook")
-    public BaseResponse<Void> handleWebhook(@RequestBody String payload, @RequestHeader("Stripe-Signature") String sigHeader) {
+    public BaseResponse<Void> handleWebhook(@RequestBody String payload,
+                                            @RequestHeader("Stripe-Signature") String sigHeader) {
         webhookClient.handle(payload, sigHeader);
         return BaseResponse.success(null);
     }
