@@ -69,4 +69,8 @@ public class UserService {
             log.warn("maxSlot 증가 실패 - 사용자가 존재하지 않거나 이미 처리됨 - userId: {}", userId);
         }
     }
+
+    public void validateChatTicket(User user) {
+        userValidator.validateChatTicket(user);
+    }
 }

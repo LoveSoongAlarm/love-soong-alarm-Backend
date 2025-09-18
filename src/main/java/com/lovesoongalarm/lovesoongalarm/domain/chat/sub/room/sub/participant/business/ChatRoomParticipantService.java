@@ -1,8 +1,10 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business;
 
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.application.converter.ChatRoomParticipantConverter;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.application.dto.UseTicketDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantSaver;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantUpdater;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.type.EChatRoomParticipantStatus;
@@ -26,6 +28,7 @@ public class ChatRoomParticipantService {
     private final ChatRoomParticipantSaver chatRoomParticipantSaver;
     private final ChatRoomParticipantRetriever chatRoomParticipantRetriever;
     private final ChatRoomParticipantUpdater chatRoomParticipantUpdater;
+    private final ChatRoomParticipantConverter chatRoomParticipantConverter;
 
     public void addParticipant(Long userId, Long targetUserId, ChatRoom chatRoom) {
         log.info("채팅방에 유저 참여 로직 시작 - userId: {}, targetUserId: {}, chatRoomId: {}", userId, targetUserId, chatRoom.getId());
@@ -65,6 +68,19 @@ public class ChatRoomParticipantService {
             log.info("상대방 활성화 및 슬롯 증가 완료 - partnerId: {}, chatRoomId: {}",
                     partnerId, chatRoom.getId());
         }
+    }
+
+    @Transactional
+    public UseTicketDTO.Response useTicket(Long userId, Long chatRoomId) {
+        ChatRoomParticipant participant = chatRoomParticipantRetriever.findByUserIdAndChatRoomId(userId, chatRoomId);
+        User user = participant.getUser();
+
+        userService.validateChatTicket(user);
+        user.decreaseChatTicket();
+        participant.setTicketUsed();
+
+        ChatRoomParticipant savedParticipant = chatRoomParticipantSaver.save(participant);
+        return chatRoomParticipantConverter.toUseTicketResponse(savedParticipant);
     }
 
     private boolean isAlreadyParticipating(Long userId, Long targetUserId, ChatRoom chatRoom) {
