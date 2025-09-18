@@ -1,5 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity;
 
+import com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.entity.type.EItem;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EGender;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EPlatform;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.ERole;
@@ -15,6 +16,8 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.entity.type.EItem.CHAT_TICKET;
 
 @Entity
 @Getter
@@ -135,5 +138,24 @@ public class User {
             return true;
         }
         return false;
+    }
+
+    public void buyTicket(EItem item){
+        switch (item){
+            case PREPASS -> this.prePass = true;
+            case CHAT_TICKET -> this.chatTicket++;
+            case SLOT_1 -> {
+                this.maxSlot++;
+                this.remainingSlot++;
+            }
+            case SLOT_2 -> {
+                this.maxSlot = maxSlot + 2;
+                this.remainingSlot = remainingSlot + 2;
+            }
+            case SLOT_3 -> {
+                this.maxSlot = maxSlot + 3;
+                this.remainingSlot = remainingSlot + 3;
+            }
+        }
     }
 }
