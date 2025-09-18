@@ -38,8 +38,21 @@ public class PayService {
 
     @Transactional
     public CreateCheckoutSessionDTO createCheckoutSession(PayItemRequestDTO request, Long userId) {
+    public CreateCheckoutSessionDTO createCheckoutSession(Map<String, Integer> req, String ipAddress) {
+        List<SessionCreateParams.LineItem> lineItems = new ArrayList<>();
+
+        for (Map.Entry<String, Integer> entry: req.entrySet()) {
+            long quantity = entry.getValue() == null ? 0 : entry.getValue(); // "coin_1000": 1에서 수량 추출
+            if (quantity == 0) continue;
 
         User findUser = userRetriever.findByIdOrElseThrow(userId);
+
+            String priceId = stripe.retrieveDefaultPrice(coin.getProductId()); // Stripe 고유 Product ID 추출
+            lineItems.add(SessionCreateParams.LineItem.builder()
+                .setPrice(priceId)
+                .setQuantity(quantity)
+                .build()
+            );
 
         SessionCreateParams.LineItem lineItem;
         try {
@@ -54,6 +67,9 @@ public class PayService {
 
         Session session = stripe.createCheckoutSession(lineItem); // PayStripeClient에서 새 결제 생성
 
+        Session session = stripe.createCheckoutSession(lineItems); // PayStripeClient에서 새 결제 생성
+
+        repo.findBySessionId(session.getId()).orElseGet(() -> repo.save(new Pay(session.getId(), "PENDING", ipAddress)));
         payRetriever.createOrLoadPay(session, findUser, EItem.valueOf(request.item()));
 //        payRepository.findBySessionId(session.getId())
 //                .orElseGet(() -> payRepository.save(Pay.create(session.getId(), EItemStatus.PENDING)));
@@ -87,7 +103,16 @@ public class PayService {
     }
 
     @Transactional
-    public PaySuccessResponseDTO verifySuccess(String sessionId) {
+    public void handleCheckoutCancel(String sessionId) {
+        // JWT 검증해서 해당 유저의 결제만 Cancel할 수 있는 것 필요 ...
+        Session expired = stripe.expireCheckoutSession(sessionId);
+        Pay canceledPay = repo.findBySessionId(expired.getId()).orElseThrow(() -> new CustomException(PayErrorCode.PAYMENT_NOT_FOUND));
+
+        canceledPay.cancel();
+    }
+
+    @Transactional
+    public PaySuccessResponseDTO verifySuccess(String sessionId, String ipAddress) {
         Session session = stripe.retrieveSession(sessionId);
 
         String status = session.getPaymentStatus();
@@ -95,6 +120,8 @@ public class PayService {
 
         Pay findPay = payRetriever.findBySessionId(sessionId);
 
+        if (("paid".equalsIgnoreCase(status) || "complete".equalsIgnoreCase(session.getStatus()))
+            && ipAddress == singlePay.getIpAddress()) {
         if ("paid".equalsIgnoreCase(status) || "complete".equalsIgnoreCase(session.getStatus())) {
             return new PaySuccessResponseDTO(session.getId(), status, totalAmount);
         } else {
