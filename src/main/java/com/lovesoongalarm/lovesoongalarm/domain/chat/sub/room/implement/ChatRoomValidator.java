@@ -26,10 +26,6 @@ public class ChatRoomValidator {
         log.info("채팅방 조회 및 권한 검증 완료 - roomId: {}", roomId);
     }
 
-    public void validateUseTicket(Long chatRoomId) {
-        validateChatRoomExists(chatRoomId);
-    }
-
     private void validateNotSelfChat(Long userId, Long targetUserId) {
         if (userId.equals(targetUserId)) {
             throw new CustomException(ChatRoomErrorCode.CANNOT_CHAT_WITH_SELF);

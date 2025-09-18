@@ -98,8 +98,4 @@ public class ChatRoomService {
     public ChatRoom getChatRoomOrElseThrow(Long chatRoomId) {
         return chatRoomRetriever.findById(chatRoomId);
     }
-
-    public void validateUseTicket(Long chatRoomId) {
-       chatRoomValidator.validateUseTicket(chatRoomId);
-    }
 }

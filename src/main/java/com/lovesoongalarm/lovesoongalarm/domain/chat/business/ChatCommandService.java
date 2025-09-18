@@ -32,7 +32,7 @@ public class ChatCommandService {
 
     public UseTicketDTO.Response useTicket(Long userId, Long chatRoomId) {
         log.info("채팅방 채팅 티켓 사용 시작 - userId: {}, chatRoomId: {}", userId, chatRoomId);
-        chatRoomService.validateUseTicket(chatRoomId);
+        chatRoomService.validateChatRoomAccess(userId, chatRoomId);
         UseTicketDTO.Response response = chatRoomParticipantService.useTicket(userId, chatRoomId);
         log.info("채팅방 채팅 티켓 사용 완료 - userId: {}, chatRoomId: {}", userId, chatRoomId);
         return response;
