@@ -19,5 +19,9 @@ public class ChatTicketService {
         ChatRoomParticipant participant = chatRoomParticipantRetriever
                 .findByUserIdAndChatRoomId(userId, chatRoomId);
 
+        if (participant.hasUnlimitedChat()){
+            return;
+        }
+
     }
 }

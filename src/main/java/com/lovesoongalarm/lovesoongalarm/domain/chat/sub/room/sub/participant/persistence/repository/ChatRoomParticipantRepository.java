@@ -20,5 +20,13 @@ public interface ChatRoomParticipantRepository extends JpaRepository<ChatRoomPar
             """)
     void updateStatusToJoined(@Param("participantId") Long participantId);
 
-    Optional<ChatRoomParticipant> findByUser_IdAndChatRoom_Id(Long userId, Long chatRoomId);
+    @Query("""
+            SELECT crp FROM ChatRoomParticipant crp
+            JOIN FETCH crp.user u
+            WHERE crp.user.id = :userId
+            AND crp.chatRoom.id = :chatRoomId
+            """)
+    Optional<ChatRoomParticipant> findByUser_IdAndChatRoom_Id(
+            @Param("userId") Long userId,
+            @Param("chatRoomId") Long chatRoomId);
 }
