@@ -54,4 +54,19 @@ public class UserService {
                 .remainingSlot(user.getRemainingSlot())
                 .build();
     }
+
+    @Transactional
+    public void increaseMaxSlot(Long userId) {
+        User user = userRetriever.findByIdOrElseThrow(userId);
+        if (user.isPrePass()) {
+            return;
+        }
+
+        int updatedRows = userUpdater.increaseMaxSlot(userId);
+        if (updatedRows > 0) {
+            log.info("maxSlot 증가 완료 - userId: {}", userId);
+        } else {
+            log.warn("maxSlot 증가 실패 - 사용자가 존재하지 않거나 이미 처리됨 - userId: {}", userId);
+        }
+    }
 }

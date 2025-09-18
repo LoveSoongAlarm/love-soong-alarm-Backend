@@ -4,6 +4,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.pe
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface ChatRoomParticipantRepository extends JpaRepository<ChatRoomParticipant, Long> {
 
@@ -15,5 +16,5 @@ public interface ChatRoomParticipantRepository extends JpaRepository<ChatRoomPar
             SET p.status = 'JOINED' 
             WHERE p.id = :participantId
             """)
-    void updateStatusToJoined(Long participantId);
+    void updateStatusToJoined(@Param("participantId") Long participantId);
 }

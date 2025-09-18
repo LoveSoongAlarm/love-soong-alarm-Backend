@@ -23,4 +23,17 @@ public class UserUpdater {
         }
         return updatedRows;
     }
+
+    @Transactional
+    public int increaseMaxSlot(Long userId) {
+        int updatedRows = userRepository.increaseMaxSlot(userId);
+
+        if (updatedRows == 0) {
+            log.warn("maxSlot 증가 실패 - 사용자가 존재하지 않거나 prePass 사용자 - userId: {}", userId);
+            return 0;
+        }
+
+        log.info("maxSlot 증가 성공 - userId: {}, updatedRows: {}", userId, updatedRows);
+        return updatedRows;
+    }
 }

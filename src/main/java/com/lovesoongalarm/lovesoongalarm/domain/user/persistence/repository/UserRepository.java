@@ -39,4 +39,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
             AND u.remainingSlot > 0
             """)
     int decreaseRemainingSlot(@Param("userId") Long userId);
+
+    @Modifying(clearAutomatically = true)
+    @Query("""
+            UPDATE User u 
+            SET u.maxSlot = u.maxSlot + 1 
+            WHERE u.id = :userId 
+            AND u.prePass = false
+            """)
+    int increaseMaxSlot(@Param("userId") Long userId);
 }

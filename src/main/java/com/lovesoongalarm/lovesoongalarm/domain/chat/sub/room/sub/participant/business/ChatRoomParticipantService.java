@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -45,15 +46,25 @@ public class ChatRoomParticipantService {
 
     @Transactional
     public void activatePartnerIfPending(ChatRoom chatRoom, Long senderId) {
-        chatRoom.getParticipants().stream()
+        Optional<ChatRoomParticipant> partnerParticipant = chatRoom.getParticipants().stream()
                 .filter(participant -> !participant.getUser().getId().equals(senderId))
-                .filter(participant -> participant.getStatus() == EChatRoomParticipantStatus.PENDING)
-                .findFirst()
-                .ifPresent(partnerParticipant -> {
-                   log.info("상대방을 JOINED 상태로 변경 - partnerId: {}, chatRoomId: {}",
-                           partnerParticipant.getUser().getId(), chatRoom.getId());
-                   chatRoomParticipantUpdater.updateParticipantStatusToJoined(partnerParticipant);
-                });
+                .findFirst();
+
+        if (partnerParticipant.isEmpty()) {
+            log.warn("상대방 참여자를 찾을 수 없습니다 - chatRoomId: {}, senderId: {}",
+                    chatRoom.getId(), senderId);
+            return;
+        }
+
+        ChatRoomParticipant partner = partnerParticipant.get();
+        if (partner.getStatus() == EChatRoomParticipantStatus.PENDING) {
+            Long partnerId = partner.getUser().getId();
+            chatRoomParticipantUpdater.updateParticipantStatusToJoined(partner.getId());
+            userService.increaseMaxSlot(partnerId);
+
+            log.info("상대방 활성화 및 슬롯 증가 완료 - partnerId: {}, chatRoomId: {}",
+                    partnerId, chatRoom.getId());
+        }
     }
 
     private boolean isAlreadyParticipating(Long userId, Long targetUserId, ChatRoom chatRoom) {
