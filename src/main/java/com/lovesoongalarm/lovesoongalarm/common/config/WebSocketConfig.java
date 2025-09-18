@@ -1,7 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.common.config;
 
-import com.lovesoongalarm.lovesoongalarm.domain.chat.handler.WebSocketChatHandler;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.interceptor.WebSocketJWTAuthInterceptor;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.handler.WebSocketChatHandler;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.interceptor.WebSocketJWTAuthInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;

@@ -1,9 +1,9 @@
-package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business;
+package com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging;
 
-import com.lovesoongalarm.lovesoongalarm.domain.chat.application.dto.WebSocketMessageDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.dto.WebSocketMessageDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.persistence.type.EWebSocketMessageType;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.UserChatUpdateDTO;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageSender;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageTransmitter;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,9 +15,9 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class WebSocketMessageService {
+public class MessageSender {
 
-    private final MessageSender messageSender;
+    private final MessageTransmitter messageTransmitter;
 
     public void sendConnectionSuccessMessage(Long userId, String userNickname, WebSocketSession session) {
         WebSocketMessageDTO.ConnectionInfo connectionInfo = WebSocketMessageDTO.ConnectionInfo.builder()
@@ -28,7 +28,7 @@ public class WebSocketMessageService {
                 .message("WebSocket 연결이 성공했습니다.")
                 .build();
 
-        messageSender.sendMessage(session, connectionInfo);
+        messageTransmitter.sendMessage(session, connectionInfo);
     }
 
     public void sendErrorMessage(WebSocketSession session, String errorCode, String message) {
@@ -43,7 +43,7 @@ public class WebSocketMessageService {
                 .message(message)
                 .build();
 
-        messageSender.sendMessage(session, errorResponse);
+        messageTransmitter.sendMessage(session, errorResponse);
     }
 
     public void sendSubscribeSuccessMessage(WebSocketSession session, Long chatRoomId) {
@@ -53,7 +53,7 @@ public class WebSocketMessageService {
                 .message("채팅방 구독에 성공했습니다.")
                 .build();
 
-        messageSender.sendMessage(session, subscribeSuccess);
+        messageTransmitter.sendMessage(session, subscribeSuccess);
     }
 
     public void sendUnsubscribeSuccessMessage(WebSocketSession session, Long chatRoomId) {
@@ -63,7 +63,7 @@ public class WebSocketMessageService {
                 .message("채팅방 구독 해제에 성공했습니다.")
                 .build();
 
-        messageSender.sendMessage(session, unsubscribeSuccess);
+        messageTransmitter.sendMessage(session, unsubscribeSuccess);
     }
 
     public void sendReadMessage(WebSocketSession session, Long chatRoomId, Long readerId) {
@@ -73,7 +73,7 @@ public class WebSocketMessageService {
                 .readerId(readerId)
                 .build();
 
-        messageSender.sendMessage(session, messageReadNotification);
+        messageTransmitter.sendMessage(session, messageReadNotification);
     }
 
     public void sendMessage(WebSocketSession session, Message message, boolean isSentByMe, Long chatRoomId, Long senderId) {
@@ -87,7 +87,7 @@ public class WebSocketMessageService {
                 .isSentByMe(isSentByMe)
                 .build();
 
-        messageSender.sendMessage(session, chatMessage);
+        messageTransmitter.sendMessage(session, chatMessage);
     }
 
     public void sendUnreadBadgeUpdate(WebSocketSession session, int totalUnreadCount) {
@@ -96,7 +96,7 @@ public class WebSocketMessageService {
                 .totalUnreadCount(totalUnreadCount)
                 .build();
 
-        messageSender.sendMessage(session, unreadBadgeUpdate);
+        messageTransmitter.sendMessage(session, unreadBadgeUpdate);
     }
 
     public void sendChatListUpdate(WebSocketSession session, UserChatUpdateDTO updateEvent) {
@@ -109,7 +109,7 @@ public class WebSocketMessageService {
                 .isRead(updateEvent.isRead())
                 .build();
 
-        messageSender.sendMessage(session, chatListUpdate);
+        messageTransmitter.sendMessage(session, chatListUpdate);
     }
 
     public void sendMessageCountLimit(WebSocketSession session){
@@ -117,6 +117,6 @@ public class WebSocketMessageService {
                 .type(EWebSocketMessageType.MESSAGE_COUNT_LIMIT)
                 .build();
 
-        messageSender.sendMessage(session, messageCountLimit);
+        messageTransmitter.sendMessage(session, messageCountLimit);
     }
 }

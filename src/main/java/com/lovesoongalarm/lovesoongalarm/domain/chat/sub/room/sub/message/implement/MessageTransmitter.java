@@ -4,14 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class MessageSender {
+public class MessageTransmitter {
 
     private final ObjectMapper objectMapper;
 
