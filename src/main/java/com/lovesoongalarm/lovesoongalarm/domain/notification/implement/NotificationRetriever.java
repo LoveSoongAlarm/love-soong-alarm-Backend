@@ -17,7 +17,7 @@ public class NotificationRetriever {
     private final NotificationRepository notificationRepository;
 
     public List<Notification> findNoticesByUserId(Long userId) {
-        return notificationRepository.findByUserId(userId);
+        return notificationRepository.findByUserIdOrderByIdDesc(userId);
     }
 
     public Notification findByNotificationIdOrElseThrow(Long notificationId) {
