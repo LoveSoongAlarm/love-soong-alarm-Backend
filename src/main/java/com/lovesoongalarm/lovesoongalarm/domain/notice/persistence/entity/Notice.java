@@ -1,14 +1,12 @@
 package com.lovesoongalarm.lovesoongalarm.domain.notice.persistence.entity;
 
 import com.lovesoongalarm.lovesoongalarm.domain.notice.persistence.type.ENoticeStatus;
-import com.lovesoongalarm.lovesoongalarm.domain.notice.sub.interest.persistence.entity.NoticeInterest;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Getter
 @Entity
@@ -35,6 +33,25 @@ public class Notice {
 
     @Column(name = "notice_time")
     private String noticeTime;
+
+    @Builder
+    public Notice(User user, Long matchingUserId, String message, ENoticeStatus status, String noticeTime) {
+        this.user = user;
+        this.matchingUserId = matchingUserId;
+        this.message = message;
+        this.status = status;
+        this.noticeTime = noticeTime;
+    }
+
+    public static Notice create(User user, Long matchingUserId, String message, ENoticeStatus status, String noticeTime) {
+        return Notice.builder()
+                .user(user)
+                .matchingUserId(matchingUserId)
+                .message(message)
+                .status(status)
+                .noticeTime(noticeTime)
+                .build();
+    }
 
     public void updateStatus(ENoticeStatus status) {
         this.status = status;
