@@ -42,13 +42,13 @@ public class PayStripeClient implements InitializingBean {
         }
     }
 
-    public Session createCheckoutSession(List<SessionCreateParams.LineItem> lineItems) {
+    public Session createCheckoutSession(SessionCreateParams.LineItem lineItem) {
         try {
-            SessionCreateParams params = SessionCreateParams
-                    .builder()
+            SessionCreateParams params = SessionCreateParams.builder()
                     .setMode(SessionCreateParams.Mode.PAYMENT)
                     .setSuccessUrl(successUrl + "?session_id={CHECKOUT_SESSION_ID}")
-                    .addAllLineItem(lineItems)
+                    .setCancelUrl(successUrl.replace("/success", "/cancel"))
+                    .addLineItem(lineItem)
                     .build();
 
             return Session.create(params);
