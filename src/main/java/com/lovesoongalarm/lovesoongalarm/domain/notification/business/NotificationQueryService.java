@@ -49,7 +49,7 @@ public class NotificationQueryService {
 
     @Transactional
     public void sendNotification(Long userId, Long matchingUserId, List<String> interests) {
-        User user = userRetriever.findById(userId);
+        User user = userRetriever.findByIdOrElseThrow(userId);
         String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
 
         String interestTags = interests.stream()
@@ -74,8 +74,13 @@ public class NotificationQueryService {
     }
 
     @Transactional
-    public void changeStatus(Long notificationId) {
+    public void changeStatus(Long userId, Long notificationId) {
         Notification notification = notificationRetriever.findByNotificationIdOrElseThrow(notificationId);
+
+        if(!notification.getUser().getId().equals(userId)) {
+            log.error("잘못된 접근입니다. userId={}가 notificationId={}를 변경 시도", userId, notificationId);
+            throw new CustomException(NotificationErrorCode.UNAUTHORIZED_NOTIFICATION_ACCESS);
+        }
 
         if(notification.getStatus() == ENotificationStatus.READ) {
             log.debug("이미 읽은 알림입니다. notificationId={}", notificationId);

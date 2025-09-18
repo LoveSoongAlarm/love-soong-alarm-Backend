@@ -24,9 +24,10 @@ public class NotificationController {
 
     @PatchMapping("/read")
     public BaseResponse<Void> readNotifications(
+            @UserId Long userId,
             @RequestParam Long notificationId
     ) {
-        notificationQueryService.changeStatus(notificationId);
+        notificationQueryService.changeStatus(userId, notificationId);
         return BaseResponse.success(null);
     }
 }
