@@ -8,10 +8,13 @@ import com.lovesoongalarm.lovesoongalarm.domain.location.application.dto.NearbyU
 import com.lovesoongalarm.lovesoongalarm.domain.location.business.LocationService;
 import com.lovesoongalarm.lovesoongalarm.domain.location.implement.RedisPipeline;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.business.NotificationQueryService;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationCreatedEvent;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.entity.Notification;
 import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +25,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.GEO_KEY;
 import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.LAST_SEEN_KEY;
@@ -34,6 +38,7 @@ public class LocationFacade {
     private final UserQueryService userQueryService;
     private final RedisPipeline redisPipeline;
     private final NotificationQueryService notificationQueryService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
     public void updateLocation(Long userId, double latitude, double longitude) {
@@ -57,6 +62,7 @@ public class LocationFacade {
             });
 
             int i = 0;
+            List<NotificationCreatedEvent.NotificationHolder> holders = new ArrayList<>();
             for (MatchingResultDTO.NearbyUserMatchDTO userMatch : matchingResult.nearbyUsers()) {
                 UserResponseDTO user = userQueryService.getUser(userMatch.userId());
 
@@ -94,11 +100,18 @@ public class LocationFacade {
                         .build());
 
                 if (userMatch.isMatching()) {
-                    sendNotification(userId, userMatch.userId(), new ArrayList<>(userMatch.overlapInterests()));
+                    Optional.ofNullable(notificationQueryService.saveNotification(userId, userMatch.userId(), new ArrayList<>(userMatch.overlapInterests())))
+                            .ifPresent(notification -> holders.add(new NotificationCreatedEvent.NotificationHolder(userId, notification)));
+
+                    Optional.ofNullable(notificationQueryService.saveNotification(userMatch.userId(), userId, new ArrayList<>(userMatch.overlapInterests())))
+                            .ifPresent(notification -> holders.add(new NotificationCreatedEvent.NotificationHolder(userMatch.userId(), notification)));
                 }
             }
 
             log.info("nearbyUserResponse: {}", nearbyUserResponse);
+
+            log.info("이벤트 발행 - holders.size={}", holders.size());
+            applicationEventPublisher.publishEvent(new NotificationCreatedEvent(holders));
 
             return NearbyResponseDTO.builder()
                     .matchCount(matchingResult.matchCount())
@@ -110,10 +123,5 @@ public class LocationFacade {
             log.error("findNearby() failed. userId={}", userId, e);
             throw new CustomException(GlobalErrorCode.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    private void sendNotification(Long userId, Long matchingUserId, List<String> interests) {
-        notificationQueryService.sendNotification(userId, matchingUserId, interests);
-        notificationQueryService.sendNotification(matchingUserId, userId, interests);
     }
 }
