@@ -31,7 +31,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             """)
     User findPartnerByChatRoomIdAndUserId(@Param("roomId") Long roomId, @Param("userId") Long userId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("""
             UPDATE User u 
             SET u.remainingSlot = u.remainingSlot - 1 
