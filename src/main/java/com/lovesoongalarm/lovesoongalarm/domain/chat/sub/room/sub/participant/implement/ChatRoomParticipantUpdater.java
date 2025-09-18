@@ -4,6 +4,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.pe
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Slf4j
@@ -14,5 +15,10 @@ public class ChatRoomParticipantUpdater {
 
     public void updateParticipantStatusToJoined(Long participantId) {
         chatRoomParticipantRepository.updateStatusToJoined(participantId);
+    }
+
+    @Transactional
+    public void incrementFreeMessageCount(Long participantId) {
+        chatRoomParticipantRepository.incrementFreeMessageCount(participantId);
     }
 }

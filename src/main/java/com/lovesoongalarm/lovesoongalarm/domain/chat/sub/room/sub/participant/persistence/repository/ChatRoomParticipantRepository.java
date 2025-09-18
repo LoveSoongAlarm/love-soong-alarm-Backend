@@ -29,4 +29,13 @@ public interface ChatRoomParticipantRepository extends JpaRepository<ChatRoomPar
     Optional<ChatRoomParticipant> findByUser_IdAndChatRoom_Id(
             @Param("userId") Long userId,
             @Param("chatRoomId") Long chatRoomId);
+
+    @Modifying
+    @Query("""
+            UPDATE ChatRoomParticipant p 
+            SET p.freeMessageCount = p.freeMessageCount + 1 
+            WHERE p.id = :participantId 
+            AND p.ticketUsed = false
+            """)
+    void incrementFreeMessageCount(@Param("participantId") Long participantId);
 }

@@ -18,6 +18,7 @@ import org.springframework.web.socket.WebSocketSession;
 public class ChatTicketService {
 
     private final ChatRoomParticipantRetriever chatRoomParticipantRetriever;
+    private final ChatRoomParticipantUpdater chatRoomParticipantUpdater;
 
     private final WebSocketMessageService webSocketMessageService;
     private final ChatSessionService chatSessionService;
@@ -40,5 +41,6 @@ public class ChatTicketService {
         if (participant.getFreeMessageCount() >= FREE_MESSAGE_LIMIT) {
             webSocketMessageService.sendMessageCountLimit(session);
         }
+        chatRoomParticipantUpdater.incrementFreeMessageCount(participant.getId());
     }
 }
