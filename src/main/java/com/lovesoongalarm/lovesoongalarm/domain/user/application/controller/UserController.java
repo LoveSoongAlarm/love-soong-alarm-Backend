@@ -2,10 +2,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.user.application.controller;
 
 import com.lovesoongalarm.lovesoongalarm.common.BaseResponse;
 import com.lovesoongalarm.lovesoongalarm.common.annotation.UserId;
-import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.OnBoardingRequestDTO;
-import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserMeResponseDTO;
-import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserResponseDTO;
-import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserUpdateRequestDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.*;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -66,5 +63,13 @@ public class UserController {
             ){
 
         return BaseResponse.success(userQueryService.updateUser(userId, updateRequest));
+    }
+
+    @GetMapping("/slots")
+    @Operation(summary = "유저 최대 슬롯 개수 조회",
+            description = "유저의 최대 슬롯 개수가 몇 개인지 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "최대 슬롯 개수 조회 성공")
+    public BaseResponse<UserSlotResponseDTO> getUserSlots(@UserId Long userId){
+        return BaseResponse.success(userQueryService.getUserSlots(userId));
     }
 }

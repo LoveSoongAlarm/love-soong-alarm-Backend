@@ -1,6 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.user.business;
 
 import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
+import com.lovesoongalarm.lovesoongalarm.domain.user.application.converter.UserConverter;
 import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.*;
 import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.OnBoardingRequestDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserResponseDTO;
@@ -32,6 +33,7 @@ public class UserQueryService {
     private final UserRetriever userRetriever;
     private final InterestSaver interestSaver;
     private final StringRedisTemplate stringRedisTemplate;
+    private final UserConverter userConverter;
 
     public String getUserNickname(Long userId) {
         User user = userRetriever.findByIdOrElseThrow(userId);
@@ -117,6 +119,12 @@ public class UserQueryService {
         return null;
     }
 
+    public UserSlotResponseDTO getUserSlots(Long userId) {
+        User user = userRetriever.findById(userId);
+        UserSlotResponseDTO slotInfo = userConverter.createSlotInfo(user);
+        return slotInfo;
+    }
+
     private int calculateAge(Integer birthDate){
         int currentYear = LocalDate.now().getYear();
         int age = currentYear - birthDate + 1;
@@ -140,5 +148,4 @@ public class UserQueryService {
 
         stringRedisTemplate.opsForHash().put(USER_GENDER_KEY, String.valueOf(userId), gender.name());
     }
-
 }
