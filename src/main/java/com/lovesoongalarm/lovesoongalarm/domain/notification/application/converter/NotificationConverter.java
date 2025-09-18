@@ -2,16 +2,18 @@ package com.lovesoongalarm.lovesoongalarm.domain.notification.application.conver
 
 import com.lovesoongalarm.lovesoongalarm.domain.notification.application.dto.NotificationResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.entity.Notification;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.type.ENotificationStatus;
 import org.springframework.stereotype.Component;
 
 @Component
 public class NotificationConverter {
     public NotificationResponseDTO toNoticeResponseDTO(Notification notification) {
         return NotificationResponseDTO.builder()
+                .id(notification.getId())
                 .matchingUserId(notification.getMatchingUserId())
                 .notificationTime(notification.getNotificationTime())
                 .message(notification.getMessage())
-                .status(notification.getStatus().getValue())
+                .isRead(notification.getStatus() == ENotificationStatus.READ)
                 .build();
     }
 }

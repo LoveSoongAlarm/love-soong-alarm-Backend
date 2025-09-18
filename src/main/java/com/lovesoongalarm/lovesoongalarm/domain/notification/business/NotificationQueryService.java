@@ -1,7 +1,10 @@
 package com.lovesoongalarm.lovesoongalarm.domain.notification.business;
 
+import com.lovesoongalarm.lovesoongalarm.common.code.GlobalErrorCode;
+import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.application.converter.NotificationConverter;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.application.dto.NotificationResponseDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.exception.NotificationErrorCode;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.implement.NotificationRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.implement.NotificationSaver;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.entity.Notification;
@@ -10,6 +13,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.persistence.type.EDetailLabel;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,9 +37,14 @@ public class NotificationQueryService {
 
     @Transactional
     public List<NotificationResponseDTO> notification(Long userId) {
-        return notificationRetriever.findNoticesByUserId(userId).stream()
-                .map(notificationConverter::toNoticeResponseDTO)
-                .toList();
+        try {
+            return notificationRetriever.findNoticesByUserId(userId).stream()
+                    .map(notificationConverter::toNoticeResponseDTO)
+                    .toList();
+        } catch (Exception e) {
+            log.error("알림 검색 실패. userId = {}", userId, e);
+            throw new CustomException(NotificationErrorCode.FIND_NOTIFICATION_ERROR);
+        }
     }
 
     @Transactional
@@ -55,11 +65,28 @@ public class NotificationQueryService {
         boolean isNotificationExists = notificationRetriever.existsByUserIdAndMatchingUserIdAndDate(userId, matchingUserId, today);
 
         if(isNotificationExists) {
-            log.info("중복 알림 : userId={}, matchingUserId={}, now={}", userId, matchingUserId, today);
+            log.debug("중복 알림 : userId={}, matchingUserId={}, now={}", userId, matchingUserId, today);
             return;
         }
 
         Notification notification = Notification.create(user, matchingUserId, message, ENotificationStatus.NOT_READ, now, today);
         notificationSaver.save(notification);
+    }
+
+    @Transactional
+    public void changeStatus(Long notificationId) {
+        Notification notification = notificationRetriever.findByNotificationIdOrElseThrow(notificationId);
+
+        if(notification.getStatus() == ENotificationStatus.READ) {
+            log.debug("이미 읽은 알림입니다. notificationId={}", notificationId);
+            return;
+        }
+
+        try {
+            notification.updateStatus(ENotificationStatus.READ);
+        } catch (Exception e) {
+            log.error("알림 상태를 변환할 수 없습니다. notificationId={}", notificationId, e);
+            throw new CustomException(NotificationErrorCode.CHANGE_NOTIFICATION_STATUS_ERROR);
+        }
     }
 }

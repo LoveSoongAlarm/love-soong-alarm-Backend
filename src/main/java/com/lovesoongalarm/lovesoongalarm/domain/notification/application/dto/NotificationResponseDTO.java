@@ -4,9 +4,10 @@ import lombok.Builder;
 
 @Builder
 public record NotificationResponseDTO(
+        Long id,
         Long matchingUserId,
         String message,
-        String status,
+        boolean isRead,
         String notificationTime
 ) {
 }

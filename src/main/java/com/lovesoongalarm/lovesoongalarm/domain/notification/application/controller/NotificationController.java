@@ -5,9 +5,7 @@ import com.lovesoongalarm.lovesoongalarm.common.annotation.UserId;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.application.dto.NotificationResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.business.NotificationQueryService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,5 +20,13 @@ public class NotificationController {
             @UserId Long userId
     ) {
         return BaseResponse.success(notificationQueryService.notification(userId));
+    }
+
+    @PatchMapping("/read")
+    public BaseResponse<Void> readNotifications(
+            @RequestParam Long notificationId
+    ) {
+        notificationQueryService.changeStatus(notificationId);
+        return BaseResponse.success(null);
     }
 }

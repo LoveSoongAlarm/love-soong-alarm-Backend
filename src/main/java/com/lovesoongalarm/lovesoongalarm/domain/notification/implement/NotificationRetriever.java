@@ -1,5 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.notification.implement;
 
+import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.exception.NotificationErrorCode;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.entity.Notification;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -15,6 +18,11 @@ public class NotificationRetriever {
 
     public List<Notification> findNoticesByUserId(Long userId) {
         return notificationRepository.findByUserId(userId);
+    }
+
+    public Notification findByNotificationIdOrElseThrow(Long notificationId) {
+        return notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new CustomException(NotificationErrorCode.NOTIFICATION_NOT_FOUND));
     }
 
     public boolean existsByUserIdAndMatchingUserIdAndDate(Long userId, Long matchingUserId, LocalDate date) {
