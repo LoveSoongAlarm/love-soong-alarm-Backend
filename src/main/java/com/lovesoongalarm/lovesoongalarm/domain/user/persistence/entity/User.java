@@ -66,11 +66,14 @@ public class User {
     @Column(name = "pre_pass")
     private boolean prePass;
 
+    @Column(name = "max_slot")
+    private Integer maxSlot;
+
     @Column(name = "slot")
     private Integer slot;
 
     @Builder
-    public User(Long id, String nickname, EPlatform platform, ERole role, String serialId, EUserStatus status, String major, Integer birthDate, EGender gender, String emoji, Integer chatTicket, Integer slot, boolean prePass) {
+    public User(Long id, String nickname, EPlatform platform, ERole role, String serialId, EUserStatus status, String major, Integer birthDate, EGender gender, String emoji, Integer chatTicket, Integer maxSlot, Integer slot, boolean prePass) {
         this.id = id;
         this.nickname = nickname;
         this.platform = platform;
@@ -82,6 +85,7 @@ public class User {
         this.gender = gender;
         this.emoji = emoji;
         this.chatTicket = chatTicket;
+        this.maxSlot = maxSlot;
         this.slot = slot;
         this.prePass = prePass;
     }

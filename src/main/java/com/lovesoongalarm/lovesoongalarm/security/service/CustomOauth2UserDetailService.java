@@ -49,6 +49,9 @@ public class CustomOauth2UserDetailService extends DefaultOAuth2UserService {
                                     .platform(platform)
                                     .role(ERole.USER)
                                     .status(EUserStatus.INACTIVE)
+                                    .maxSlot(1)
+                                    .slot(0)
+                                    .chatTicket(0)
                                     .build()
                     );
                     return UserSecurityForm.invoke(newUser);
