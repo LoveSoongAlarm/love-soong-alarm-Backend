@@ -2,6 +2,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.websocket.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.business.WebSocketConnectionService;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.dto.WebSocketMessageDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.business.ChatService;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging.MessageSender;
@@ -19,6 +20,8 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 @RequiredArgsConstructor
 public class WebSocketChatHandler extends TextWebSocketHandler {
 
+    private final WebSocketConnectionService webSocketConnectionService;
+
     private final ChatService chatService;
     private final UserQueryService userQueryService;
     private final MessageSender messageSender;
@@ -30,10 +33,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         log.info("웹소켓 연결 성공");
 
         try {
-            Long userId = (Long) session.getAttributes().get("userId");
-            String userNickname = userQueryService.getUserNickname(userId);
-            chatService.registerSession(userId, userNickname, session);
-            chatService.subscribeToUserChatUpdates(userId, session);
+            webSocketConnectionService.handleConnection(session);
         } catch (Exception e) {
             log.error("WebSocket 연결 처리 중 오류 발생", e);
             session.close();
@@ -79,21 +79,9 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
     }
 
     @Override
-    public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-
-    }
-
-    @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         log.info("웹소켓 연결 종료");
-
-        Long userId = (Long) session.getAttributes().get("userId");
-        log.info("세션 ID: {}, 사용자 ID: {}, 종료 상태: {}", session.getId(), userId, status);
-
-        if (userId != null) {
-            chatService.removeSession(userId);
-            chatService.unsubscribeFromUserChatUpdates(userId, session);
-        }
+        webSocketConnectionService.handleDisconnection(session);
     }
 
     private void handleSubscribe(WebSocketSession session, WebSocketMessageDTO.Request request, Long userId) {

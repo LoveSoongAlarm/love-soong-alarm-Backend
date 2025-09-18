@@ -54,16 +54,4 @@ public class ChatService {
         messageService.sendMessage(chatRoom, content, userId);
         log.info("메시지 송신 완료 - userId: {}, chatRoomId: {}", userId, chatRoomId);
     }
-
-    public void subscribeToUserChatUpdates(Long userId, WebSocketSession session) {
-        log.info("사용자 채팅방 구독 시작 - userId: {}, sessionId: {}", userId, session.getId());
-        subscriptionService.subscribeToUserChatUpdates(session, userId);
-        log.info("사용자 채팅방 구독 완료 - userId: {}, sessionId: {}", userId, session.getId());
-    }
-
-    public void unsubscribeFromUserChatUpdates(Long userId, WebSocketSession session) {
-        log.info("사용자 채팅방 구독 해제 시작 - userId: {}, sessionId: {}", userId, session.getId());
-        subscriptionService.unsubscribeFromUserChatUpdates(userId);
-        log.info("사용자 채팅방 구독 해제 완료 - userId: {}, sessionId: {}", userId, session.getId());
-    }
 }
