@@ -2,9 +2,10 @@ package com.lovesoongalarm.lovesoongalarm.domain.chat.business;
 
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.converter.ChatRoomConverter;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomCreateDTO;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business.ChatRoomParticipantService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.business.ChatRoomService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.application.dto.UseTicketDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business.ChatRoomParticipantService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,5 +28,13 @@ public class ChatCommandService {
         chatRoomParticipantService.addParticipant(userId, request.targetUserId(), chatRoom);
         log.info("채팅방 생성 및 본인 참여 종료 - userId: {}, chatRoomId: {}", userId, chatRoom.getId());
         return chatRoomConverter.toCreateChatRoomResponse(chatRoom.getId());
+    }
+
+    public UseTicketDTO.Response useTicket(Long userId, UseTicketDTO.Request request) {
+        log.info("채팅방 채팅 티켓 사용 시작 - userId: {}, chatRoomId: {}", userId, request.chatRoomId());
+        chatRoomService.validateUseTicket(request.chatRoomId());
+        UseTicketDTO.Response response = chatRoomParticipantService.useTicket(userId, request.chatRoomId());
+        log.info("채팅방 채팅 티켓 사용 완료 - userId: {}, chatRoomId: {}", userId, request.chatRoomId());
+        return response;
     }
 }
