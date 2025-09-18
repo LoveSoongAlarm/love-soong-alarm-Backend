@@ -1,5 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging;
 
+import com.lovesoongalarm.lovesoongalarm.domain.notification.application.dto.NotificationWebSocketDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.dto.WebSocketMessageDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.persistence.type.EWebSocketMessageType;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.UserChatUpdateDTO;
@@ -118,5 +119,9 @@ public class MessageSender {
                 .build();
 
         messageTransmitter.sendMessage(session, messageCountLimit);
+    }
+
+    public void sendNotification(WebSocketSession session, NotificationWebSocketDTO.Notification notification) {
+        messageTransmitter.sendMessage(session, notification);
     }
 }

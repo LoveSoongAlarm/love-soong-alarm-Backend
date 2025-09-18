@@ -1,8 +1,8 @@
 package com.lovesoongalarm.lovesoongalarm.domain.notification.event.listener;
 
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.ChatSessionService;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.business.WebSocketNotificationService;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationCreatedEvent;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.session.SessionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -15,13 +15,13 @@ import org.springframework.web.socket.WebSocketSession;
 @Component
 @RequiredArgsConstructor
 public class NotificationEventListener {
-    private final ChatSessionService sessionManager;
+    private final SessionService sessionService;
     private final WebSocketNotificationService webSocketNotificationService;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleNotificationEvent(NotificationCreatedEvent event) {
         for (NotificationCreatedEvent.NotificationHolder holder : event.notifications()) {
-            WebSocketSession session = sessionManager.getSession(holder.userId());
+            WebSocketSession session = sessionService.getSession(holder.userId());
             log.info("세션 조회 : userId={}, session={}", holder.userId(), session);
             if (session != null && session.isOpen()) {
                 webSocketNotificationService.sendNotification(session, holder.notification());
