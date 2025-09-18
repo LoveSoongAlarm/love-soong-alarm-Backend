@@ -136,4 +136,8 @@ public class User {
         }
         return false;
     }
+
+    public void decreaseChatTicket() {
+        this.chatTicket--;
+    }
 }
