@@ -1,6 +1,6 @@
-package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business;
+package com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging;
 
-import com.lovesoongalarm.lovesoongalarm.domain.chat.application.dto.WebSocketMessageDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.dto.WebSocketMessageDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.persistence.type.EWebSocketMessageType;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.UserChatUpdateDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageTransmitter;

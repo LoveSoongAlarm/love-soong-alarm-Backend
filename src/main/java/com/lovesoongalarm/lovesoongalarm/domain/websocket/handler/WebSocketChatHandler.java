@@ -1,10 +1,10 @@
-package com.lovesoongalarm.lovesoongalarm.domain.chat.handler;
+package com.lovesoongalarm.lovesoongalarm.domain.websocket.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.application.dto.WebSocketMessageDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.dto.WebSocketMessageDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.business.ChatService;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.MessageSender;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging.MessageSender;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

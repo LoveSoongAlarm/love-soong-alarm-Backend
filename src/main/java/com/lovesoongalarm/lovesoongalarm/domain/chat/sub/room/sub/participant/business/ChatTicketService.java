@@ -1,12 +1,12 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business;
 
 import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.MessageSender;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging.MessageSender;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.exception.ChatRoomParticipantErrorCode;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantUpdater;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.SessionService;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.session.SessionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

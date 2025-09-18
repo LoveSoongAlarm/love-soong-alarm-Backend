@@ -1,4 +1,4 @@
-package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business;
+package com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.session;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

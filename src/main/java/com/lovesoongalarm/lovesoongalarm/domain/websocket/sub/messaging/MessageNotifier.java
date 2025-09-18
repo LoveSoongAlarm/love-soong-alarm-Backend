@@ -1,10 +1,12 @@
-package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business;
+package com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging;
 
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.UserChatUpdateDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.MessageReadService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.UnreadCountService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.session.business.SessionService;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.business.UserSubscriptionService;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.subscription.implement.RedisSubscriber;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.session.SessionService;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.business.UserSubscriptionService;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.implement.RedisSubscriber;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import lombok.RequiredArgsConstructor;

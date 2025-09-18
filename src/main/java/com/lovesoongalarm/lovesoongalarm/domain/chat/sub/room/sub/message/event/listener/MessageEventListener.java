@@ -1,6 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.event.listener;
 
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.MessageNotifier;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging.MessageNotifier;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.event.MessageSentEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
