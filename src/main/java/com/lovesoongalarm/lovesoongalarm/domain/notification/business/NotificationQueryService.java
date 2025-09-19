@@ -3,9 +3,9 @@ package com.lovesoongalarm.lovesoongalarm.domain.notification.business;
 import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.application.converter.NotificationConverter;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.application.dto.NotificationResponseDTO;
-import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationAllReadEvent;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationStatusAllChangeEvent;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationBadgeUpdateEvent;
-import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationReadEvent;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationStatusChangeEvent;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.exception.NotificationErrorCode;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.implement.NotificationDeleter;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.implement.NotificationRetriever;
@@ -98,7 +98,7 @@ public class NotificationQueryService {
             boolean hasUnread = notificationRetriever.existsByUserIdAndStatus(userId);
 
             applicationEventPublisher.publishEvent(
-                    NotificationReadEvent.builder()
+                    NotificationStatusChangeEvent.builder()
                             .userId(userId)
                             .notificationId(notificationId)
                             .build()
@@ -130,9 +130,9 @@ public class NotificationQueryService {
             }
 
             applicationEventPublisher.publishEvent(
-                    NotificationAllReadEvent.builder()
+                    NotificationStatusAllChangeEvent.builder()
                             .userId(userId)
-                            .allRead(true)
+                            .isAll(true)
                             .build()
             );
 

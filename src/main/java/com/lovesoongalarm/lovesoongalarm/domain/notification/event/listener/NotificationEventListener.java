@@ -1,10 +1,10 @@
 package com.lovesoongalarm.lovesoongalarm.domain.notification.event.listener;
 
 import com.lovesoongalarm.lovesoongalarm.domain.notification.business.WebSocketNotificationService;
-import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationAllReadEvent;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationStatusAllChangeEvent;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationBadgeUpdateEvent;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationCreatedEvent;
-import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationReadEvent;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationStatusChangeEvent;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.session.SessionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +50,7 @@ public class NotificationEventListener {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleNotificationReadEvent(NotificationReadEvent event) {
+    public void handleNotificationReadEvent(NotificationStatusChangeEvent event) {
         WebSocketSession session = sessionService.getSession(event.userId());
         if (session != null && session.isOpen()) {
             webSocketNotificationService.sendReadNotification(
@@ -66,12 +66,12 @@ public class NotificationEventListener {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleNotificationAllReadEvent(NotificationAllReadEvent event) {
+    public void handleNotificationAllReadEvent(NotificationStatusAllChangeEvent event) {
         WebSocketSession session = sessionService.getSession(event.userId());
         if (session != null && session.isOpen()) {
             webSocketNotificationService.sendAllReadNotification(
                     session,
-                    event.allRead()
+                    event.isAll()
             );
             log.info("웹소켓 알림 전체 읽음 상태 전송 완료 - userId={}", event.userId());
         } else {

@@ -3,8 +3,8 @@ package com.lovesoongalarm.lovesoongalarm.domain.notification.event;
 import lombok.Builder;
 
 @Builder
-public record NotificationAllReadEvent(
+public record NotificationStatusAllChangeEvent(
         Long userId,
-        boolean allRead
+        boolean isAll
 ) {
 }
