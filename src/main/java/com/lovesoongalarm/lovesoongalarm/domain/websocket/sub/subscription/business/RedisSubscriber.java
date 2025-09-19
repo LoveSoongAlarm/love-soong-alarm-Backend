@@ -1,15 +1,13 @@
 package com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.business;
 
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.implement.RedisChatRoomRemover;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.implement.RedisChatRoomRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.implement.RedisChatRoomSaver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-
-import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.CHAT_ROOM_SUBSCRIBERS_KEY;
 import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.USER_CHAT_SUBSCRIBERS_KEY;
 
 @Service
@@ -17,12 +15,11 @@ import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.USER_CH
 @Slf4j
 public class RedisSubscriber {
 
-    private static final Duration SUBSCRIPTION_TTL = Duration.ofHours(24);
-
     private final StringRedisTemplate stringRedisTemplate;
 
     private final RedisChatRoomSaver redisChatRoomSaver;
     private final RedisChatRoomRemover redisChatRoomRemover;
+    private final RedisChatRoomRetriever redisChatRoomRetriever;
 
     public void addSubscriber(Long chatRoomId, Long userId) {
         redisChatRoomSaver.addSubscriber(chatRoomId, userId);
@@ -33,20 +30,7 @@ public class RedisSubscriber {
     }
 
     public boolean isUserSubscribed(Long chatRoomId, Long userId) {
-        try {
-            String subscribersKey = CHAT_ROOM_SUBSCRIBERS_KEY + chatRoomId;
-            Boolean isMember = stringRedisTemplate.opsForSet().isMember(subscribersKey, userId.toString());
-
-            boolean isSubscribed = Boolean.TRUE.equals(isMember);
-            if (isSubscribed) {
-                stringRedisTemplate.expire(subscribersKey, SUBSCRIPTION_TTL);
-            }
-            log.debug("채팅방 구독 상태 확인 - chatRoomId: {}, userId: {}, isSubscribed: {}", chatRoomId, userId, isSubscribed);
-            return isSubscribed;
-        } catch (Exception e) {
-            log.error("Redis 구독 상태 체크 실패 - 채팅방: {}, 유저: {}", chatRoomId, userId, e);
-            return false;
-        }
+        redisChatRoomRetriever.isUserSubscribed(chatRoomId, userId);
     }
 
     public void subscribeToUserChatUpdates(Long userId) {
