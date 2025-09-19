@@ -11,6 +11,7 @@ public class Constants {
     public static String REFRESH_TOKEN_PREFIX = "RT:";
     public static final String AUTHORIZATION_PREFIX = "KakaoAK ";
     public static final String TARGET_ID_TYPE = "user_id";
+    public static final String DELETED_USER_DEFAULT_INFO = "알수없음";
     public static List<String> NO_NEED_AUTH = List.of(
             "/api/v1/health-check",
             "/swagger",
