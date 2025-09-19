@@ -1,6 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.websocket.dto;
 
-import com.lovesoongalarm.lovesoongalarm.domain.chat.persistence.type.EWebSocketMessageType;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.persistence.type.EWebSocketMessageType;
 import lombok.Builder;
 
 import java.time.LocalDateTime;

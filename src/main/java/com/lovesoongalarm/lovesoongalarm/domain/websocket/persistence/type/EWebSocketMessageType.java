@@ -1,4 +1,4 @@
-package com.lovesoongalarm.lovesoongalarm.domain.chat.persistence.type;
+package com.lovesoongalarm.lovesoongalarm.domain.websocket.persistence.type;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
