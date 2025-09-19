@@ -1,9 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.business;
 
-import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.implement.RedisChatRoomRemover;
-import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.implement.RedisChatRoomRetriever;
-import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.implement.RedisChatRoomSaver;
-import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.implement.RedisUserChatSaver;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.implement.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -22,6 +19,7 @@ public class RedisSubscriber {
     private final RedisChatRoomRemover redisChatRoomRemover;
     private final RedisChatRoomRetriever redisChatRoomRetriever;
     private final RedisUserChatSaver redisUserChatSaver;
+    private final RedisUserChatRemover redisUserChatRemover;
 
     public void addSubscriber(Long chatRoomId, Long userId) {
         redisChatRoomSaver.addSubscriber(chatRoomId, userId);
@@ -40,22 +38,7 @@ public class RedisSubscriber {
     }
 
     public void unsubscribeFromUserChatUpdates(Long userId) {
-        try {
-            String subscribersKey = USER_CHAT_SUBSCRIBERS_KEY + userId;
-            stringRedisTemplate.opsForSet().remove(subscribersKey, userId.toString());
-
-            Long remainingCount = stringRedisTemplate.opsForSet().size(subscribersKey);
-            if (remainingCount != null && remainingCount == 0) {
-                stringRedisTemplate.delete(subscribersKey);
-                log.debug("빈 구독 키 삭제 - userId: {}", userId);
-            } else {
-                stringRedisTemplate.expire(subscribersKey, SUBSCRIPTION_TTL);
-            }
-
-            log.info("사용자 채팅 업데이트 구독 해제 - userId: {}", userId);
-        } catch (Exception e) {
-            log.error("사용자 채팅 업데이트 구독 해제 실패 - userId: {}", userId, e);
-        }
+        redisUserChatRemover.unsubscribeFromUserChatUpdates(userId);
     }
 
     public boolean isUserSubscribed(Long userId) {
