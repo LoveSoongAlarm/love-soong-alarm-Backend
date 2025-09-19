@@ -3,8 +3,6 @@ package com.lovesoongalarm.lovesoongalarm.domain.chat.business;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.business.ChatRoomService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.MessageService;
-import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging.MessageSender;
-import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.session.SessionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,21 +14,8 @@ import org.springframework.web.socket.WebSocketSession;
 @RequiredArgsConstructor
 public class ChatService {
 
-    private final SessionService sessionService;
-    private final MessageSender messageSender;
     private final ChatRoomService chatRoomService;
     private final MessageService messageService;
-
-    public void registerSession(Long userId, String userNickname, WebSocketSession session) {
-        log.info("사용자 연결 시작 - userId: {}, sessionId: {}", userId, session.getId());
-        sessionService.addSession(userId, session);
-        messageSender.sendConnectionSuccessMessage(userId, userNickname, session);
-        log.info("사용자 연결 완료 - userId: {}, sessionId: {}", userId, session.getId());
-    }
-
-    public void removeSession(Long userId) {
-        sessionService.removeSession(userId);
-    }
 
     public void handleSubscribe(WebSocketSession session, Long chatRoomId, Long userId) {
         log.info("채팅방 구독 시작 - userId: {}, chatRoomId: {}", userId, chatRoomId);
