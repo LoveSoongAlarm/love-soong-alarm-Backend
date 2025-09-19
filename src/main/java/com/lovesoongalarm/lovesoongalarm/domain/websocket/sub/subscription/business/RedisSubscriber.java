@@ -3,6 +3,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.busi
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.implement.RedisChatRoomRemover;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.implement.RedisChatRoomRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.implement.RedisChatRoomSaver;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.implement.RedisUserChatSaver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -20,6 +21,7 @@ public class RedisSubscriber {
     private final RedisChatRoomSaver redisChatRoomSaver;
     private final RedisChatRoomRemover redisChatRoomRemover;
     private final RedisChatRoomRetriever redisChatRoomRetriever;
+    private final RedisUserChatSaver redisUserChatSaver;
 
     public void addSubscriber(Long chatRoomId, Long userId) {
         redisChatRoomSaver.addSubscriber(chatRoomId, userId);
@@ -34,16 +36,7 @@ public class RedisSubscriber {
     }
 
     public void subscribeToUserChatUpdates(Long userId) {
-        try {
-            String subscribersKey = USER_CHAT_SUBSCRIBERS_KEY + userId;
-
-            stringRedisTemplate.opsForSet().add(subscribersKey, userId.toString());
-            stringRedisTemplate.expire(subscribersKey, SUBSCRIPTION_TTL);
-
-            log.info("사용자 채팅 업데이트 구독 시작 - userId: {}", userId);
-        } catch (Exception e) {
-            log.error("사용자 채팅 업데이트 구독 실패 - userId: {}", userId, e);
-        }
+        redisUserChatSaver.subscribeToUserChatUpdates(userId);
     }
 
     public void unsubscribeFromUserChatUpdates(Long userId) {
