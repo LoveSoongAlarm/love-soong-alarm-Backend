@@ -38,7 +38,7 @@ public class UserService {
 
     @Transactional
     public void decreaseRemainingSlot(Long userId) {
-        User user = userRetriever.findByIdOrElseThrow(userId);
+        User user = userRetriever.findByIdAndOnlyActive(userId);
         if (user.isPrePass()) return;
 
         int updatedRows = userUpdater.decreaseRemainingSlot(userId);
@@ -57,7 +57,8 @@ public class UserService {
 
     @Transactional
     public void increaseMaxSlot(Long userId) {
-        User user = userRetriever.findByIdOrElseThrow(userId);
+        User user = userRetriever.findByIdAndOnlyActive(userId);
+      
         if (user.isPrePass()) {
             return;
         }
