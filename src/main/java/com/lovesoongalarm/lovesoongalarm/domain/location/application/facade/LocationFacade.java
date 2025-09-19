@@ -8,8 +8,8 @@ import com.lovesoongalarm.lovesoongalarm.domain.location.application.dto.NearbyU
 import com.lovesoongalarm.lovesoongalarm.domain.location.business.LocationService;
 import com.lovesoongalarm.lovesoongalarm.domain.location.implement.RedisPipeline;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.business.NotificationQueryService;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationBadgeUpdateEvent;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationCreatedEvent;
-import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.entity.Notification;
 import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserQueryService;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +42,7 @@ public class LocationFacade {
 
     @Transactional
     public void updateLocation(Long userId, double latitude, double longitude) {
-        locationService.updateLocation(userId, latitude, longitude);
+        locationService.updateLocation(Long.parseLong("1"), latitude, longitude);
     }
 
     @Transactional
@@ -110,8 +110,14 @@ public class LocationFacade {
 
             log.info("nearbyUserResponse: {}", nearbyUserResponse);
 
-            log.info("이벤트 발행 - holders.size={}", holders.size());
             applicationEventPublisher.publishEvent(new NotificationCreatedEvent(holders));
+
+            applicationEventPublisher.publishEvent(
+                    NotificationBadgeUpdateEvent.builder()
+                            .userId(userId)
+                            .hasUnRead(true)
+                            .build()
+            );
 
             return NearbyResponseDTO.builder()
                     .matchCount(matchingResult.matchCount())

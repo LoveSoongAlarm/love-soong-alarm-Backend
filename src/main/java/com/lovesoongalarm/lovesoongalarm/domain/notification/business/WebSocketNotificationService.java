@@ -1,6 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.notification.business;
 
 import com.lovesoongalarm.lovesoongalarm.domain.notification.application.dto.NotificationWebSocketDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.implement.NotificationRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.entity.Notification;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.type.EWebSocketNotificationType;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging.MessageSender;
@@ -14,6 +15,7 @@ import org.springframework.web.socket.WebSocketSession;
 @RequiredArgsConstructor
 public class WebSocketNotificationService {
     private final MessageSender messageSender;
+    private final NotificationRetriever notificationRetriever;
 
     public void sendNotification(WebSocketSession session, Notification notification) {
         NotificationWebSocketDTO.Notification notificationWebSocketDTO = NotificationWebSocketDTO.Notification.builder()
@@ -28,6 +30,11 @@ public class WebSocketNotificationService {
 
     public void sendUnreadBadgeUpdate(WebSocketSession session, boolean hasUnread) {
         messageSender.sendUnreadBadgeUpdate(session, hasUnread);
+    }
+
+    public void sendUnreadBadgeUpdate(WebSocketSession session, Long userId) {
+        boolean hasRead = notificationRetriever.existsByUserIdAndStatus(userId);
+        messageSender.sendUnreadBadgeUpdate(session, hasRead);
     }
 
     public void sendReadNotification(WebSocketSession session, Long notificationId) {

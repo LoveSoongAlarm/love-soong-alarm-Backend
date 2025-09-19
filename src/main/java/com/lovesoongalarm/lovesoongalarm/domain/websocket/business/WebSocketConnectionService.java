@@ -1,5 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.websocket.business;
 
+import com.lovesoongalarm.lovesoongalarm.domain.notification.implement.NotificationRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserQueryService;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging.MessageSender;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.session.SessionService;
@@ -25,6 +26,7 @@ public class WebSocketConnectionService {
         sessionService.addSession(userId, session);
         subscriptionService.subscribeToUserChatUpdates(session, userId);
         messageSender.sendConnectionSuccessMessage(userId, userNickname, session);
+
     }
 
     public void handleDisconnection(WebSocketSession session) {

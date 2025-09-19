@@ -2,6 +2,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.notification.event.listener;
 
 import com.lovesoongalarm.lovesoongalarm.domain.notification.business.WebSocketNotificationService;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationAllReadEvent;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationBadgeUpdateEvent;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationCreatedEvent;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationReadEvent;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.session.SessionService;
@@ -27,8 +28,6 @@ public class NotificationEventListener {
             if (session != null && session.isOpen()) {
                 webSocketNotificationService.sendNotification(session, holder.notification());
                 log.info("웹소켓 알림 전송 완료 - userId={}", holder.userId());
-                webSocketNotificationService.sendUnreadBadgeUpdate(session, true);
-                log.info("웹소켓 알림 뱃지 업데이트 완료 - userId={}", holder.userId());
             } else {
                 log.debug("세션 없음/닫힘 - 알림 전송 생략 - userId={}", holder.userId());
             }
@@ -36,9 +35,24 @@ public class NotificationEventListener {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleUpdateBadgeEvent(NotificationBadgeUpdateEvent event) {
+        WebSocketSession session = sessionService.getSession(event.userId());
+        if (session != null && session.isOpen()) {
+            webSocketNotificationService.sendUnreadBadgeUpdate(
+                    session,
+                    event.hasUnRead()
+            );
+
+            log.info("웹소켓 알림 뱃지 상태 업데이트 완료 - userId={}", event.userId());
+        } else {
+            log.error("세션 없음/닫힘 - 웹소켓 알림 뱃지 상태 업데이트 생략 - userId={}", event.userId());
+        }
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleNotificationReadEvent(NotificationReadEvent event) {
         WebSocketSession session = sessionService.getSession(event.userId());
-        if(session != null && session.isOpen()){
+        if (session != null && session.isOpen()) {
             webSocketNotificationService.sendReadNotification(
                     session,
                     event.notificationId()
@@ -54,7 +68,7 @@ public class NotificationEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleNotificationAllReadEvent(NotificationAllReadEvent event) {
         WebSocketSession session = sessionService.getSession(event.userId());
-        if(session != null && session.isOpen()){
+        if (session != null && session.isOpen()) {
             webSocketNotificationService.sendAllReadNotification(
                     session,
                     event.allRead()
