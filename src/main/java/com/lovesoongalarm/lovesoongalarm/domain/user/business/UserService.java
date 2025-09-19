@@ -58,6 +58,7 @@ public class UserService {
     @Transactional
     public void increaseMaxSlot(Long userId) {
         User user = userRetriever.findByIdAndOnlyActive(userId);
+      
         if (user.isPrePass()) {
             return;
         }

@@ -148,4 +148,5 @@ public class User {
         this.nickname = DELETED_USER_DEFAULT_INFO;
         this.status = INACTIVE;
     }
+
 }

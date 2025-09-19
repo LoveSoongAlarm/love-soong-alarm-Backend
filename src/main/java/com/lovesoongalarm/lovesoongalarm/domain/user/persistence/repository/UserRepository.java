@@ -51,4 +51,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     int increaseMaxSlot(@Param("userId") Long userId);
 
     Optional<User> findByIdAndStatus(Long userId, EUserStatus status);
+
 }
