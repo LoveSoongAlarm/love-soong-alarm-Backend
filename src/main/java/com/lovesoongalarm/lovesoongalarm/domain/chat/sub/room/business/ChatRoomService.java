@@ -39,14 +39,14 @@ public class ChatRoomService {
     @Transactional
     public ChatRoom createChatRoom(Long userId, Long targetUserId) {
         log.info("개인 채팅방 생성 시작 - 본인: {}, 상대방: {}", userId, targetUserId);
-        userService.validateChatRoomCreation(userId, targetUserId);
-        chatRoomValidator.validateChatRoomCreation(userId, targetUserId);
-
         Optional<ChatRoom> existing = chatRoomRetriever.findByIdAndTargetUserId(userId, targetUserId);
         if (existing.isPresent()) {
             log.info("이미 참여중인 채팅방이므로 채팅방 그대로 반환 - chatRoomId: {}", existing.get().getId());
             return existing.get();
         }
+
+        userService.validateChatRoomCreation(userId, targetUserId);
+        chatRoomValidator.validateChatRoomCreation(userId, targetUserId);
 
         ChatRoom newRoom = ChatRoom.create();
         ChatRoom savedRoom = chatRoomSaver.save(newRoom);
