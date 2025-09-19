@@ -1,5 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging;
 
+import com.lovesoongalarm.lovesoongalarm.domain.notification.application.dto.NotificationWebSocketDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.type.EWebSocketNotificationType;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.dto.WebSocketMessageDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.persistence.type.EWebSocketMessageType;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.UserChatUpdateDTO;
@@ -118,5 +120,54 @@ public class MessageSender {
                 .build();
 
         messageTransmitter.sendMessage(session, messageCountLimit);
+    }
+
+    public void sendNotification(WebSocketSession session, NotificationWebSocketDTO.Notification notification) {
+        messageTransmitter.sendMessage(session, notification);
+    }
+
+    public void sendUnreadBadgeUpdate(WebSocketSession session, boolean hasUnread) {
+        NotificationWebSocketDTO.UnreadNotificationBadge unreadNotificationBadge = NotificationWebSocketDTO.UnreadNotificationBadge.builder()
+                .type(EWebSocketNotificationType.UNREAD_NOTIFICATION_BADGE_UPDATE)
+                .hasUnread(hasUnread)
+                .build();
+
+        messageTransmitter.sendMessage(session, unreadNotificationBadge);
+    }
+
+    public void sendReadNotification(WebSocketSession session, Long notificationId) {
+        NotificationWebSocketDTO.ChangeNotification readNotification = NotificationWebSocketDTO.ChangeNotification.builder()
+                .type(EWebSocketNotificationType.READ_NOTIFICATION)
+                .notificationId(notificationId)
+                .build();
+
+        messageTransmitter.sendMessage(session, readNotification);
+    }
+
+    public void sendAllReadNotification(WebSocketSession session, boolean isAll) {
+        NotificationWebSocketDTO.AllChangeNotification allReadNotification = NotificationWebSocketDTO.AllChangeNotification.builder()
+                .type(EWebSocketNotificationType.READ_ALL_NOTIFICATION)
+                .isAll(isAll)
+                .build();
+
+        messageTransmitter.sendMessage(session, allReadNotification);
+    }
+
+    public void sendDeleteNotification(WebSocketSession session, Long notificationId) {
+        NotificationWebSocketDTO.ChangeNotification changeNotification = NotificationWebSocketDTO.ChangeNotification.builder()
+                .type(EWebSocketNotificationType.DELETE_NOTIFICATION)
+                .notificationId(notificationId)
+                .build();
+
+        messageTransmitter.sendMessage(session, changeNotification);
+    }
+
+    public void sendAllDeleteNotification(WebSocketSession session, boolean isAll) {
+        NotificationWebSocketDTO.AllChangeNotification allChangeNotification = NotificationWebSocketDTO.AllChangeNotification.builder()
+                .type(EWebSocketNotificationType.DELETE_ALL_NOTIFICATION)
+                .isAll(isAll)
+                .build();
+
+        messageTransmitter.sendMessage(session, allChangeNotification);
     }
 }

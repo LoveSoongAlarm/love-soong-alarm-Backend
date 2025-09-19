@@ -1,5 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity;
 
+import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.entity.Notification;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EGender;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EPlatform;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.ERole;
@@ -67,6 +68,9 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Interest> interests = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> notifications;
 
     @Column(name = "pre_pass")
     private boolean prePass = false;

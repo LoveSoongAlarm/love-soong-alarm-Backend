@@ -13,6 +13,7 @@ public record NearbyUserResponseDTO(
         String emoji,
         List<UserInterestResponseDTO> interests,
         String lastSeen,
+        boolean isMatching,
         Double latitude,
         Double longitude
 ) {
