@@ -3,12 +3,12 @@ package com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.impl
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import static com.lovesoongalarm.lovesoongalarm.common.constant.Constants.SUBSCRIPTION_TTL;
 import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.USER_CHAT_SUBSCRIBERS_KEY;
 
-@Service
+@Component
 @RequiredArgsConstructor
 @Slf4j
 public class RedisUserChatSaver {
