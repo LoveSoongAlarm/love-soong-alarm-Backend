@@ -17,9 +17,9 @@ public class PayRetriever {
 
     private final PayRepository payRepository;
 
-    public void createOrLoadPay(Session session, User user, EItem item){
+    public void createOrLoadPay(Session session, User user, EItem item, String ipAddress){
         payRepository.findBySessionId(session.getId())
-                .orElseGet(() -> payRepository.save(Pay.create(session.getId(), EItemStatus.PENDING, user, item)));
+                .orElseGet(() -> payRepository.save(Pay.create(session.getId(), EItemStatus.PENDING, user, item, ipAddress)));
     }
 
     public Pay findBySessionId(String sessionId){

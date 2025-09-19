@@ -30,11 +30,6 @@ public class PayStripeClient implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         Stripe.apiKey = this.secretKey;
-    @Value("${spring.data.stripe.cancel_callback}")
-    private String cancelUrl; // 콜백 URL이였으면 좋겠습니다, api/v1/cancel
-
-    public PayStripeClient(@Value("${spring.data.stripe.secret}") String secretKey) {
-        Stripe.apiKey = secretKey; // 이 부분 슬랙 참고해주세요
     }
 
     public String retrieveDefaultPrice(String productId) {
@@ -56,23 +51,18 @@ public class PayStripeClient implements InitializingBean {
                     .setSuccessUrl(successUrl + "?session_id={CHECKOUT_SESSION_ID}")
                     .setCancelUrl(successUrl.replace("/success", "/cancel"))
                     .addLineItem(lineItem)
-                    .build();
-
-                    .setSuccessUrl(successUrl+"?session_id={CHECKOUT_SESSION_ID}")
-                    .setSuccessUrl(cancelUrl+"?session_id={CHECKOUT_SESSION_ID}")
-                    .addAllLineItem(lineItems)
                     .setPaymentMethodOptions(
-                        SessionCreateParams.PaymentMethodOptions.builder()
-                        .setCard(
-                            SessionCreateParams.PaymentMethodOptions.Card.builder()
-                            .setRequestThreeDSecure(
-                                SessionCreateParams.PaymentMethodOptions.Card.RequestThreeDSecure.ANY
-                            )
-                            .build()
-                        )
-                        .build()
+                            SessionCreateParams.PaymentMethodOptions.builder()
+                                    .setCard(
+                                            SessionCreateParams.PaymentMethodOptions.Card.builder()
+                                                    .setRequestThreeDSecure(
+                                                            SessionCreateParams.PaymentMethodOptions.Card.RequestThreeDSecure.ANY
+                                                    )
+                                                    .build()
+                                    )
+                                    .build()
                     )
-                .build();
+                    .build();
             return Session.create(params);
         } catch (Exception e) {
             throw new CustomException(PayErrorCode.SESSION_CREATE_ERROR);

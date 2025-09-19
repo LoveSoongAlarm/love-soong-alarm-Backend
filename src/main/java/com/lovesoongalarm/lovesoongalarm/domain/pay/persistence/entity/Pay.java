@@ -27,11 +27,9 @@ public class Pay {
     @Column(nullable = false, unique = true, length = 100)
     private String sessionId; // Stripe에서 취급하는 결제 세션 ID
 
-    @Column(nullable = false, length = 20)
-    private String status; // PENDING, COMPLETED, FAILED, CANCELED
-
     @CreatedDate
     private LocalDateTime createdAt;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private EItemStatus status;
@@ -43,33 +41,32 @@ public class Pay {
     @Column(nullable = false, length = 50)
     private String ipAddress;
 
-    public Pay (String sessionId, String status, String ipAddress) {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private EItem item; // 예: COIN_1000, COIN_5000
+    private EItem item;
 
     @Builder
-    public Pay (String sessionId, EItemStatus status, User user, EItem item) {
+    public Pay (String sessionId, EItemStatus status, User user, EItem item, String ipAddress) {
         this.sessionId = sessionId;
         this.status = status;
         this.ipAddress = ipAddress;
         this.user = user;
         this.item = item;
+        this.ipAddress = ipAddress;
     }
 
-    public static Pay create(String sessionId, EItemStatus status, User user, EItem item){
+    public static Pay create(String sessionId, EItemStatus status, User user, EItem item, String ipAddress){
         return Pay.builder()
                 .sessionId(sessionId)
                 .status(status)
                 .user(user)
                 .item(item)
+                .ipAddress(ipAddress)
                 .build();
     }
 
-    public void complete() { this.status = "COMPLETED"; }
-    public void fail() { this.status = "FAILED"; }
-    public void cancel() { this.status = "CANCELED"; }
-
     public void complete() { this.status = EItemStatus.COMPLETED; }
     public void fail() { this.status = EItemStatus.FAILED; }
+    public void cancel() { this.status = EItemStatus.CANCEL; }
+
 }

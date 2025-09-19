@@ -35,15 +35,13 @@ public class PayController {
 
     @PostMapping("/checkout")
     public BaseResponse<CreateCheckoutSessionDTO> createCheckOut(
-        @Valid @RequestBody Map<String, Integer> req,
-        HttpServletRequest request
-    ){
-        String ipAddress = extractClientIp(request);
-        return BaseResponse.success(service.createCheckoutSession(req, ipAddress)); // 요것도 일단 url 던지는걸로 구현햇는데, redirect도 좋을 것 같아요!
             @Valid @RequestBody PayItemRequestDTO request,
+            HttpServletRequest httpServletRequest,
             @UserId Long userId
-            ){
-        return BaseResponse.success(service.createCheckoutSession(request, userId)); // 요것도 일단 url 던지는걸로 구현햇는데, redirect도 좋을 것 같아요!
+
+    ){
+        String ipAddress = extractClientIp(httpServletRequest);
+        return BaseResponse.success(service.createCheckoutSession(request, userId, ipAddress)); // 요것도 일단 url 던지는걸로 구현햇는데, redirect도 좋을 것 같아요!
     }
 
     @PostMapping("/webhook")
@@ -56,9 +54,9 @@ public class PayController {
     @GetMapping("/success")
     public BaseResponse<PaySuccessResponseDTO> verifySuccess(
         @RequestParam("session_id") String sessionId,
-        HttpServletRequest request
+        HttpServletRequest httpServletRequest
     ){
-        String ipAddress = extractClientIp(request);
+        String ipAddress = extractClientIp(httpServletRequest);
         return BaseResponse.success(service.verifySuccess(sessionId, ipAddress)); // 일단 이렇게 두긴 했는데, 프엔에서 "결제 완료되었습니다!" 구현하려면 redirect도 괜찮을 것 같아요!
     }
 

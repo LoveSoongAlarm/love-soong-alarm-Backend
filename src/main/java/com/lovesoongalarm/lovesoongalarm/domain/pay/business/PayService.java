@@ -1,9 +1,5 @@
 package com.lovesoongalarm.lovesoongalarm.domain.pay.business;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.lovesoongalarm.lovesoongalarm.domain.pay.application.dto.PayItemRequestDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.config.PriceIdConfig;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.implement.PayRetriever;
@@ -19,9 +15,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.pay.application.dto.PaySuccessRe
 import com.lovesoongalarm.lovesoongalarm.domain.pay.exception.PayErrorCode;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.implement.PayStripeClient;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.entity.Pay;
-import com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.repository.PayRepository;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.application.dto.CreateCheckoutSessionDTO;
-import com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.entity.type.ECoinProductIdType;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
 
@@ -31,49 +25,28 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PayService {
     private final PayStripeClient stripe;
-    private final PayRepository payRepository;
     private final PriceIdConfig priceIdConfig;
     private final UserRetriever userRetriever;
     private final PayRetriever payRetriever;
 
     @Transactional
-    public CreateCheckoutSessionDTO createCheckoutSession(PayItemRequestDTO request, Long userId) {
-    public CreateCheckoutSessionDTO createCheckoutSession(Map<String, Integer> req, String ipAddress) {
-        List<SessionCreateParams.LineItem> lineItems = new ArrayList<>();
-
-        for (Map.Entry<String, Integer> entry: req.entrySet()) {
-            long quantity = entry.getValue() == null ? 0 : entry.getValue(); // "coin_1000": 1에서 수량 추출
-            if (quantity == 0) continue;
+    public CreateCheckoutSessionDTO createCheckoutSession(PayItemRequestDTO request, Long userId, String ipAddress) {
 
         User findUser = userRetriever.findByIdOrElseThrow(userId);
 
-            String priceId = stripe.retrieveDefaultPrice(coin.getProductId()); // Stripe 고유 Product ID 추출
-            lineItems.add(SessionCreateParams.LineItem.builder()
-                .setPrice(priceId)
-                .setQuantity(quantity)
-                .build()
-            );
-
-        SessionCreateParams.LineItem lineItem;
+        SessionCreateParams.LineItem lineItem; //단일 상품만
         try {
             String priceId = stripe.retrieveDefaultPrice(priceIdConfig.getPriceId(EItem.valueOf(request.item())));
-            lineItem = SessionCreateParams.LineItem.builder()
-                    .setPrice(priceId)   // 결제할 Price ID
+            lineItem = SessionCreateParams.LineItem.builder().setPrice(priceId)   // 결제할 Price ID
                     .setQuantity(1L)           // 수량
                     .build();
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             throw new CustomException(PayErrorCode.INVALID_ARGUMENT);
         }
 
         Session session = stripe.createCheckoutSession(lineItem); // PayStripeClient에서 새 결제 생성
 
-        Session session = stripe.createCheckoutSession(lineItems); // PayStripeClient에서 새 결제 생성
-
-        repo.findBySessionId(session.getId()).orElseGet(() -> repo.save(new Pay(session.getId(), "PENDING", ipAddress)));
-        payRetriever.createOrLoadPay(session, findUser, EItem.valueOf(request.item()));
-//        payRepository.findBySessionId(session.getId())
-//                .orElseGet(() -> payRepository.save(Pay.create(session.getId(), EItemStatus.PENDING)));
-
+        payRetriever.createOrLoadPay(session, findUser, EItem.valueOf(request.item()), ipAddress);
         return new CreateCheckoutSessionDTO(session.getUrl()); // 사용자가 결제 가능한 URL을 넘깁니다
     }
 
@@ -81,14 +54,13 @@ public class PayService {
     public void fulfillPayment(String sessionId) {
         Session session = stripe.retrieveSession(sessionId);
 
-        String paymentStatus = session.getPaymentStatus(); 
+        String paymentStatus = session.getPaymentStatus();
         String sessionStatus = session.getStatus();
 
         Pay findPay = payRetriever.findBySessionId(sessionId);
 
         //세션 id를 통해 상태 확인
-        if (EItemStatus.COMPLETED.equals(findPay.getStatus())
-                || EItemStatus.FAILED.equals(findPay.getStatus())) {
+        if (EItemStatus.COMPLETED.equals(findPay.getStatus()) || EItemStatus.FAILED.equals(findPay.getStatus())) {
             return;
         }
 
@@ -106,7 +78,7 @@ public class PayService {
     public void handleCheckoutCancel(String sessionId) {
         // JWT 검증해서 해당 유저의 결제만 Cancel할 수 있는 것 필요 ...
         Session expired = stripe.expireCheckoutSession(sessionId);
-        Pay canceledPay = repo.findBySessionId(expired.getId()).orElseThrow(() -> new CustomException(PayErrorCode.PAYMENT_NOT_FOUND));
+        Pay canceledPay = payRetriever.findBySessionId(expired.getId());
 
         canceledPay.cancel();
     }
@@ -121,11 +93,14 @@ public class PayService {
         Pay findPay = payRetriever.findBySessionId(sessionId);
 
         if (("paid".equalsIgnoreCase(status) || "complete".equalsIgnoreCase(session.getStatus()))
-            && ipAddress == singlePay.getIpAddress()) {
-        if ("paid".equalsIgnoreCase(status) || "complete".equalsIgnoreCase(session.getStatus())) {
+                && ipAddress == findPay.getIpAddress()) {
             return new PaySuccessResponseDTO(session.getId(), status, totalAmount);
         } else {
+            if (!EItemStatus.FAILED.equals(findPay.getStatus())) {
+                findPay.fail();
+            }
             throw new CustomException(PayErrorCode.PAYMENT_NOT_FOUND);
         }
     }
+
 }

@@ -9,7 +9,8 @@ public enum EItemStatus {
 
     PENDING("pending"),
     COMPLETED("completed"),
-    FAILED("failed");
+    FAILED("failed"),
+    CANCEL("cancel");
 
     private final String value;
 }
