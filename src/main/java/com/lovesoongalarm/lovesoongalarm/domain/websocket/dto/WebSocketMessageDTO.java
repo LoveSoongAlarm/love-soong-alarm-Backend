@@ -33,6 +33,14 @@ public class WebSocketMessageDTO {
     }
 
     @Builder
+    public record ChatListSubscribeSuccess(
+            EWebSocketMessageType type,
+            String message,
+            int totalUnreadCount
+    ) {
+    }
+
+    @Builder
     public record MessageReadNotification(
             EWebSocketMessageType type,
             Long chatRoomId,
@@ -67,6 +75,16 @@ public class WebSocketMessageDTO {
             LocalDateTime timestamp,
             boolean isMyMessage,
             boolean isRead
+    ) {
+    }
+
+    @Builder
+    public record NewChatRoomNotification(
+            EWebSocketMessageType type,
+            Long chatRoomId,
+            String partnerNickname,
+            String partnerEmoji,
+            LocalDateTime createdAt
     ) {
     }
 
