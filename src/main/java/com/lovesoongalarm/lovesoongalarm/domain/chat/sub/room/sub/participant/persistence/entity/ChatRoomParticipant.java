@@ -62,4 +62,8 @@ public class ChatRoomParticipant {
     public boolean hasUnlimitedChat() {
         return this.getUser().isPrePass() || this.getTicketUsed();
     }
+
+    public void setTicketUsed() {
+        this.ticketUsed = true;
+    }
 }

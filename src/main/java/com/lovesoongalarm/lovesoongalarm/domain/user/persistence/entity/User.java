@@ -17,6 +17,9 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.lovesoongalarm.lovesoongalarm.common.constant.Constants.DELETED_USER_DEFAULT_INFO;
+import static com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EUserStatus.INACTIVE;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -140,4 +143,14 @@ public class User {
         }
         return false;
     }
+
+    public void decreaseChatTicket() {
+        this.chatTicket--;
+    }
+
+    public void softDelete() {
+        this.nickname = DELETED_USER_DEFAULT_INFO;
+        this.status = INACTIVE;
+    }
+
 }

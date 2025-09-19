@@ -54,13 +54,13 @@ public class AuthService {
 
     @Transactional
     public Void withdraw(Long userId, HttpServletResponse response) {
-        User findUser = userRetriever.findByIdOrElseThrow(userId);
+        User findUser = userRetriever.findByIdAndOnlyActive(userId);
         oAuthUserInfo.revoke(findUser.getPlatform(), findUser.getSerialId());
         CookieUtil.logoutCookie(response, domain);
         refreshTokenService.deleteRefreshToken(userId);
-
-        //TODO : 채팅 삭제 등 유저에 관련된 모든 데이터 삭제
-        userDeleter.deleteUser(findUser);
+        findUser.softDelete();
+        findUser.getInterests().clear();
+        //userDeleter.deleteUser(findUser);
         return null;
     }
 }

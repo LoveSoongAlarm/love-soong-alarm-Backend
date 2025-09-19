@@ -1,6 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.user.persistence.repository;
 
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
+import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EUserStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -48,4 +49,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             AND u.prePass = false
             """)
     int increaseMaxSlot(@Param("userId") Long userId);
+
+    Optional<User> findByIdAndStatus(Long userId, EUserStatus status);
+
 }

@@ -38,7 +38,7 @@ public class UserService {
 
     @Transactional
     public void decreaseRemainingSlot(Long userId) {
-        User user = userRetriever.findByIdOrElseThrow(userId);
+        User user = userRetriever.findByIdAndOnlyActive(userId);
         if (user.isPrePass()) return;
 
         int updatedRows = userUpdater.decreaseRemainingSlot(userId);
@@ -57,7 +57,8 @@ public class UserService {
 
     @Transactional
     public void increaseMaxSlot(Long userId) {
-        User user = userRetriever.findByIdOrElseThrow(userId);
+        User user = userRetriever.findByIdAndOnlyActive(userId);
+      
         if (user.isPrePass()) {
             return;
         }
@@ -68,5 +69,9 @@ public class UserService {
         } else {
             log.warn("maxSlot 증가 실패 - 사용자가 존재하지 않거나 이미 처리됨 - userId: {}", userId);
         }
+    }
+
+    public void validateChatTicket(User user) {
+        userValidator.validateChatTicket(user);
     }
 }

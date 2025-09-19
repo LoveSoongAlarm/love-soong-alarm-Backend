@@ -36,13 +36,13 @@ public class UserQueryService {
     private final UserConverter userConverter;
 
     public String getUserNickname(Long userId) {
-        User user = userRetriever.findByIdOrElseThrow(userId);
-        return user.getNickname();
+        User findUser = userRetriever.findByIdAndOnlyActive(userId);
+        return findUser.getNickname();
     }
 
     @Transactional
     public Void onBoardingUser(Long userId, OnBoardingRequestDTO request){
-        User findUser = userRetriever.findByIdOrElseThrow(userId);
+        User findUser = userRetriever.findByIdAndOnlyInActive(userId);
         findUser.updateFromOnboardingAndProfile(request.nickname(), request.major(), request.birthDate(), EGender.valueOf(request.gender()), request.emoji());
 
         List<Interest> interests = request.interests().stream()
@@ -72,7 +72,7 @@ public class UserQueryService {
     }
 
     public UserResponseDTO getUser(Long targetId){
-        User findUser = userRetriever.findByIdOrElseThrow(targetId);
+        User findUser = userRetriever.findByIdAndOnlyActive(targetId);
 
         int age = calculateAge(findUser.getBirthDate());
 
@@ -80,48 +80,50 @@ public class UserQueryService {
     }
 
     public UserMeResponseDTO getMe(Long userId){
-        User findUser = userRetriever.findByIdOrElseThrow(userId);
+        User findUser = userRetriever.findByIdAndOnlyActive(userId);
 
         return UserMeResponseDTO.from(findUser);
     }
 
     @Transactional
-    public Void updateUser(Long userId, UserUpdateRequestDTO request){
-        User findUser = userRetriever.findByIdOrElseThrow(userId);
-        findUser.updateFromOnboardingAndProfile(request.nickname(), request.major(), request.birthDate(), EGender.valueOf(request.gender()), request.emoji());
+    public Void updateUser(Long userId, UserUpdateRequestDTO request) {
+        User findUser = userRetriever.findByIdAndOnlyActive(userId);
+        findUser.updateFromOnboardingAndProfile(
+                request.nickname(),
+                request.major(),
+                request.birthDate(),
+                EGender.valueOf(request.gender()),
+                request.emoji()
+        );
 
-        List<Interest> existingInterests = findUser.getInterests();
-        List<InterestUpdateRequestDTO> newInterests = request.interests();
+        findUser.getInterests().clear();
 
-        for (int i = 0; i < existingInterests.size(); i++) {
-            Interest interest = existingInterests.get(i);
-            InterestUpdateRequestDTO dto = newInterests.get(i);
-
-            // Interest 값 덮어쓰기
-            interest.updateInterestFromProfile(
+        // 새로운 Interest 전부 추가
+        for (InterestUpdateRequestDTO dto : request.interests()) {
+            Interest newInterest = Interest.create(
                     ELabel.valueOf(dto.label()),
+                    findUser,
                     EDetailLabel.valueOf(dto.detailLabel())
             );
 
-            // Hashtags 값 덮어쓰기
-            interest.getHashtags().clear();
-
-            List<Hashtag> updatedTags = dto.hashTags().stream()
-                    .map(tag -> Hashtag.create(tag, interest))
+            List<Hashtag> hashtags = dto.hashTags().stream()
+                    .map(tag -> Hashtag.create(tag, newInterest))
                     .toList();
 
-            interest.getHashtags().addAll(updatedTags);
+            findUser.getInterests().add(newInterest);
+            newInterest.getHashtags().addAll(hashtags);
         }
 
         // Redis 업데이트
-        updateRedis(userId, EGender.valueOf(request.gender()), existingInterests);
+        updateRedis(userId, EGender.valueOf(request.gender()), findUser.getInterests());
 
         return null;
     }
 
+
     public UserSlotResponseDTO getUserSlots(Long userId) {
-        User user = userRetriever.findByIdOrElseThrow(userId);
-        UserSlotResponseDTO slotInfo = userConverter.createSlotInfo(user);
+        User findUser = userRetriever.findByIdAndOnlyActive(userId);
+        UserSlotResponseDTO slotInfo = userConverter.createSlotInfo(findUser);
         return slotInfo;
     }
 
