@@ -21,16 +21,16 @@ public class NotificationWebSocketDTO {
     }
 
     @Builder
-    public record ReadNotification(
+    public record ChangeNotification(
             EWebSocketNotificationType type,
             Long notificationId
     ) {
     }
 
     @Builder
-    public record AllReadNotification(
+    public record AllChangeNotification(
             EWebSocketNotificationType type,
-            boolean allRead
+            boolean isAll
     ) {
     }
 

@@ -50,32 +50,52 @@ public class NotificationEventListener {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleNotificationReadEvent(NotificationStatusChangeEvent event) {
+    public void handleNotificationChangeEvent(NotificationStatusChangeEvent event) {
         WebSocketSession session = sessionService.getSession(event.userId());
         if (session != null && session.isOpen()) {
-            webSocketNotificationService.sendReadNotification(
-                    session,
-                    event.notificationId()
-            );
+            switch (event.type()) {
+                case READ -> {
+                    webSocketNotificationService.sendReadNotification(
+                            session,
+                            event.notificationId()
+                    );
+                }
+                case DELETE -> {
+                    webSocketNotificationService.sendDeleteNotification(
+                            session,
+                            event.notificationId()
+                    );
+                }
+            }
 
-            log.info("웹소켓 알림 읽음 상태 전송 완료 - userId={}, notificationId={}",
+            log.info("웹소켓 알림 상태 전송 완료 - userId={}, notificationId={}",
                     event.userId(), event.notificationId());
         } else {
-            log.debug("세션 없음/닫힘 - 읽음 상태 전송 생략 - userId={}", event.userId());
+            log.debug("세션 없음/닫힘 - 알림 상태 전송 생략 - userId={}", event.userId());
         }
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleNotificationAllReadEvent(NotificationStatusAllChangeEvent event) {
+    public void handleNotificationAllChangeEvent(NotificationStatusAllChangeEvent event) {
         WebSocketSession session = sessionService.getSession(event.userId());
         if (session != null && session.isOpen()) {
-            webSocketNotificationService.sendAllReadNotification(
-                    session,
-                    event.isAll()
-            );
-            log.info("웹소켓 알림 전체 읽음 상태 전송 완료 - userId={}", event.userId());
+            switch (event.type()) {
+                case READ -> {
+                    webSocketNotificationService.sendAllReadNotification(
+                            session,
+                            event.isAll()
+                    );
+                }
+                case DELETE -> {
+                    webSocketNotificationService.sendDeleteAllNotification(
+                            session,
+                            event.isAll()
+                    );
+                }
+            }
+            log.info("웹소켓 알림 전체 상태 전송 완료 - userId={}", event.userId());
         } else {
-            log.debug("세션 없음/닫힘 - 전체 읽음 상태 전송 생략 - userId={}", event.userId());
+            log.debug("세션 없음/닫힘 - 전체 상태 전송 생략 - userId={}", event.userId());
         }
     }
 }

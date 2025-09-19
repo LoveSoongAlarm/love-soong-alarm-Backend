@@ -44,4 +44,12 @@ public class WebSocketNotificationService {
     public void sendAllReadNotification(WebSocketSession session, boolean allRead) {
         messageSender.sendAllReadNotification(session, allRead);
     }
+
+    public void sendDeleteNotification(WebSocketSession session, Long notificationId) {
+        messageSender.sendDeleteNotification(session, notificationId);
+    }
+
+    public void sendDeleteAllNotification(WebSocketSession session, boolean isAllDelete) {
+        messageSender.sendAllDeleteNotification(session, isAllDelete);
+    }
 }

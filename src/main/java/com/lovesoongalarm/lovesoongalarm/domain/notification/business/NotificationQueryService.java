@@ -12,6 +12,8 @@ import com.lovesoongalarm.lovesoongalarm.domain.notification.implement.Notificat
 import com.lovesoongalarm.lovesoongalarm.domain.notification.implement.NotificationSaver;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.entity.Notification;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.type.ENotificationStatus;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.type.ENotificationType;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.type.EWebSocketNotificationType;
 import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.persistence.type.EDetailLabel;
@@ -99,6 +101,7 @@ public class NotificationQueryService {
 
             applicationEventPublisher.publishEvent(
                     NotificationStatusChangeEvent.builder()
+                            .type(ENotificationType.READ)
                             .userId(userId)
                             .notificationId(notificationId)
                             .build()
@@ -131,6 +134,7 @@ public class NotificationQueryService {
 
             applicationEventPublisher.publishEvent(
                     NotificationStatusAllChangeEvent.builder()
+                            .type(ENotificationType.READ)
                             .userId(userId)
                             .isAll(true)
                             .build()
@@ -160,6 +164,14 @@ public class NotificationQueryService {
         try {
             notificationDeleter.delete(notification);
 
+            applicationEventPublisher.publishEvent(
+                    NotificationStatusChangeEvent.builder()
+                            .type(ENotificationType.DELETE)
+                            .userId(userId)
+                            .notificationId(notificationId)
+                            .build()
+            );
+
             boolean hasUnread = notificationRetriever.existsByUserIdAndStatus(userId);
             if(!hasUnread) {
                 applicationEventPublisher.publishEvent(
@@ -181,6 +193,14 @@ public class NotificationQueryService {
 
         try {
             notificationDeleter.deleteAll(notifications);
+
+            applicationEventPublisher.publishEvent(
+                    NotificationStatusAllChangeEvent.builder()
+                            .type(ENotificationType.DELETE)
+                            .userId(userId)
+                            .isAll(true)
+                            .build()
+            );
 
             applicationEventPublisher.publishEvent(
                     NotificationBadgeUpdateEvent.builder()

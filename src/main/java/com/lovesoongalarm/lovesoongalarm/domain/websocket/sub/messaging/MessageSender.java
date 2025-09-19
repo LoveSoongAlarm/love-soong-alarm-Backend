@@ -136,7 +136,7 @@ public class MessageSender {
     }
 
     public void sendReadNotification(WebSocketSession session, Long notificationId) {
-        NotificationWebSocketDTO.ReadNotification readNotification = NotificationWebSocketDTO.ReadNotification.builder()
+        NotificationWebSocketDTO.ChangeNotification readNotification = NotificationWebSocketDTO.ChangeNotification.builder()
                 .type(EWebSocketNotificationType.READ_NOTIFICATION)
                 .notificationId(notificationId)
                 .build();
@@ -144,12 +144,30 @@ public class MessageSender {
         messageTransmitter.sendMessage(session, readNotification);
     }
 
-    public void sendAllReadNotification(WebSocketSession session, boolean allRead) {
-        NotificationWebSocketDTO.AllReadNotification allReadNotification = NotificationWebSocketDTO.AllReadNotification.builder()
+    public void sendAllReadNotification(WebSocketSession session, boolean isAll) {
+        NotificationWebSocketDTO.AllChangeNotification allReadNotification = NotificationWebSocketDTO.AllChangeNotification.builder()
                 .type(EWebSocketNotificationType.READ_ALL_NOTIFICATION)
-                .allRead(allRead)
+                .isAll(isAll)
                 .build();
 
         messageTransmitter.sendMessage(session, allReadNotification);
+    }
+
+    public void sendDeleteNotification(WebSocketSession session, Long notificationId) {
+        NotificationWebSocketDTO.ChangeNotification changeNotification = NotificationWebSocketDTO.ChangeNotification.builder()
+                .type(EWebSocketNotificationType.DELETE_NOTIFICATION)
+                .notificationId(notificationId)
+                .build();
+
+        messageTransmitter.sendMessage(session, changeNotification);
+    }
+
+    public void sendAllDeleteNotification(WebSocketSession session, boolean isAll) {
+        NotificationWebSocketDTO.AllChangeNotification allChangeNotification = NotificationWebSocketDTO.AllChangeNotification.builder()
+                .type(EWebSocketNotificationType.DELETE_ALL_NOTIFICATION)
+                .isAll(isAll)
+                .build();
+
+        messageTransmitter.sendMessage(session, allChangeNotification);
     }
 }
