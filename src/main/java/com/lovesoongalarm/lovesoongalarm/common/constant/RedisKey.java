@@ -9,4 +9,5 @@ public class RedisKey {
     public static final String USER_GENDER_KEY = "user:gender";
     public static final String CHAT_ROOM_SUBSCRIBERS_KEY = "chatroom:subscribers:";
     public static final String USER_CHAT_SUBSCRIBERS_KEY = "user:chat:subscribers:";
+    public static final String CHAT_LIST_SUBSCRIBERS_KEY = "chatlist:subscribers:";
 }
