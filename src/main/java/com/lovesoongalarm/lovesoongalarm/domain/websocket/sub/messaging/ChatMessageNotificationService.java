@@ -5,7 +5,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.busine
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
-import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.implement.RedisSubscriber;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.business.RedisSubscriber;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

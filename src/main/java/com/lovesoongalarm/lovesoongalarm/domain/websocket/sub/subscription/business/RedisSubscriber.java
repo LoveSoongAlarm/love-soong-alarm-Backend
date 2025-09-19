@@ -1,4 +1,4 @@
-package com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.implement;
+package com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.business;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

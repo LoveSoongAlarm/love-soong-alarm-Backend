@@ -4,7 +4,6 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.busine
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.ReadProcessingService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.UnreadCountService;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging.MessageSender;
-import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.implement.RedisSubscriber;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
