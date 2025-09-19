@@ -7,6 +7,7 @@ import java.util.List;
 
 @Builder
 public record NearbyUserResponseDTO(
+        Long userId,
         String name,
         Integer age,
         String major,

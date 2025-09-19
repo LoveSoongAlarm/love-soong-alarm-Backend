@@ -88,6 +88,7 @@ public class LocationFacade {
                 log.info("{} lastSeen: {}", userMatch.userId(), time);
 
                 nearbyUserResponse.add(NearbyUserResponseDTO.builder()
+                        .userId(userMatch.userId())
                         .name(user.name())
                         .age(user.age())
                         .major(user.major())
