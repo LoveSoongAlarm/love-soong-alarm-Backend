@@ -1,5 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.websocket.business;
 
+import com.lovesoongalarm.lovesoongalarm.domain.notification.business.WebSocketNotificationService;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.implement.NotificationRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserQueryService;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging.MessageSender;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.session.SessionService;
@@ -18,6 +20,7 @@ public class WebSocketConnectionService {
     private final UserQueryService userQueryService;
     private final MessageSender messageSender;
     private final SubscriptionService subscriptionService;
+    private final WebSocketNotificationService webSocketNotificationService;
 
     public void handleConnection(WebSocketSession session) {
         Long userId = extractUserId(session);
@@ -25,6 +28,8 @@ public class WebSocketConnectionService {
         sessionService.addSession(userId, session);
         subscriptionService.subscribeToUserChatUpdates(session, userId);
         messageSender.sendConnectionSuccessMessage(userId, userNickname, session);
+
+        webSocketNotificationService.sendUnreadBadgeUpdate(session, userId);
     }
 
     public void handleDisconnection(WebSocketSession session) {

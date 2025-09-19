@@ -1,6 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.auth.business;
 
 import com.lovesoongalarm.lovesoongalarm.common.constant.Constants;
+import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserDeleter;
 import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
@@ -27,12 +28,13 @@ public class AuthService {
     private final UserRetriever userRetriever;
     private final OAuthUserInfo oAuthUserInfo;
     private final UserDeleter userDeleter;
+    private final UserService userService;
 
     @Value("${server.domain}")
     private String domain;
 
     @Transactional
-    public ReissueTokenResponseDTO reissue(HttpServletRequest request, HttpServletResponse response){
+    public ReissueTokenResponseDTO reissue(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = CookieUtil.getCookie(request, Constants.REFRESH_COOKIE_NAME);
         Long userId = jwtUtil.validateRefreshToken(refreshToken);
 
@@ -60,6 +62,7 @@ public class AuthService {
         refreshTokenService.deleteRefreshToken(userId);
         findUser.softDelete();
         findUser.getInterests().clear();
+        userService.sweepUserInformation(userId);
         //userDeleter.deleteUser(findUser);
         return null;
     }

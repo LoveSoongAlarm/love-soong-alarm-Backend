@@ -4,10 +4,19 @@ import lombok.Builder;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Builder
 public record MatchingResultDTO(
         int matchCount,
         String zone,
-        List<Long> userIds
-) {}
+        List<NearbyUserMatchDTO> nearbyUsers
+) {
+    @Builder
+    public record NearbyUserMatchDTO(
+            Long userId,
+            Set<String> overlapInterests,
+            boolean isMatching
+    ) {
+    }
+}
