@@ -5,8 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-
+import static com.lovesoongalarm.lovesoongalarm.common.constant.Constants.SUBSCRIPTION_TTL;
 import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.CHAT_ROOM_SUBSCRIBERS_KEY;
 
 @Service
@@ -15,8 +14,6 @@ import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.CHAT_RO
 public class RedisChatRoomSaver {
 
     private final StringRedisTemplate stringRedisTemplate;
-
-    private static final Duration SUBSCRIPTION_TTL = Duration.ofHours(24);
 
     public void addSubscriber(Long chatRoomId, Long userId) {
         try {
