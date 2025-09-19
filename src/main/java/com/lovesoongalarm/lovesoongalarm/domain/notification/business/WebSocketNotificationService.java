@@ -25,4 +25,16 @@ public class WebSocketNotificationService {
 
         messageSender.sendNotification(session, notificationWebSocketDTO);
     }
+
+    public void sendUnreadBadgeUpdate(WebSocketSession session, boolean hasUnread) {
+        messageSender.sendUnreadBadgeUpdate(session, hasUnread);
+    }
+
+    public void sendReadNotification(WebSocketSession session, Long notificationId) {
+        messageSender.sendReadNotification(session, notificationId);
+    }
+
+    public void sendAllReadNotification(WebSocketSession session, boolean allRead) {
+        messageSender.sendAllReadNotification(session, allRead);
+    }
 }

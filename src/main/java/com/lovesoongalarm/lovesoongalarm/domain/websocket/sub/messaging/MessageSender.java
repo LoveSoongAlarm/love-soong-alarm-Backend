@@ -1,6 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging;
 
 import com.lovesoongalarm.lovesoongalarm.domain.notification.application.dto.NotificationWebSocketDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.type.EWebSocketNotificationType;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.dto.WebSocketMessageDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.persistence.type.EWebSocketMessageType;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.UserChatUpdateDTO;
@@ -123,5 +124,32 @@ public class MessageSender {
 
     public void sendNotification(WebSocketSession session, NotificationWebSocketDTO.Notification notification) {
         messageTransmitter.sendMessage(session, notification);
+    }
+
+    public void sendUnreadBadgeUpdate(WebSocketSession session, boolean hasUnread) {
+        NotificationWebSocketDTO.UnreadNotificationBadge unreadNotificationBadge = NotificationWebSocketDTO.UnreadNotificationBadge.builder()
+                .type(EWebSocketNotificationType.UNREAD_NOTIFICATION_BADGE_UPDATE)
+                .hasUnread(hasUnread)
+                .build();
+
+        messageTransmitter.sendMessage(session, unreadNotificationBadge);
+    }
+
+    public void sendReadNotification(WebSocketSession session, Long notificationId) {
+        NotificationWebSocketDTO.ReadNotification readNotification = NotificationWebSocketDTO.ReadNotification.builder()
+                .type(EWebSocketNotificationType.READ_NOTIFICATION)
+                .notificationId(notificationId)
+                .build();
+
+        messageTransmitter.sendMessage(session, readNotification);
+    }
+
+    public void sendAllReadNotification(WebSocketSession session, boolean allRead) {
+        NotificationWebSocketDTO.AllReadNotification allReadNotification = NotificationWebSocketDTO.AllReadNotification.builder()
+                .type(EWebSocketNotificationType.READ_ALL_NOTIFICATION)
+                .allRead(allRead)
+                .build();
+
+        messageTransmitter.sendMessage(session, allReadNotification);
     }
 }

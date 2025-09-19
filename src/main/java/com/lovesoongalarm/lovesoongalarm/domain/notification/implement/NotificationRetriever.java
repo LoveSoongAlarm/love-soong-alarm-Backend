@@ -4,6 +4,7 @@ import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.exception.NotificationErrorCode;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.entity.Notification;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.repository.NotificationRepository;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.type.ENotificationStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,10 @@ public class NotificationRetriever {
 
     public List<Notification> findNoticesByUserId(Long userId) {
         return notificationRepository.findByUserIdOrderByIdDesc(userId);
+    }
+
+    public boolean existsByUserIdAndStatus(Long userId) {
+        return notificationRepository.existsByUserIdAndStatus(userId, ENotificationStatus.NOT_READ);
     }
 
     public Notification findByNotificationIdOrElseThrow(Long notificationId) {

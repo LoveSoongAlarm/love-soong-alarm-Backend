@@ -3,6 +3,8 @@ package com.lovesoongalarm.lovesoongalarm.domain.notification.business;
 import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.application.converter.NotificationConverter;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.application.dto.NotificationResponseDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationAllReadEvent;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationReadEvent;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.exception.NotificationErrorCode;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.implement.NotificationDeleter;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.implement.NotificationRetriever;
@@ -91,6 +93,13 @@ public class NotificationQueryService {
 
         try {
             notification.updateStatus(ENotificationStatus.READ);
+
+            applicationEventPublisher.publishEvent(
+                    NotificationReadEvent.builder()
+                            .userId(userId)
+                            .notificationId(notificationId)
+                            .build()
+            );
         } catch (Exception e) {
             log.error("알림 상태를 변환할 수 없습니다. notificationId={}", notificationId, e);
             throw new CustomException(NotificationErrorCode.CHANGE_NOTIFICATION_STATUS_ERROR);
@@ -107,6 +116,13 @@ public class NotificationQueryService {
                     notification.updateStatus(ENotificationStatus.READ);
                 }
             }
+
+            applicationEventPublisher.publishEvent(
+                    NotificationAllReadEvent.builder()
+                            .userId(userId)
+                            .allRead(true)
+                            .build()
+            );
         } catch (Exception e) {
             log.error("알림 일괄 읽음 처리 실패. userId={}", userId, e);
             throw new CustomException(NotificationErrorCode.CHANGE_NOTIFICATION_STATUS_ERROR);

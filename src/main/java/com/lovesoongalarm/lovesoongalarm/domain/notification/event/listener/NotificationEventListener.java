@@ -1,11 +1,12 @@
 package com.lovesoongalarm.lovesoongalarm.domain.notification.event.listener;
 
 import com.lovesoongalarm.lovesoongalarm.domain.notification.business.WebSocketNotificationService;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationAllReadEvent;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationCreatedEvent;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationReadEvent;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.session.SessionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -26,9 +27,41 @@ public class NotificationEventListener {
             if (session != null && session.isOpen()) {
                 webSocketNotificationService.sendNotification(session, holder.notification());
                 log.info("웹소켓 알림 전송 완료 - userId={}", holder.userId());
+                webSocketNotificationService.sendUnreadBadgeUpdate(session, true);
+                log.info("웹소켓 알림 뱃지 업데이트 완료 - userId={}", holder.userId());
             } else {
                 log.debug("세션 없음/닫힘 - 알림 전송 생략 - userId={}", holder.userId());
             }
+        }
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleNotificationReadEvent(NotificationReadEvent event) {
+        WebSocketSession session = sessionService.getSession(event.userId());
+        if(session != null && session.isOpen()){
+            webSocketNotificationService.sendReadNotification(
+                    session,
+                    event.notificationId()
+            );
+
+            log.info("웹소켓 알림 읽음 상태 전송 완료 - userId={}, notificationId={}",
+                    event.userId(), event.notificationId());
+        } else {
+            log.debug("세션 없음/닫힘 - 읽음 상태 전송 생략 - userId={}", event.userId());
+        }
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleNotificationAllReadEvent(NotificationAllReadEvent event) {
+        WebSocketSession session = sessionService.getSession(event.userId());
+        if(session != null && session.isOpen()){
+            webSocketNotificationService.sendAllReadNotification(
+                    session,
+                    event.allRead()
+            );
+            log.info("웹소켓 알림 전체 읽음 상태 전송 완료 - userId={}", event.userId());
+        } else {
+            log.debug("세션 없음/닫힘 - 전체 읽음 상태 전송 생략 - userId={}", event.userId());
         }
     }
 }

@@ -14,6 +14,27 @@ public class NotificationWebSocketDTO {
     }
 
     @Builder
+    public record UnreadNotificationBadge(
+            EWebSocketNotificationType type,
+            boolean hasUnread
+    ) {
+    }
+
+    @Builder
+    public record ReadNotification(
+            EWebSocketNotificationType type,
+            Long notificationId
+    ) {
+    }
+
+    @Builder
+    public record AllReadNotification(
+            EWebSocketNotificationType type,
+            boolean allRead
+    ) {
+    }
+
+    @Builder
     public record Error(
             EWebSocketNotificationType type,
             String errorCode,
