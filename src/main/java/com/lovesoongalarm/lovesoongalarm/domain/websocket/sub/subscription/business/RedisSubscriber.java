@@ -30,7 +30,7 @@ public class RedisSubscriber {
     }
 
     public boolean isUserSubscribed(Long chatRoomId, Long userId) {
-        redisChatRoomRetriever.isUserSubscribed(chatRoomId, userId);
+        return redisChatRoomRetriever.isUserSubscribed(chatRoomId, userId);
     }
 
     public void subscribeToUserChatUpdates(Long userId) {
