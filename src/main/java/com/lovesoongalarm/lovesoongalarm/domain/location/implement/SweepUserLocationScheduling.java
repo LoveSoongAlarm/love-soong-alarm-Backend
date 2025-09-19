@@ -44,7 +44,7 @@ public class SweepUserLocationScheduling {
 
     @Scheduled(cron = "0 0/30 * * * *")
     public void sweepExpired() {
-        long cutoff = Instant.now().getEpochSecond() - 43200;
+        long cutoff = Instant.now().getEpochSecond() - 10800;
 
         while (true) {
             Set<ZSetOperations.TypedTuple<String>> batch =
