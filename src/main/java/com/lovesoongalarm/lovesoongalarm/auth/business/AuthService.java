@@ -56,13 +56,13 @@ public class AuthService {
 
     @Transactional
     public Void withdraw(Long userId, HttpServletResponse response) {
-        userService.sweepUserInformation(Long.parseLong("4"));
         User findUser = userRetriever.findByIdAndOnlyActive(userId);
         oAuthUserInfo.revoke(findUser.getPlatform(), findUser.getSerialId());
         CookieUtil.logoutCookie(response, domain);
         refreshTokenService.deleteRefreshToken(userId);
         findUser.softDelete();
         findUser.getInterests().clear();
+        userService.sweepUserInformation(userId);
         //userDeleter.deleteUser(findUser);
         return null;
     }
