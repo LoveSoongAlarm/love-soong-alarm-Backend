@@ -13,8 +13,8 @@ public enum UserErrorCode implements ErrorCode {
     INSUFFICIENT_CHAT_SLOTS(HttpStatus.BAD_REQUEST, "사용 가능한 채팅 슬롯이 존재하지 않습니다." ),
     INSUFFICIENT_CHAT_TICKETS(HttpStatus.BAD_REQUEST, "사용 가능한 채팅 티켓이 존재하지 않습니다."),
     NOT_ONBOARDING(HttpStatus.BAD_REQUEST, "온보딩을 먼저 진행해야합니다."),
-    ALREADY_ONBOARDING_USER(HttpStatus.BAD_REQUEST, "이미 온보딩을 진행한 유저입니다."),
-    INSUFFICIENT_CHAT_TICKETS(HttpStatus.BAD_REQUEST, "사용 가능한 채팅 티켓이 존재하지 않습니다.");
+    ALREADY_ONBOARDING_USER(HttpStatus.BAD_REQUEST, "이미 온보딩을 진행한 유저입니다.")
+    ;
 
     private final HttpStatus status;
     private final String message;
