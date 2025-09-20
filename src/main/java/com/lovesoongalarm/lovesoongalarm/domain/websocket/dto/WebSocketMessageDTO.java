@@ -10,7 +10,8 @@ public class WebSocketMessageDTO {
     public record Request(
             EWebSocketMessageType type,
             Long chatRoomId,
-            String content
+            String content,
+            Long targetUserId
     ) {
     }
 
@@ -97,6 +98,15 @@ public class WebSocketMessageDTO {
             Integer availableTickets
     ) {
     }
+
+    @Builder
+    public record ChatBlocked(
+            EWebSocketMessageType type,
+            Long chatRoomId,
+            String message,
+            Long targetUserId,
+            Boolean isBlocked
+    ) {}
 
     @Builder
     public record ErrorResponse(
