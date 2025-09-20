@@ -1,6 +1,8 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business;
 
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.BlockStatus;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.application.converter.ChatRoomParticipantConverter;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.application.dto.UseTicketDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantRetriever;
@@ -51,10 +53,8 @@ public class ChatRoomParticipantService {
     }
 
     @Transactional
-    public void activatePartnerIfPending(ChatRoom chatRoom, Long senderId) {
-        Optional<ChatRoomParticipant> partnerParticipant = chatRoom.getParticipants().stream()
-                .filter(participant -> !participant.getUser().getId().equals(senderId))
-                .findFirst();
+    public void activatePartnerIfPending(ChatRoom chatRoom, Message message, Long senderId) {
+        Optional<ChatRoomParticipant> partnerParticipant = getPartnerParticipant(chatRoom, senderId);
 
         if (partnerParticipant.isEmpty()) {
             log.warn("상대방 참여자를 찾을 수 없습니다 - chatRoomId: {}, senderId: {}",
@@ -73,12 +73,20 @@ public class ChatRoomParticipantService {
                     partnerId,
                     chatRoom.getId(),
                     sender.getNickname(),
-                    sender.getEmoji()
+                    sender.getEmoji(),
+                    message
             );
 
             log.info("상대방 활성화 및 슬롯 증가 완료 - partnerId: {}, chatRoomId: {}",
                     partnerId, chatRoom.getId());
         }
+    }
+
+    public Optional<ChatRoomParticipant> getPartnerParticipant(ChatRoom chatRoom, Long senderId) {
+        Optional<ChatRoomParticipant> partnerParticipant = chatRoom.getParticipants().stream()
+                .filter(participant -> !participant.getUser().getId().equals(senderId))
+                .findFirst();
+        return partnerParticipant;
     }
 
     @Transactional
@@ -92,6 +100,13 @@ public class ChatRoomParticipantService {
 
         ChatRoomParticipant savedParticipant = chatRoomParticipantSaver.save(participant);
         return chatRoomParticipantConverter.toUseTicketResponse(savedParticipant);
+    }
+
+    public BlockStatus getBlockStatus(Long userId, Long chatRoomId, Long partnerId) {
+        boolean isPartnerBlocked = chatRoomParticipantRetriever.isUserBannedInChatRoom(partnerId, chatRoomId);
+        boolean isBlockedByPartner = chatRoomParticipantRetriever.isUserBannedInChatRoom(userId, chatRoomId);
+
+        return new BlockStatus(isPartnerBlocked, isBlockedByPartner);
     }
 
     private boolean isAlreadyParticipating(Long userId, Long targetUserId, ChatRoom chatRoom) {

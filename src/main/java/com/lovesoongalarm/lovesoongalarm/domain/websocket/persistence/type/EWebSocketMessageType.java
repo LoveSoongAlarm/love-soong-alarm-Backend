@@ -18,6 +18,9 @@ public enum EWebSocketMessageType {
     CHAT_LIST_UPDATE("채팅방 목록 업데이트"),
     NEW_CHAT_ROOM_CREATED("새 채팅방 생성"),
     MESSAGE_COUNT_LIMIT("채팅방 메시지 제한"),
+    BLOCK_USER("채팅 차단"),
+    UNBLOCK_USER("채팅 차단 해제"),
+    MESSAGE_BLOCKED("채팅 차단됨"),
     ERROR("에러");
 
     private final String value;

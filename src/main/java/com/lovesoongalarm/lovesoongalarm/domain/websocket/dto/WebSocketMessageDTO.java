@@ -83,15 +83,29 @@ public class WebSocketMessageDTO {
             Long chatRoomId,
             String partnerNickname,
             String partnerEmoji,
+            String lastMessageContent,
+            Boolean isMyMessage,
+            Boolean isRead,
             LocalDateTime createdAt
     ) {
     }
 
     @Builder
     public record MessageCountLimit(
-            EWebSocketMessageType type
+            EWebSocketMessageType type,
+            boolean canSend,
+            Integer availableTickets
     ) {
     }
+
+    @Builder
+    public record ChatBlocked(
+            EWebSocketMessageType type,
+            Long chatRoomId,
+            String message,
+            Long targetUserId,
+            Boolean isBlocked
+    ) {}
 
     @Builder
     public record ErrorResponse(

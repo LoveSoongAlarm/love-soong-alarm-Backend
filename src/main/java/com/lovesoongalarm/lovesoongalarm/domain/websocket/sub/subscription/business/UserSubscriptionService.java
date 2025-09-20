@@ -1,6 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.business;
 
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.UserChatUpdateDTO;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging.MessageSender;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.session.SessionService;
 import lombok.RequiredArgsConstructor;
@@ -54,7 +55,7 @@ public class UserSubscriptionService {
         }
     }
 
-    public void publishNewChatRoomNotification(Long userId, Long chatRoomId, String partnerNickname, String partnerEmoji) {
+    public void publishNewChatRoomNotification(Long userId, Long chatRoomId, String partnerNickname, String partnerEmoji, Message message) {
         try {
             if (!redisSubscriber.isChatListSubscribed(userId)) {
                 log.debug("채팅방 목록을 구독하지 않은 사용자에게는 새 채팅방 알림을 보내지 않음 - userId: {}", userId);
@@ -67,7 +68,7 @@ public class UserSubscriptionService {
                 return;
             }
 
-            messageSender.sendNewChatRoomNotification(session, chatRoomId, partnerNickname, partnerEmoji);
+            messageSender.sendNewChatRoomNotification(session, chatRoomId, partnerNickname, partnerEmoji, message);
             log.info("새 채팅방 알림 전송 완료 - userId: {}, chatRoomId: {}, partner: {}", userId, chatRoomId, partnerNickname);
 
         } catch (Exception e) {

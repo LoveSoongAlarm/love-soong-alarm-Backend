@@ -1,5 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging;
 
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.application.dto.ChatTicketValidationResult;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.application.dto.NotificationWebSocketDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.type.EWebSocketNotificationType;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.dto.WebSocketMessageDTO;
@@ -86,12 +87,15 @@ public class MessageSender {
         messageTransmitter.sendMessage(session, unsubscribeSuccess);
     }
 
-    public void sendNewChatRoomNotification(WebSocketSession session, Long chatRoomId, String partnerNickname, String partnerEmoji) {
+    public void sendNewChatRoomNotification(WebSocketSession session, Long chatRoomId, String partnerNickname, String partnerEmoji, Message message) {
         WebSocketMessageDTO.NewChatRoomNotification notification = WebSocketMessageDTO.NewChatRoomNotification.builder()
                 .type(EWebSocketMessageType.NEW_CHAT_ROOM_CREATED)
                 .chatRoomId(chatRoomId)
                 .partnerNickname(partnerNickname)
                 .partnerEmoji(partnerEmoji)
+                .isMyMessage(false)
+                .lastMessageContent(message.getContent())
+                .isRead(message.isRead())
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -144,14 +148,6 @@ public class MessageSender {
         messageTransmitter.sendMessage(session, chatListUpdate);
     }
 
-    public void sendMessageCountLimit(WebSocketSession session){
-        WebSocketMessageDTO.MessageCountLimit messageCountLimit = WebSocketMessageDTO.MessageCountLimit.builder()
-                .type(EWebSocketMessageType.MESSAGE_COUNT_LIMIT)
-                .build();
-
-        messageTransmitter.sendMessage(session, messageCountLimit);
-    }
-
     public void sendNotification(WebSocketSession session, NotificationWebSocketDTO.Notification notification) {
         messageTransmitter.sendMessage(session, notification);
     }
@@ -199,5 +195,47 @@ public class MessageSender {
                 .build();
 
         messageTransmitter.sendMessage(session, allChangeNotification);
+    }
+
+    public void sendMessageCountLimitWithTicketInfo(WebSocketSession session, ChatTicketValidationResult validation) {
+        WebSocketMessageDTO.MessageCountLimit messageCountLimit = WebSocketMessageDTO.MessageCountLimit.builder()
+                .type(EWebSocketMessageType.MESSAGE_COUNT_LIMIT)
+                .canSend(validation.canSend())
+                .availableTickets(validation.availableTickets())
+                .build();
+
+        messageTransmitter.sendMessage(session, messageCountLimit);
+    }
+
+    public void sendBlockSuccess(WebSocketSession session, Long chatRoomId, Long targetId) {
+        WebSocketMessageDTO.ChatBlocked chatBlocked = WebSocketMessageDTO.ChatBlocked.builder()
+                .type(EWebSocketMessageType.BLOCK_USER)
+                .chatRoomId(chatRoomId)
+                .targetUserId(targetId)
+                .message("사용자를 차단했습니다.")
+                .build();
+
+        messageTransmitter.sendMessage(session, chatBlocked);
+    }
+
+    public void sendUnblockSuccess(WebSocketSession session, Long chatRoomId, Long targetId) {
+        WebSocketMessageDTO.ChatBlocked chatUnblocked = WebSocketMessageDTO.ChatBlocked.builder()
+                .type(EWebSocketMessageType.UNBLOCK_USER)
+                .chatRoomId(chatRoomId)
+                .targetUserId(targetId)
+                .message("사용자 차단을 해제했습니다.")
+                .build();
+
+        messageTransmitter.sendMessage(session, chatUnblocked);
+    }
+
+    public void sendMessageBlocked(WebSocketSession session, Long chatRoomId) {
+        WebSocketMessageDTO.ChatBlocked chatBlocked = WebSocketMessageDTO.ChatBlocked.builder()
+                .type(EWebSocketMessageType.MESSAGE_BLOCKED)
+                .chatRoomId(chatRoomId)
+                .message("이 채팅방에서 차단되어 메시지를 보낼 수 없습니다.")
+                .build();
+
+        messageTransmitter.sendMessage(session, chatBlocked);
     }
 }

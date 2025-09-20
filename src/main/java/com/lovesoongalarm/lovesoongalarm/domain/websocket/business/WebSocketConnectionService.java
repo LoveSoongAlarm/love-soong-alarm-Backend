@@ -36,7 +36,6 @@ public class WebSocketConnectionService {
         Long userId = extractUserId(session);
         if (userId != null) {
             sessionService.removeSession(userId);
-            subscriptionService.unsubscribeFromChatBadgeUpdate(userId);
         }
     }
 
