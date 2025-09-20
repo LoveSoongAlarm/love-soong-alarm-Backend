@@ -55,15 +55,15 @@ public class ChatService {
         log.info("메시지 송신 완료 - userId: {}, chatRoomId: {}", userId, chatRoomId);
     }
 
-    public void blockUserInChatRoom(Long userId, Long chatRoomId, Long targetId) {
-        log.info("사용자 차단 시작 - userId: {}, chatRoomId: {}, targetId: {}", userId, chatRoomId, targetId);
-        chatRoomBlockService.blockUserInChatRoom(userId, chatRoomId, targetId);
-        log.info("사용자 차단 완료 - userId: {}, chatRoomId: {}, targetId: {}", userId, chatRoomId, targetId);
+    public void blockUserInChatRoom(Long userId, Long chatRoomId) {
+        log.info("사용자 차단 시작 - userId: {}, chatRoomId: {}", userId, chatRoomId);
+        chatRoomBlockService.blockUserInChatRoom(userId, chatRoomId);
+        log.info("사용자 차단 완료 - userId: {}, chatRoomId: {}", userId, chatRoomId);
     }
 
-    public void unblockUserInChatRoom(Long userId, Long chatRoomId, Long targetId) {
-        log.info("사용자 차단 해제 시작 - userId: {}, chatRoomId: {}, targetId: {}", userId, chatRoomId, targetId);
-        chatRoomBlockService.unblockUserInChatRoom(userId, chatRoomId, targetId);
-        log.info("사용자 차단 해제 완료 - userId: {}, chatRoomId: {}, targetId: {}", userId, chatRoomId, targetId);
+    public void unblockUserInChatRoom(Long userId, Long chatRoomId) {
+        log.info("사용자 차단 해제 시작 - userId: {}, chatRoomId: {}, targetId: {}", userId, chatRoomId);
+        chatRoomBlockService.unblockUserInChatRoom(userId, chatRoomId);
+        log.info("사용자 차단 해제 완료 - userId: {}, chatRoomId: {}, targetId: {}", userId, chatRoomId);
     }
 }

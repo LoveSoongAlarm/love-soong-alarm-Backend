@@ -114,10 +114,10 @@ public class WebSocketMessageRouter {
 
     private void handleBlockUser(WebSocketSession session, WebSocketMessageDTO.Request request, Long userId) {
         try {
-            chatService.blockUserInChatRoom(userId, request.chatRoomId(), request.targetUserId());
+            chatService.blockUserInChatRoom(userId, request.chatRoomId());
         } catch (CustomException e) {
-            log.warn("사용자 차단 실패 - 채팅방: {}, 차단자: {}, 대상: {}, 이유: {}",
-                    request.chatRoomId(), userId, request.targetUserId(), e.getErrorCode().getMessage());
+            log.warn("사용자 차단 실패 - 채팅방: {}, 대상: {}, 이유: {}",
+                    request.chatRoomId(), userId, e.getErrorCode().getMessage());
             messageSender.sendErrorMessage(session, e.getErrorCode().getStatus().toString(), e.getErrorCode().getMessage());
         } catch (Exception e) {
             log.error("사용자 차단 처리 중 예외 발생", e);
@@ -127,10 +127,10 @@ public class WebSocketMessageRouter {
 
     private void handleUnblockUser(WebSocketSession session, WebSocketMessageDTO.Request request, Long userId) {
         try {
-            chatService.unblockUserInChatRoom(userId, request.chatRoomId(), request.targetUserId());
+            chatService.unblockUserInChatRoom(userId, request.chatRoomId());
         } catch (CustomException e) {
             log.warn("사용자 차단 해제 실패 - 채팅방: {}, 차단해제자: {}, 대상: {}, 이유: {}",
-                    request.chatRoomId(), userId, request.targetUserId(), e.getErrorCode().getMessage());
+                    request.chatRoomId(), userId, e.getErrorCode().getMessage());
             messageSender.sendErrorMessage(session, e.getErrorCode().getStatus().toString(), e.getErrorCode().getMessage());
         } catch (Exception e) {
             log.error("사용자 차단 해제 처리 중 예외 발생", e);
