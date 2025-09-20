@@ -20,7 +20,7 @@ public class ChatMessageNotificationService {
     private final UserService userService;
     private final MessageReadService messageReadService;
     private final ReadProcessingService readProcessingService;
-
+    private final UnreadBadgeUpdateService unreadBadgeUpdateService;
     private final RedisSubscriber redisSubscriber;
 
     public void notifyNewMessage(Long chatRoomId, Message message, Long senderId) {
@@ -41,6 +41,8 @@ public class ChatMessageNotificationService {
             }
 
             chatListUpdateService.updateAfterNewMessage(chatRoomId, message, partnerId);
+            unreadBadgeUpdateService.updateUnreadBadge(partnerId);
+
             log.info("새 메시지 알림 정책 결정 완료 - partnerId: {}", partnerId);
         } catch (Exception e) {
             log.error("메시지 알림 정책 결정 중 오류 - chatRoomId: {}, messageId: {}",
