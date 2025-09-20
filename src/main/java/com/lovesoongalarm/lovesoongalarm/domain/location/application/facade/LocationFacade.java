@@ -42,7 +42,7 @@ public class LocationFacade {
 
     @Transactional
     public void updateLocation(Long userId, double latitude, double longitude) {
-        locationService.updateLocation(Long.parseLong("1"), latitude, longitude);
+        locationService.updateLocation(userId, latitude, longitude);
     }
 
     @Transactional
