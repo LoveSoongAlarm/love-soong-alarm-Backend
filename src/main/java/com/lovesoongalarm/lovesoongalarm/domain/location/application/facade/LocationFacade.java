@@ -25,7 +25,10 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.GEO_KEY;
 import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.LAST_SEEN_KEY;
@@ -55,26 +58,25 @@ public class LocationFacade {
 
             List<Object> pipeResults = redisPipeline.pipe(ops -> {
                 for (MatchingResultDTO.NearbyUserMatchDTO userMatch : matchingResult.nearbyUsers()) {
-                    ops.opsForValue().get(LAST_SEEN_KEY + userMatch.userId());
                     ops.opsForGeo().position(GEO_KEY + matchingResult.zone(), String.valueOf(userMatch.userId()));
 
                 }
             });
 
             int i = 0;
+
+            List<Long> userIds = matchingResult.nearbyUsers().stream()
+                    .map(MatchingResultDTO.NearbyUserMatchDTO::userId)
+                    .toList();
+
+            Map<Long, UserResponseDTO> userMap = userQueryService.getAllUser(userIds).stream()
+                    .collect(Collectors.toMap(UserResponseDTO::id, Function.identity()));
+
             List<NotificationCreatedEvent.NotificationHolder> holders = new ArrayList<>();
             for (MatchingResultDTO.NearbyUserMatchDTO userMatch : matchingResult.nearbyUsers()) {
-                UserResponseDTO user = userQueryService.getUser(userMatch.userId());
+                UserResponseDTO user = userMap.get(userMatch.userId());
 
                 log.info("userResponseDTO: {}", user);
-
-                String lastSeenStr = (String) pipeResults.get(i++);
-                long lastSeen = (lastSeenStr != null) ? Long.parseLong(lastSeenStr) : 0L;
-
-                String time = LocalDateTime.ofInstant(
-                        Instant.ofEpochSecond(lastSeen),
-                        ZoneId.of("Asia/Seoul")
-                ).format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
 
                 List<Point> posList = (List<Point>) pipeResults.get(i++);
                 Double latitude = null;
@@ -83,16 +85,14 @@ public class LocationFacade {
                     longitude = posList.get(0).getX();
                     latitude = posList.get(0).getY();
                 }
-                log.debug("{} lastSeen : {}, lat: {}, lon: {}", userMatch.userId(), lastSeen, latitude, longitude);
-
-                log.info("{} lastSeen: {}", userMatch.userId(), time);
+                log.debug("{} lat: {}, lon: {}", userMatch.userId(), latitude, longitude);
 
                 nearbyUserResponse.add(NearbyUserResponseDTO.builder()
                         .userId(userMatch.userId())
                         .name(user.name())
                         .age(user.age())
                         .major(user.major())
-                        .lastSeen(time)
+                        .lastSeen(user.lastSeen())
                         .emoji(user.emoji())
                         .interests(user.interests())
                         .isMatching(userMatch.isMatching())
@@ -111,14 +111,16 @@ public class LocationFacade {
 
             log.info("nearbyUserResponse: {}", nearbyUserResponse);
 
-            applicationEventPublisher.publishEvent(new NotificationCreatedEvent(holders));
+            if (!holders.isEmpty()) {
+                applicationEventPublisher.publishEvent(new NotificationCreatedEvent(holders));
 
-            applicationEventPublisher.publishEvent(
-                    NotificationBadgeUpdateEvent.builder()
-                            .userId(userId)
-                            .hasUnRead(true)
-                            .build()
-            );
+                applicationEventPublisher.publishEvent(
+                        NotificationBadgeUpdateEvent.builder()
+                                .userId(userId)
+                                .hasUnRead(true)
+                                .build()
+                );
+            }
 
             return NearbyResponseDTO.builder()
                     .matchCount(matchingResult.matchCount())
