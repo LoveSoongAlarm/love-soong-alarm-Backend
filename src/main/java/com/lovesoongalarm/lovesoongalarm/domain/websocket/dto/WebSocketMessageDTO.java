@@ -89,7 +89,9 @@ public class WebSocketMessageDTO {
 
     @Builder
     public record MessageCountLimit(
-            EWebSocketMessageType type
+            EWebSocketMessageType type,
+            boolean canSend,
+            Integer availableTickets
     ) {
     }
 
