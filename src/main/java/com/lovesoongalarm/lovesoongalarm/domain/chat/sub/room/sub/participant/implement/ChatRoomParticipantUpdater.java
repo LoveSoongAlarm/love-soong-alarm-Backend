@@ -27,6 +27,6 @@ public class ChatRoomParticipantUpdater {
     }
 
     public void unbanUserInChatRoom(Long targetId, Long chatRoomId) {
-        chatRoomParticipantRepository.unbanUserInChatRoom(targetId, chatRoomId)
+        chatRoomParticipantRepository.unbanUserInChatRoom(targetId, chatRoomId);
     }
 }
