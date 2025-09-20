@@ -3,7 +3,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.application.dto.NotificationWebSocketDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.type.EWebSocketNotificationType;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.dto.WebSocketMessageDTO;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.persistence.type.EWebSocketMessageType;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.persistence.type.EWebSocketMessageType;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.application.dto.UserChatUpdateDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageTransmitter;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
@@ -66,6 +66,36 @@ public class MessageSender {
                 .build();
 
         messageTransmitter.sendMessage(session, unsubscribeSuccess);
+    }
+
+    public void sendChatListSubscribeSuccessMessage(WebSocketSession session) {
+        WebSocketMessageDTO.ChatListSubscribeSuccess subscribeSuccess = WebSocketMessageDTO.ChatListSubscribeSuccess.builder()
+                .type(EWebSocketMessageType.CHAT_LIST_SUBSCRIBE)
+                .message("채팅방 목록 구독에 성공했습니다.")
+                .build();
+
+        messageTransmitter.sendMessage(session, subscribeSuccess);
+    }
+
+    public void sendChatListUnsubscribeSuccessMessage(WebSocketSession session) {
+        WebSocketMessageDTO.ChatListSubscribeSuccess unsubscribeSuccess = WebSocketMessageDTO.ChatListSubscribeSuccess.builder()
+                .type(EWebSocketMessageType.CHAT_LIST_UNSUBSCRIBE)
+                .message("채팅방 목록 구독 해제에 성공했습니다.")
+                .build();
+
+        messageTransmitter.sendMessage(session, unsubscribeSuccess);
+    }
+
+    public void sendNewChatRoomNotification(WebSocketSession session, Long chatRoomId, String partnerNickname, String partnerEmoji) {
+        WebSocketMessageDTO.NewChatRoomNotification notification = WebSocketMessageDTO.NewChatRoomNotification.builder()
+                .type(EWebSocketMessageType.NEW_CHAT_ROOM_CREATED)
+                .chatRoomId(chatRoomId)
+                .partnerNickname(partnerNickname)
+                .partnerEmoji(partnerEmoji)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        messageTransmitter.sendMessage(session, notification);
     }
 
     public void sendReadMessage(WebSocketSession session, Long chatRoomId, Long readerId) {

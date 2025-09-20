@@ -4,7 +4,6 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.busine
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.ReadProcessingService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.UnreadCountService;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging.MessageSender;
-import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.implement.RedisSubscriber;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,14 +34,23 @@ public class SubscriptionService {
         messageSender.sendUnsubscribeSuccessMessage(session, chatRoomId);
     }
 
-    public void subscribeToUserChatUpdates(WebSocketSession session, Long userId){
-        redisSubscriber.subscribeToUserChatUpdates(userId);
-
+    public void subscribeToChatBadgeUpdate(WebSocketSession session, Long userId){
+        redisSubscriber.subscribeToChatBadgeUpdate(userId);
         int totalUnreadCount = unreadCountService.getTotalUnreadCount(userId);
         messageSender.sendUnreadBadgeUpdate(session, totalUnreadCount);
     }
 
-    public void unsubscribeFromUserChatUpdates(Long userId){
-        redisSubscriber.unsubscribeFromUserChatUpdates(userId);
+    public void unsubscribeFromChatBadgeUpdate(Long userId){
+        redisSubscriber.unsubscribeFromChatBadgeUpdate(userId);
+    }
+
+    public void subscribeToChatList(WebSocketSession session, Long userId) {
+        redisSubscriber.subscribeToChatList(userId);
+        messageSender.sendChatListSubscribeSuccessMessage(session);
+    }
+
+    public void unsubscribeFromChatList(WebSocketSession session, Long userId) {
+        redisSubscriber.unsubscribeFromChatList(userId);
+        messageSender.sendChatListUnsubscribeSuccessMessage(session);
     }
 }

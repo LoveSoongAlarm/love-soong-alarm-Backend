@@ -1,4 +1,4 @@
-package com.lovesoongalarm.lovesoongalarm.domain.chat.persistence.type;
+package com.lovesoongalarm.lovesoongalarm.domain.websocket.persistence.type;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -9,11 +9,14 @@ public enum EWebSocketMessageType {
     CONNECTION_SUCCESS("연결 완료"),
     SUBSCRIBE("채팅방 구독"),
     UNSUBSCRIBE("채팅방 구독해제"),
+    CHAT_LIST_SUBSCRIBE("채팅방 목록 구독"),
+    CHAT_LIST_UNSUBSCRIBE("채팅방 목록 구독 해제"),
     MESSAGE_SEND("메시지 송신"),
     MESSAGE_READ("메시지 읽음"),
     CHAT_MESSAGE("채팅 메시지"),
     UNREAD_BADGE_UPDATE("안 읽은 메시지 배지 업데이트"),
     CHAT_LIST_UPDATE("채팅방 목록 업데이트"),
+    NEW_CHAT_ROOM_CREATED("새 채팅방 생성"),
     MESSAGE_COUNT_LIMIT("채팅방 메시지 제한"),
     ERROR("에러");
 

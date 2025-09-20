@@ -5,7 +5,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.busine
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
-import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.implement.RedisSubscriber;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.business.RedisSubscriber;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ public class ChatMessageNotificationService {
     private final UserService userService;
     private final MessageReadService messageReadService;
     private final ReadProcessingService readProcessingService;
-
+    private final UnreadBadgeUpdateService unreadBadgeUpdateService;
     private final RedisSubscriber redisSubscriber;
 
     public void notifyNewMessage(Long chatRoomId, Message message, Long senderId) {
@@ -38,9 +38,12 @@ public class ChatMessageNotificationService {
                 MessageReadService.ReadResult readResult =
                         messageReadService.markSingleMessageAsRead(message.getId(), chatRoomId, partnerId);
                 readProcessingService.handleMessageReceiveReadResult(readResult);
+            } else if (redisSubscriber.isChatListSubscribed(partnerId)) {
+                chatListUpdateService.updateAfterNewMessage(chatRoomId, message, partnerId);
             }
 
-            chatListUpdateService.updateAfterNewMessage(chatRoomId, message, partnerId);
+            unreadBadgeUpdateService.updateUnreadBadge(partnerId);
+
             log.info("새 메시지 알림 정책 결정 완료 - partnerId: {}", partnerId);
         } catch (Exception e) {
             log.error("메시지 알림 정책 결정 중 오류 - chatRoomId: {}, messageId: {}",
