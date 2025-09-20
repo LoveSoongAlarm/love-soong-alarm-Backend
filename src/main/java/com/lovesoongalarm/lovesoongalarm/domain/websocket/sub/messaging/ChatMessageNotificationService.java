@@ -38,9 +38,7 @@ public class ChatMessageNotificationService {
                 MessageReadService.ReadResult readResult =
                         messageReadService.markSingleMessageAsRead(message.getId(), chatRoomId, partnerId);
                 readProcessingService.handleMessageReceiveReadResult(readResult);
-            }
-
-            if (redisSubscriber.isChatListSubscribed(partnerId)) {
+            } else if (redisSubscriber.isChatListSubscribed(partnerId)) {
                 chatListUpdateService.updateAfterNewMessage(chatRoomId, message, partnerId);
             }
 
