@@ -35,8 +35,7 @@ public class WebSocketMessageDTO {
     @Builder
     public record ChatListSubscribeSuccess(
             EWebSocketMessageType type,
-            String message,
-            int totalUnreadCount
+            String message
     ) {
     }
 
