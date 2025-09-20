@@ -45,16 +45,12 @@ public class SubscriptionService {
     }
 
     public void subscribeToChatList(WebSocketSession session, Long userId) {
-        log.info("채팅방 목록 구독 시작 - userId: {}", userId);
         redisSubscriber.subscribeToChatList(userId);
         messageSender.sendChatListSubscribeSuccessMessage(session);
-        log.info("채팅방 목록 구독 완료 - userId: {}", userId);
     }
 
     public void unsubscribeFromChatList(WebSocketSession session, Long userId) {
-        log.info("채팅방 목록 구독 해제 시작 - userId: {}", userId);
         redisSubscriber.unsubscribeFromChatList(userId);
         messageSender.sendChatListUnsubscribeSuccessMessage(session);
-        log.info("채팅방 목록 구독 해제 완료 - userId: {}", userId);
     }
 }
