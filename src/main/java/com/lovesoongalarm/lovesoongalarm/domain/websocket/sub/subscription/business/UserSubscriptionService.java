@@ -38,18 +38,8 @@ public class UserSubscriptionService {
         }
     }
 
-    public void publishUserChatUpdate(Long chatRoomId, Long userId, UserChatUpdateDTO updateEvent) {
+    public void publishUserChatUpdate(Long userId, UserChatUpdateDTO updateEvent) {
         try {
-            if (!redisSubscriber.isChatListSubscribed(userId)) {
-                log.debug("목록을 구독하지 않은 사용자에게는 업데이트를 보내지 않음 - userId: {}", userId);
-                return;
-            }
-
-            if (redisSubscriber.isUserSubscribed(chatRoomId, userId)) {
-                log.debug("채팅방을 구독중인 사용자에게는 업데이트를 보내지 않음 - userId: {}", userId);
-                return;
-            }
-
             WebSocketSession session = sessionService.getSession(userId);
             if (session == null || !session.isOpen()) {
                 log.debug("사용자 세션이 없거나 닫혀있음 - userId: {}", userId);

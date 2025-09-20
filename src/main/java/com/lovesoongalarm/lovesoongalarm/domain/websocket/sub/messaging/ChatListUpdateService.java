@@ -19,24 +19,19 @@ public class ChatListUpdateService {
         log.info("새 메시지 후 채팅방 목록 업데이트 - chatRoomId: {}, partnerId: {}", chatRoomId, partnerId);
 
         try {
-            updatePartnerChatList(partnerId, chatRoomId, message, false);
+            UserChatUpdateDTO updateEvent = UserChatUpdateDTO.builder()
+                    .chatRoomId(chatRoomId)
+                    .lastMessageContent(message.getContent())
+                    .timestamp(message.getCreatedAt())
+                    .isMyMessage(false)
+                    .isRead(message.isRead())
+                    .build();
+
+            userSubscriptionService.publishUserChatUpdate(partnerId, updateEvent);
             log.info("새 메시지 후 채팅방 목록 업데이트 완료 - partnerId: {}", partnerId);
         } catch (Exception e) {
             log.error("채팅방 목록 업데이트 실패 - chatRoomId: {}, partnerId: {}",
                     chatRoomId, partnerId, e);
         }
-    }
-
-    private void updatePartnerChatList(Long partnerId, Long chatRoomId, Message message, boolean isMyMessage) {
-        UserChatUpdateDTO updateEvent = UserChatUpdateDTO.builder()
-                .chatRoomId(chatRoomId)
-                .lastMessageContent(message.getContent())
-                .timestamp(message.getCreatedAt())
-                .isMyMessage(isMyMessage)
-                .isRead(message.isRead())
-                .build();
-
-        userSubscriptionService.publishUserChatUpdate(chatRoomId, partnerId, updateEvent);
-        log.debug("상대방 채팅방 목록 업데이트 전송 - partnerId: {}, chatRoomId: {}", partnerId, chatRoomId);
     }
 }

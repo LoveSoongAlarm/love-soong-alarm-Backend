@@ -40,7 +40,10 @@ public class ChatMessageNotificationService {
                 readProcessingService.handleMessageReceiveReadResult(readResult);
             }
 
-            chatListUpdateService.updateAfterNewMessage(chatRoomId, message, partnerId);
+            if (redisSubscriber.isChatListSubscribed(senderId)) {
+                chatListUpdateService.updateAfterNewMessage(chatRoomId, message, partnerId);
+            }
+
             unreadBadgeUpdateService.updateUnreadBadge(partnerId);
 
             log.info("새 메시지 알림 정책 결정 완료 - partnerId: {}", partnerId);
