@@ -38,4 +38,15 @@ public interface ChatRoomParticipantRepository extends JpaRepository<ChatRoomPar
             AND p.ticketUsed = false
             """)
     void incrementFreeMessageCount(@Param("participantId") Long participantId);
+
+    @Query("""
+            SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END 
+            FROM ChatRoomParticipant p 
+            WHERE p.user.id = :userId 
+            AND p.chatRoom.id = :chatRoomId 
+            AND p.status = 'BANNED'
+            """)
+    boolean isUserBannedInChatRoom(
+            @Param("userId") Long userId,
+            @Param("chatRoomId") Long chatRoomId);
 }
