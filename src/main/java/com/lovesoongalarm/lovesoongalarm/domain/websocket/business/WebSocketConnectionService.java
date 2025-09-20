@@ -23,7 +23,7 @@ public class WebSocketConnectionService {
         Long userId = extractUserId(session);
         String userNickname = userQueryService.getUserNickname(userId);
         sessionService.addSession(userId, session);
-        subscriptionService.subscribeToUserChatUpdates(session, userId);
+        subscriptionService.subscribeToChatBadgeUpdate(session, userId);
         messageSender.sendConnectionSuccessMessage(userId, userNickname, session);
     }
 
@@ -31,7 +31,7 @@ public class WebSocketConnectionService {
         Long userId = extractUserId(session);
         if (userId != null) {
             sessionService.removeSession(userId);
-            subscriptionService.unsubscribeFromUserChatUpdates(userId);
+            subscriptionService.unsubscribeFromChatBadgeUpdate(userId);
         }
     }
 

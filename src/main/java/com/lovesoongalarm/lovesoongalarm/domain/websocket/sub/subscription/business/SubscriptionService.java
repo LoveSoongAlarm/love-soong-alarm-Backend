@@ -34,14 +34,14 @@ public class SubscriptionService {
         messageSender.sendUnsubscribeSuccessMessage(session, chatRoomId);
     }
 
-    public void subscribeToUserChatUpdates(WebSocketSession session, Long userId){
+    public void subscribeToChatBadgeUpdate(WebSocketSession session, Long userId){
         redisSubscriber.subscribeToUserChatUpdates(userId);
 
         int totalUnreadCount = unreadCountService.getTotalUnreadCount(userId);
         messageSender.sendUnreadBadgeUpdate(session, totalUnreadCount);
     }
 
-    public void unsubscribeFromUserChatUpdates(Long userId){
+    public void unsubscribeFromChatBadgeUpdate(Long userId){
         redisSubscriber.unsubscribeFromUserChatUpdates(userId);
     }
 }
