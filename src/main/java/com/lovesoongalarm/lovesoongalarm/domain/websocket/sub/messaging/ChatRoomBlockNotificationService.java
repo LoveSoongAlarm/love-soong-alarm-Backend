@@ -53,4 +53,21 @@ public class ChatRoomBlockNotificationService {
                     userId, chatRoomId, targetId, e);
         }
     }
+
+    public void notifyBlockedUserAttemptingMessage(Long userId, Long chatRoomId) {
+        log.info("사용자에게 차단됨 메시지 전송 시작 - userId: {}, chatRoomId: {},", userId, chatRoomId);
+
+        try {
+            WebSocketSession session = sessionService.getSession(userId);
+            if (session == null || !session.isOpen()) {
+                log.info("사용자 세션이 없거나 닫혀있음 - userId: {}", userId);
+                return;
+            }
+
+            messageSender.sendMessageBlocked(session, chatRoomId);
+            log.info("사용자에게 차단 해제 성공 메시지 전송 시작 - userId: {}, chatRoomId: {}", userId, chatRoomId);
+        } catch (Exception e) {
+            log.error("차단 해제 성공 메시지 전송 실패 - userId: {}, chatRoomId: {}, error: {}", userId, chatRoomId, e);
+        }
+    }
 }

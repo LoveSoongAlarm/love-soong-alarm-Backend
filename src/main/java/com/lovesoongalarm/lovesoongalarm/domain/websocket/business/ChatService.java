@@ -49,6 +49,7 @@ public class ChatService {
     public void handleSendMessage(WebSocketSession session, Long chatRoomId, String content, Long userId) {
         log.info("메시지 송신 시작 - userId: {}, chatRoomId: {}", userId, chatRoomId);
         chatRoomService.validateChatRoomAccess(userId, chatRoomId);
+        chatRoomBlockService.validateMessageFromBlockedUser(userId, chatRoomId);
         ChatRoom chatRoom = chatRoomService.getChatRoomOrElseThrow(chatRoomId);
         messageService.sendMessage(session, chatRoom, content, userId);
         log.info("메시지 송신 완료 - userId: {}, chatRoomId: {}", userId, chatRoomId);

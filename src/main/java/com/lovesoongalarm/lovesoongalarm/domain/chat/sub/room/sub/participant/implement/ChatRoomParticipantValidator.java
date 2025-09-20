@@ -2,6 +2,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.i
 
 import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.exception.ChatRoomParticipantErrorCode;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging.ChatRoomBlockNotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 public class ChatRoomParticipantValidator {
 
     private final ChatRoomParticipantRetriever chatRoomParticipantRetriever;
+    private final ChatRoomBlockNotificationService chatRoomBlockNotificationService;
 
     public void validateBlockRequest(Long userId, Long chatRoomId, Long targetId) {
         validateSelfBlock(userId, targetId);
@@ -43,6 +45,13 @@ public class ChatRoomParticipantValidator {
     private void validateDuplicateBlock(Long chatRoomId, Long targetId) {
         if (chatRoomParticipantRetriever.isUserBannedInChatRoom(targetId, chatRoomId)) {
             throw new CustomException(ChatRoomParticipantErrorCode.USER_ALREADY_BLOCKED);
+        }
+    }
+
+    public void validateMessageFromBlockedUser(Long userId, Long chatRoomId) {
+        if (chatRoomParticipantRetriever.isUserBannedInChatRoom(userId, chatRoomId)) {
+            chatRoomBlockNotificationService.notifyBlockedUserAttemptingMessage(userId, chatRoomId);
+            throw new CustomException(ChatRoomParticipantErrorCode.USER_IS_BLOCKED_CANNOT_SEND_MESSAGE);
         }
     }
 }

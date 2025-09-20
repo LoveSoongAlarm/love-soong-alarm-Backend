@@ -31,4 +31,8 @@ public class ChatRoomBlockService {
         chatRoomParticipantUpdater.unbanUserInChatRoom(targetId, chatRoomId);
         chatRoomBlockNotificationService.notifyUnblockerSuccess(userId, chatRoomId, targetId);
     }
+
+    public void validateMessageFromBlockedUser(Long userId, Long chatRoomId) {
+        chatRoomParticipantValidator.validateMessageFromBlockedUser(userId, chatRoomId);
+    }
 }
