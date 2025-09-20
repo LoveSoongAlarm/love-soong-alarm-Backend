@@ -40,7 +40,7 @@ public class ChatMessageNotificationService {
                 readProcessingService.handleMessageReceiveReadResult(readResult);
             }
 
-            if (redisSubscriber.isChatListSubscribed(senderId)) {
+            if (redisSubscriber.isChatListSubscribed(partnerId)) {
                 chatListUpdateService.updateAfterNewMessage(chatRoomId, message, partnerId);
             }
 
