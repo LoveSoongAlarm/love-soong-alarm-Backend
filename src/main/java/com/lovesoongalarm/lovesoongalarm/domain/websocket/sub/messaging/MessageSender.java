@@ -1,5 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging;
 
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.application.dto.ChatTicketValidationResult;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.application.dto.NotificationWebSocketDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.type.EWebSocketNotificationType;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.dto.WebSocketMessageDTO;
@@ -144,14 +145,6 @@ public class MessageSender {
         messageTransmitter.sendMessage(session, chatListUpdate);
     }
 
-    public void sendMessageCountLimit(WebSocketSession session){
-        WebSocketMessageDTO.MessageCountLimit messageCountLimit = WebSocketMessageDTO.MessageCountLimit.builder()
-                .type(EWebSocketMessageType.MESSAGE_COUNT_LIMIT)
-                .build();
-
-        messageTransmitter.sendMessage(session, messageCountLimit);
-    }
-
     public void sendNotification(WebSocketSession session, NotificationWebSocketDTO.Notification notification) {
         messageTransmitter.sendMessage(session, notification);
     }
@@ -199,5 +192,15 @@ public class MessageSender {
                 .build();
 
         messageTransmitter.sendMessage(session, allChangeNotification);
+    }
+
+    public void sendMessageCountLimitWithTicketInfo(WebSocketSession session, ChatTicketValidationResult validation) {
+        WebSocketMessageDTO.MessageCountLimit messageCountLimit = WebSocketMessageDTO.MessageCountLimit.builder()
+                .type(EWebSocketMessageType.MESSAGE_COUNT_LIMIT)
+                .canSend(validation.canSend())
+                .availableTickets(validation.availableTickets())
+                .build();
+
+        messageTransmitter.sendMessage(session, messageCountLimit);
     }
 }
