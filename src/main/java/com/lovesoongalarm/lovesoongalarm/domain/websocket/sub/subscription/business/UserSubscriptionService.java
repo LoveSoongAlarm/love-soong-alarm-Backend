@@ -14,13 +14,13 @@ import org.springframework.web.socket.WebSocketSession;
 public class UserSubscriptionService {
 
     private final RedisSubscriber redisSubscriber;
-
     private final SessionService sessionService;
     private final MessageSender messageSender;
 
     public void publishUnreadBadgeUpdate(Long userId, int totalUnreadCount) {
         try {
             if (!redisSubscriber.isUserSubscribed(userId)) {
+                log.debug("배지 업데이트 구독하지 않은 사용자 - userId: {}", userId);
                 return;
             }
 
@@ -40,7 +40,7 @@ public class UserSubscriptionService {
 
     public void publishUserChatUpdate(Long chatRoomId, Long userId, UserChatUpdateDTO updateEvent) {
         try {
-            if (!redisSubscriber.isUserSubscribed(userId)) {
+            if (!redisSubscriber.isChatListSubscribed(userId)) {
                 log.debug("목록을 구독하지 않은 사용자에게는 업데이트를 보내지 않음 - userId: {}", userId);
                 return;
             }
