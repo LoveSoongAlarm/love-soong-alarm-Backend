@@ -83,6 +83,9 @@ public class WebSocketMessageDTO {
             Long chatRoomId,
             String partnerNickname,
             String partnerEmoji,
+            String lastMessageContent,
+            Boolean isMyMessage,
+            Boolean isRead,
             LocalDateTime createdAt
     ) {
     }
