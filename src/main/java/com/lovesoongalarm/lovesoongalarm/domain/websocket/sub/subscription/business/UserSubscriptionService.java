@@ -63,4 +63,25 @@ public class UserSubscriptionService {
             log.error("사용자 채팅 업데이트 발행 실패 - userId: {}", userId, e);
         }
     }
+
+    public void publishNewChatRoomNotification(Long userId, Long chatRoomId, String partnerNickname, String partnerEmoji) {
+        try {
+            if (!redisSubscriber.isChatListSubscribed(userId)) {
+                log.debug("채팅방 목록을 구독하지 않은 사용자에게는 새 채팅방 알림을 보내지 않음 - userId: {}", userId);
+                return;
+            }
+
+            WebSocketSession session = sessionService.getSession(userId);
+            if (session == null || !session.isOpen()) {
+                log.debug("사용자 세션이 없거나 닫혀있음 - userId: {}", userId);
+                return;
+            }
+
+            messageSender.sendNewChatRoomNotification(session, chatRoomId, partnerNickname, partnerEmoji);
+            log.info("새 채팅방 알림 전송 완료 - userId: {}, chatRoomId: {}, partner: {}", userId, chatRoomId, partnerNickname);
+
+        } catch (Exception e) {
+            log.error("새 채팅방 알림 발행 실패 - userId: {}, chatRoomId: {}", userId, chatRoomId, e);
+        }
+    }
 }
