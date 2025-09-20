@@ -29,6 +29,8 @@ public class WebSocketMessageRouter {
             switch (request.type()) {
                 case SUBSCRIBE -> handleSubscribe(session, request, userId);
                 case UNSUBSCRIBE -> handleUnsubscribe(session, request, userId);
+                case CHAT_LIST_SUBSCRIBE -> handleChatListSubscribe(session, userId);
+                case CHAT_LIST_UNSUBSCRIBE -> handleChatListUnsubscribe(session, userId);
                 case MESSAGE_SEND -> handleSendMessage(session, request, userId);
                 default -> handleUnknownMessageType(session, request.type());
             }
