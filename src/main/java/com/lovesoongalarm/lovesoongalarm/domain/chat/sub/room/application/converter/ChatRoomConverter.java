@@ -1,5 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.converter;
 
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.BlockStatus;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomCreateDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomDetailDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomListDTO;
@@ -41,7 +42,8 @@ public class ChatRoomConverter {
             User partner,
             List<Message> messages,
             Long currentUserId,
-            boolean hasMoreMessages) {
+            boolean hasMoreMessages,
+            BlockStatus blockStatus) {
 
         return ChatRoomDetailDTO.Response.builder()
                 .partner(toPartnerInfo(partner))
@@ -49,6 +51,8 @@ public class ChatRoomConverter {
                 .hasMoreMessages(hasMoreMessages)
                 .oldestMessageId(messages.isEmpty() ? null :
                         messages.get(messages.size() - 1).getId())
+                .isBlockedByPartner(blockStatus.isBlockedByPartner())
+                .isPartnerBlocked(blockStatus.isPartnerBlocked())
                 .build();
     }
 

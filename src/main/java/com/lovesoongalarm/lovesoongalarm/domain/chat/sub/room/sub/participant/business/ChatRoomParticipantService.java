@@ -1,5 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business;
 
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.BlockStatus;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.application.converter.ChatRoomParticipantConverter;
@@ -94,6 +95,13 @@ public class ChatRoomParticipantService {
 
         ChatRoomParticipant savedParticipant = chatRoomParticipantSaver.save(participant);
         return chatRoomParticipantConverter.toUseTicketResponse(savedParticipant);
+    }
+
+    public BlockStatus getBlockStatus(Long userId, Long chatRoomId, Long partnerId) {
+        boolean isPartnerBlocked = chatRoomParticipantRetriever.isUserBannedInChatRoom(partnerId, chatRoomId);
+        boolean isBlockedByPartner = chatRoomParticipantRetriever.isUserBannedInChatRoom(userId, chatRoomId);
+
+        return new BlockStatus(isPartnerBlocked, isBlockedByPartner);
     }
 
     private boolean isAlreadyParticipating(Long userId, Long targetUserId, ChatRoom chatRoom) {
