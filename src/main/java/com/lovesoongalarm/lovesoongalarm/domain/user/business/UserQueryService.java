@@ -19,11 +19,11 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
-import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.USER_GENDER_KEY;
-import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.USER_INTEREST_KEY;
+import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.*;
 
 @Service
 @RequiredArgsConstructor
@@ -76,7 +76,19 @@ public class UserQueryService {
 
         int age = calculateAge(findUser.getBirthDate());
 
-        return UserResponseDTO.from(findUser, age);
+        String lastSeen = userLastSeen(targetId);
+
+        return UserResponseDTO.from(findUser, age, lastSeen);
+    }
+
+    public List<UserResponseDTO> getAllUser(List<Long> targetIds){
+        return userRetriever.findAllByIdAndOnlyActive(targetIds).stream()
+                .map(user -> {
+                    int age = calculateAge(user.getBirthDate());
+                    String lastSeen = userLastSeen(user.getId());
+                    return UserResponseDTO.from(user, age, lastSeen);
+                })
+                .toList();
     }
 
     public UserMeResponseDTO getMe(Long userId){
@@ -155,5 +167,29 @@ public class UserQueryService {
         }
 
         stringRedisTemplate.opsForHash().put(USER_GENDER_KEY, String.valueOf(userId), gender.name());
+    }
+
+    private String userLastSeen(Long userId) {
+        String lastSeenStr = stringRedisTemplate.opsForValue().get(LAST_SEEN_KEY + userId);
+
+        if (lastSeenStr == null || lastSeenStr.isBlank()) {
+            return null;
+        }
+
+        long diff = Instant.now().getEpochSecond() - Long.parseLong(lastSeenStr);
+
+        if (diff <= 600) {
+            return "10분 내 접속";
+        } else if (diff <= 1800) {
+            return "30분 내 접속";
+        } else if (diff <= 3600) {
+            return "1시간 내 접속";
+        } else if (diff <= 7200) {
+            return "2시간 내 접속";
+        } else if (diff <= 10800) {
+            return "3시간 내 접속";
+        } else {
+            return null;
+        }
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -52,4 +53,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByIdAndStatus(Long userId, EUserStatus status);
 
+    @Query("SELECT u FROM User u WHERE u.id IN :userIds AND u.status= :status")
+    List<User> findAllByIdsAndStatus(@Param("userIds") List<Long> userIds, @Param("status") EUserStatus status);
 }

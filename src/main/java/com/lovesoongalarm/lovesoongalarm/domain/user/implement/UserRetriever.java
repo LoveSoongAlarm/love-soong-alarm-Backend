@@ -8,6 +8,9 @@ import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.repository.User
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 public class UserRetriever {
@@ -35,5 +38,9 @@ public class UserRetriever {
     public User findByIdAndOnlyInActive(Long userId){
         return userRepository.findByIdAndStatus(userId, EUserStatus.INACTIVE)
                 .orElseThrow(() -> new CustomException(UserErrorCode.ALREADY_ONBOARDING_USER));
+    }
+
+    public List<User> findAllByIdAndOnlyActive(List<Long> userIds){
+        return userRepository.findAllByIdsAndStatus(userIds, EUserStatus.ACTIVE);
     }
 }
