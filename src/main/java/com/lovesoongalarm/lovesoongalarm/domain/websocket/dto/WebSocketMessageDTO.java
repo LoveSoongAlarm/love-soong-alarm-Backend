@@ -99,6 +99,15 @@ public class WebSocketMessageDTO {
     }
 
     @Builder
+    public record ChatBlocked(
+            EWebSocketMessageType type,
+            Long chatRoomId,
+            String message,
+            Long targetUserId,
+            Boolean isBlocked
+    ) {}
+
+    @Builder
     public record ErrorResponse(
             EWebSocketMessageType type,
             String errorCode,
