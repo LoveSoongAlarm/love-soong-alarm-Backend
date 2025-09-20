@@ -70,4 +70,22 @@ public class ChatRoomParticipant {
     public int getTicketCount() {
         return this.getUser().getChatTicket();
     }
+
+    public void banUser() {
+        this.status = EChatRoomParticipantStatus.BANNED;
+    }
+
+    public void unbanUser() {
+        if (this.status == EChatRoomParticipantStatus.BANNED) {
+            this.status = EChatRoomParticipantStatus.JOINED;
+        }
+    }
+
+    public boolean canSendMessage() {
+        return this.status.canSendMessage();
+    }
+
+    public boolean isBanned() {
+        return this.status.isBanned();
+    }
 }

@@ -35,7 +35,6 @@ public class WebSocketConnectionService {
     public void handleDisconnection(WebSocketSession session) {
         Long userId = extractUserId(session);
         if (userId != null) {
-            subscriptionService.unsubscribeFromChatBadgeUpdate(userId);
             sessionService.removeSession(userId);
         }
     }

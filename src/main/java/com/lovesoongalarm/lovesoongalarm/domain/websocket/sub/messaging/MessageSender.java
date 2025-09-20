@@ -206,4 +206,36 @@ public class MessageSender {
 
         messageTransmitter.sendMessage(session, messageCountLimit);
     }
+
+    public void sendBlockSuccess(WebSocketSession session, Long chatRoomId, Long targetId) {
+        WebSocketMessageDTO.ChatBlocked chatBlocked = WebSocketMessageDTO.ChatBlocked.builder()
+                .type(EWebSocketMessageType.BLOCK_USER)
+                .chatRoomId(chatRoomId)
+                .targetUserId(targetId)
+                .message("사용자를 차단했습니다.")
+                .build();
+
+        messageTransmitter.sendMessage(session, chatBlocked);
+    }
+
+    public void sendUnblockSuccess(WebSocketSession session, Long chatRoomId, Long targetId) {
+        WebSocketMessageDTO.ChatBlocked chatUnblocked = WebSocketMessageDTO.ChatBlocked.builder()
+                .type(EWebSocketMessageType.UNBLOCK_USER)
+                .chatRoomId(chatRoomId)
+                .targetUserId(targetId)
+                .message("사용자 차단을 해제했습니다.")
+                .build();
+
+        messageTransmitter.sendMessage(session, chatUnblocked);
+    }
+
+    public void sendMessageBlocked(WebSocketSession session, Long chatRoomId) {
+        WebSocketMessageDTO.ChatBlocked chatBlocked = WebSocketMessageDTO.ChatBlocked.builder()
+                .type(EWebSocketMessageType.MESSAGE_BLOCKED)
+                .chatRoomId(chatRoomId)
+                .message("이 채팅방에서 차단되어 메시지를 보낼 수 없습니다.")
+                .build();
+
+        messageTransmitter.sendMessage(session, chatBlocked);
+    }
 }

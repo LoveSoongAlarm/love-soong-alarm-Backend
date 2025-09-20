@@ -14,7 +14,6 @@ public class RedisSubscriber {
     private final RedisChatRoomRemover redisChatRoomRemover;
     private final RedisChatRoomRetriever redisChatRoomRetriever;
     private final RedisUserChatSaver redisUserChatSaver;
-    private final RedisUserChatRemover redisUserChatRemover;
     private final RedisUserChatRetriever redisUserChatRetriever;
     private final RedisChatListSaver redisChatListSaver;
     private final RedisChatListRemover redisChatListRemover;
@@ -34,10 +33,6 @@ public class RedisSubscriber {
 
     public void subscribeToChatBadgeUpdate(Long userId) {
         redisUserChatSaver.subscribeToChatBadgeUpdate(userId);
-    }
-
-    public void unsubscribeFromChatBadgeUpdate(Long userId) {
-        redisUserChatRemover.unsubscribeFromChatBadgeUpdate(userId);
     }
 
     public boolean isUserSubscribed(Long userId) {

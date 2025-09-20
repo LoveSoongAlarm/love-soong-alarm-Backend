@@ -72,4 +72,12 @@ public class UserController {
     public BaseResponse<UserSlotResponseDTO> getUserSlots(@UserId Long userId){
         return BaseResponse.success(userQueryService.getUserSlots(userId));
     }
+
+    @GetMapping("/tickets")
+    @Operation(summary = "유저 티켓 개수 조회",
+            description = "유저의 채팅 연장 티켓 개수가 몇 개인지 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "채팅 연장 티켓 개수 조회 성공")
+    public BaseResponse<UserTicketResponseDTO> getUserTickets(@UserId Long userId){
+        return BaseResponse.success(userQueryService.getUserTickets(userId));
+    }
 }

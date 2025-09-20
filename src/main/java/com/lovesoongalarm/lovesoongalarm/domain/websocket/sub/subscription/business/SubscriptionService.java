@@ -40,10 +40,6 @@ public class SubscriptionService {
         messageSender.sendUnreadBadgeUpdate(session, totalUnreadCount);
     }
 
-    public void unsubscribeFromChatBadgeUpdate(Long userId){
-        redisSubscriber.unsubscribeFromChatBadgeUpdate(userId);
-    }
-
     public void subscribeToChatList(WebSocketSession session, Long userId) {
         redisSubscriber.subscribeToChatList(userId);
         messageSender.sendChatListSubscribeSuccessMessage(session);

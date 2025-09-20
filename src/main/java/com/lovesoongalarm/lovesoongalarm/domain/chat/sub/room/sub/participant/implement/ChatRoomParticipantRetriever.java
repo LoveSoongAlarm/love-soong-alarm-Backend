@@ -23,4 +23,8 @@ public class ChatRoomParticipantRetriever {
         return chatRoomParticipantRepository.findByUser_IdAndChatRoom_Id(userId, chatRoomId)
                 .orElseThrow(() -> new CustomException(ChatRoomErrorCode.CHAT_ROOM_ACCESS_DENIED));
     }
+
+    public boolean isUserBannedInChatRoom(Long targetId, Long chatRoomId) {
+        return chatRoomParticipantRepository.isUserBannedInChatRoom(targetId, chatRoomId);
+    }
 }

@@ -127,6 +127,12 @@ public class UserQueryService {
         return slotInfo;
     }
 
+    public UserTicketResponseDTO getUserTickets(Long userId) {
+        User user = userRetriever.findByIdAndOnlyActive(userId);
+        UserTicketResponseDTO ticketInfo = userConverter.createTicketInfo(user);
+        return ticketInfo;
+    }
+
     private int calculateAge(Integer birthDate){
         int currentYear = LocalDate.now().getYear();
         int age = currentYear - birthDate + 1;
