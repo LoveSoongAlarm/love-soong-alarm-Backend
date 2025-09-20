@@ -62,7 +62,7 @@ public class ChatService {
 
     public void unblockUserInChatRoom(Long userId, Long chatRoomId, Long targetId) {
         log.info("사용자 차단 해제 시작 - userId: {}, chatRoomId: {}, targetId: {}", userId, chatRoomId, targetId);
-        chatRoomBlockService.unblockUserInChatRoom(userId, chatRoomId);
+        chatRoomBlockService.unblockUserInChatRoom(userId, chatRoomId, targetId);
         log.info("사용자 차단 해제 완료 - userId: {}, chatRoomId: {}, targetId: {}", userId, chatRoomId, targetId);
     }
 }

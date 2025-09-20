@@ -21,4 +21,12 @@ public class ChatRoomParticipantUpdater {
     public void incrementFreeMessageCount(Long participantId) {
         chatRoomParticipantRepository.incrementFreeMessageCount(participantId);
     }
+
+    public void banUserInChatRoom(Long targetId, Long chatRoomId) {
+        chatRoomParticipantRepository.banUserInChatRoom(targetId, chatRoomId);
+    }
+
+    public void unbanUserInChatRoom(Long targetId, Long chatRoomId) {
+        chatRoomParticipantRepository.unbanUserInChatRoom(targetId, chatRoomId)
+    }
 }

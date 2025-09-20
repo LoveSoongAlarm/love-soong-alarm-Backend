@@ -49,4 +49,23 @@ public interface ChatRoomParticipantRepository extends JpaRepository<ChatRoomPar
     boolean isUserBannedInChatRoom(
             @Param("userId") Long userId,
             @Param("chatRoomId") Long chatRoomId);
+
+    @Modifying
+    @Query("""
+            UPDATE ChatRoomParticipant p 
+            SET p.status = 'BANNED' 
+            WHERE p.user.id = :userId 
+            AND p.chatRoom.id = :chatRoomId
+            """)
+    void banUserInChatRoom(@Param("userId") Long userId, @Param("chatRoomId") Long chatRoomId);
+
+    @Modifying
+    @Query("""
+            UPDATE ChatRoomParticipant p 
+            SET p.status = 'JOINED' 
+            WHERE p.user.id = :userId 
+            AND p.chatRoom.id = :chatRoomId 
+            AND p.status = 'BANNED'
+            """)
+    void unbanUserInChatRoom(@Param("userId") Long userId, @Param("chatRoomId") Long chatRoomId);
 }
