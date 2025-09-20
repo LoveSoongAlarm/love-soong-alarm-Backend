@@ -5,9 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import static com.lovesoongalarm.lovesoongalarm.common.constant.Constants.SUBSCRIPTION_TTL;
-import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.CHAT_LIST_SUBSCRIBERS_KEY;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -35,12 +32,12 @@ public class RedisSubscriber {
         return redisChatRoomRetriever.isUserSubscribed(chatRoomId, userId);
     }
 
-    public void subscribeToUserChatUpdates(Long userId) {
-        redisUserChatSaver.subscribeToUserChatUpdates(userId);
+    public void subscribeToChatBadgeUpdate(Long userId) {
+        redisUserChatSaver.subscribeToChatBadgeUpdate(userId);
     }
 
-    public void unsubscribeFromUserChatUpdates(Long userId) {
-        redisUserChatRemover.unsubscribeFromUserChatUpdates(userId);
+    public void unsubscribeFromChatBadgeUpdate(Long userId) {
+        redisUserChatRemover.unsubscribeFromChatBadgeUpdate(userId);
     }
 
     public boolean isUserSubscribed(Long userId) {

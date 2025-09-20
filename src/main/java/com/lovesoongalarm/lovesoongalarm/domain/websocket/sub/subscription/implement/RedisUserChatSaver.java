@@ -15,7 +15,7 @@ public class RedisUserChatSaver {
 
     private final StringRedisTemplate stringRedisTemplate;
 
-    public void subscribeToUserChatUpdates(Long userId) {
+    public void subscribeToChatBadgeUpdate(Long userId) {
         try {
             String subscribersKey = USER_CHAT_SUBSCRIBERS_KEY + userId;
 

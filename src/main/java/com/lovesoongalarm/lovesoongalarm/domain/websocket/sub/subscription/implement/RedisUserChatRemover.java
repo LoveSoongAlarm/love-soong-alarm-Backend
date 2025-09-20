@@ -15,7 +15,7 @@ public class RedisUserChatRemover {
 
     private final StringRedisTemplate stringRedisTemplate;
 
-    public void unsubscribeFromUserChatUpdates(Long userId) {
+    public void unsubscribeFromChatBadgeUpdate(Long userId) {
         try {
             String subscribersKey = USER_CHAT_SUBSCRIBERS_KEY + userId;
             stringRedisTemplate.opsForSet().remove(subscribersKey, userId.toString());
