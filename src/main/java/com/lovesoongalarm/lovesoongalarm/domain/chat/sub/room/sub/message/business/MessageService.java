@@ -142,7 +142,7 @@ public class MessageService {
         Message message = Message.create(content, chatRoom, sender);
         Message savedMessage = messageSaver.save(message);
 
-        chatRoomParticipantService.activatePartnerIfPending(chatRoom, senderId);
+        chatRoomParticipantService.activatePartnerIfPending(chatRoom, savedMessage, senderId);
 
         eventPublisher.publishEvent(
                 MessageSentEvent.builder()

@@ -1,6 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business;
 
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.application.converter.ChatRoomParticipantConverter;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.application.dto.UseTicketDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantRetriever;
@@ -51,7 +52,7 @@ public class ChatRoomParticipantService {
     }
 
     @Transactional
-    public void activatePartnerIfPending(ChatRoom chatRoom, Long senderId) {
+    public void activatePartnerIfPending(ChatRoom chatRoom, Message message, Long senderId) {
         Optional<ChatRoomParticipant> partnerParticipant = chatRoom.getParticipants().stream()
                 .filter(participant -> !participant.getUser().getId().equals(senderId))
                 .findFirst();
@@ -73,7 +74,8 @@ public class ChatRoomParticipantService {
                     partnerId,
                     chatRoom.getId(),
                     sender.getNickname(),
-                    sender.getEmoji()
+                    sender.getEmoji(),
+                    message
             );
 
             log.info("상대방 활성화 및 슬롯 증가 완료 - partnerId: {}, chatRoomId: {}",
