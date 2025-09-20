@@ -1,5 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.common.constant;
 
+import java.time.Duration;
 import java.util.List;
 
 public class Constants {
@@ -25,4 +26,5 @@ public class Constants {
             "/api/auth/reissue",
             "/ws/**"
     );
+    public static final Duration SUBSCRIPTION_TTL = Duration.ofHours(24);
 }

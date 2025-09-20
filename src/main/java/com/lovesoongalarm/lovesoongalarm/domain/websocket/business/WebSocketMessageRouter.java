@@ -2,8 +2,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.websocket.business;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.business.ChatService;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.persistence.type.EWebSocketMessageType;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.persistence.type.EWebSocketMessageType;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.dto.WebSocketMessageDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging.MessageSender;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +29,8 @@ public class WebSocketMessageRouter {
             switch (request.type()) {
                 case SUBSCRIBE -> handleSubscribe(session, request, userId);
                 case UNSUBSCRIBE -> handleUnsubscribe(session, request, userId);
+                case CHAT_LIST_SUBSCRIBE -> handleChatListSubscribe(session, userId);
+                case CHAT_LIST_UNSUBSCRIBE -> handleChatListUnsubscribe(session, userId);
                 case MESSAGE_SEND -> handleSendMessage(session, request, userId);
                 default -> handleUnknownMessageType(session, request.type());
             }
@@ -76,6 +77,24 @@ public class WebSocketMessageRouter {
         } catch (Exception e) {
             log.error("구독 처리 중 예외 발생", e);
             messageSender.sendErrorMessage(session, "UNSUBSCRIPTION_ERROR", "구독 처리 중 오류가 발생했습니다.");
+        }
+    }
+
+    private void handleChatListSubscribe(WebSocketSession session, Long userId) {
+        try {
+            chatService.subscribeToChatList(session, userId);
+        } catch (Exception e) {
+            log.error("채팅방 목록 구독 처리 중 예외 발생 - userId: {}", userId, e);
+            messageSender.sendErrorMessage(session, "CHAT_LIST_SUBSCRIPTION_ERROR", "채팅방 목록 구독 중 오류가 발생했습니다.");
+        }
+    }
+
+    private void handleChatListUnsubscribe(WebSocketSession session, Long userId) {
+        try {
+            chatService.unsubscribeFromChatList(session, userId);
+        } catch (Exception e) {
+            log.error("채팅방 목록 구독 해제 처리 중 예외 발생 - userId: {}", userId, e);
+            messageSender.sendErrorMessage(session, "CHAT_LIST_UNSUBSCRIPTION_ERROR", "채팅방 목록 구독 해제 중 오류가 발생했습니다.");
         }
     }
 

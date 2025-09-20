@@ -1,6 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.websocket.dto;
 
-import com.lovesoongalarm.lovesoongalarm.domain.chat.persistence.type.EWebSocketMessageType;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.persistence.type.EWebSocketMessageType;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -28,6 +28,13 @@ public class WebSocketMessageDTO {
     public record SubscribeSuccess(
             EWebSocketMessageType type,
             Long chatRoomId,
+            String message
+    ) {
+    }
+
+    @Builder
+    public record ChatListSubscribeSuccess(
+            EWebSocketMessageType type,
             String message
     ) {
     }
@@ -67,6 +74,16 @@ public class WebSocketMessageDTO {
             LocalDateTime timestamp,
             boolean isMyMessage,
             boolean isRead
+    ) {
+    }
+
+    @Builder
+    public record NewChatRoomNotification(
+            EWebSocketMessageType type,
+            Long chatRoomId,
+            String partnerNickname,
+            String partnerEmoji,
+            LocalDateTime createdAt
     ) {
     }
 

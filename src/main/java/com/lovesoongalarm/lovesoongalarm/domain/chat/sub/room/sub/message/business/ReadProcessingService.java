@@ -100,7 +100,7 @@ public class ReadProcessingService {
                         .isRead(lastMessage.isRead())
                         .build();
 
-                userSubscriptionService.publishUserChatUpdate(chatRoomId, partnerId, partnerUpdate);
+                userSubscriptionService.publishUserChatUpdate(partnerId, partnerUpdate);
                 log.debug("상대방에게 읽음 상태 업데이트 알림 전송 - partnerId: {}, chatRoomId: {}", partnerId, chatRoomId);
             }
 

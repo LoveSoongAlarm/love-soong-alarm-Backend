@@ -1,10 +1,9 @@
-package com.lovesoongalarm.lovesoongalarm.domain.chat.business;
+package com.lovesoongalarm.lovesoongalarm.domain.websocket.business;
 
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.business.ChatRoomService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.MessageService;
-import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging.MessageSender;
-import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.session.SessionService;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.business.SubscriptionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,21 +15,9 @@ import org.springframework.web.socket.WebSocketSession;
 @RequiredArgsConstructor
 public class ChatService {
 
-    private final SessionService sessionService;
-    private final MessageSender messageSender;
     private final ChatRoomService chatRoomService;
     private final MessageService messageService;
-
-    public void registerSession(Long userId, String userNickname, WebSocketSession session) {
-        log.info("사용자 연결 시작 - userId: {}, sessionId: {}", userId, session.getId());
-        sessionService.addSession(userId, session);
-        messageSender.sendConnectionSuccessMessage(userId, userNickname, session);
-        log.info("사용자 연결 완료 - userId: {}, sessionId: {}", userId, session.getId());
-    }
-
-    public void removeSession(Long userId) {
-        sessionService.removeSession(userId);
-    }
+    private final SubscriptionService subscriptionService;
 
     public void handleSubscribe(WebSocketSession session, Long chatRoomId, Long userId) {
         log.info("채팅방 구독 시작 - userId: {}, chatRoomId: {}", userId, chatRoomId);
@@ -42,6 +29,18 @@ public class ChatService {
         log.info("채팅방 구독 해제 시작 - userId: {}, chatRoomId: {}", userId, chatRoomId);
         chatRoomService.unsubscribeToChatRoom(session, chatRoomId, userId);
         log.info("채팅방 구독 해제 완료 - userId: {}, chatRoomId: {}", userId, chatRoomId);
+    }
+
+    public void subscribeToChatList(WebSocketSession session, Long userId) {
+        log.info("채팅방 목록 구독 시작 - userId: {}", userId);
+        subscriptionService.subscribeToChatList(session, userId);
+        log.info("채팅방 목록 구독 완료 - userId: {}", userId);
+    }
+
+    public void unsubscribeFromChatList(WebSocketSession session, Long userId) {
+        log.info("채팅방 목록 구독 해제 시작 - userId: {}", userId);
+        subscriptionService.unsubscribeFromChatList(session, userId);
+        log.info("채팅방 목록 구독 해제 완료 - userId: {}", userId);
     }
 
     @Transactional

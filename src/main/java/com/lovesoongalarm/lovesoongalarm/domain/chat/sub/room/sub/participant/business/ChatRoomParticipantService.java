@@ -10,6 +10,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.pe
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.type.EChatRoomParticipantStatus;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.business.UserSubscriptionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ import java.util.Optional;
 public class ChatRoomParticipantService {
 
     private final UserService userService;
+    private final UserSubscriptionService userSubscriptionService;
 
     private final ChatRoomParticipantSaver chatRoomParticipantSaver;
     private final ChatRoomParticipantRetriever chatRoomParticipantRetriever;
@@ -44,6 +46,7 @@ public class ChatRoomParticipantService {
         ChatRoomParticipant myParticipant = ChatRoomParticipant.createJoined(chatRoom, me);
         ChatRoomParticipant targetParticipant = ChatRoomParticipant.createPending(chatRoom, target);
         chatRoomParticipantSaver.save(List.of(myParticipant, targetParticipant));
+
         log.info("채팅방에 유저 참여 로직 종료 - userId: {}, targetUserId: {}, chatRoomId: {}", userId, targetUserId, chatRoom.getId());
     }
 
@@ -64,6 +67,14 @@ public class ChatRoomParticipantService {
             Long partnerId = partner.getUser().getId();
             chatRoomParticipantUpdater.updateParticipantStatusToJoined(partner.getId());
             userService.increaseMaxSlot(partnerId);
+
+            User sender = userService.findUserOrElseThrow(senderId);
+            userSubscriptionService.publishNewChatRoomNotification(
+                    partnerId,
+                    chatRoom.getId(),
+                    sender.getNickname(),
+                    sender.getEmoji()
+            );
 
             log.info("상대방 활성화 및 슬롯 증가 완료 - partnerId: {}, chatRoomId: {}",
                     partnerId, chatRoom.getId());
