@@ -66,4 +66,8 @@ public class ChatRoomParticipant {
     public void setTicketUsed() {
         this.ticketUsed = true;
     }
+
+    public int getTicketCount() {
+        return this.getUser().getChatTicket();
+    }
 }
