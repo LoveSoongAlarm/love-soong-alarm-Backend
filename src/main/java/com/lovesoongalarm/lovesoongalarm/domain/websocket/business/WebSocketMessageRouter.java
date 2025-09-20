@@ -32,6 +32,8 @@ public class WebSocketMessageRouter {
                 case CHAT_LIST_SUBSCRIBE -> handleChatListSubscribe(session, userId);
                 case CHAT_LIST_UNSUBSCRIBE -> handleChatListUnsubscribe(session, userId);
                 case MESSAGE_SEND -> handleSendMessage(session, request, userId);
+                case BLOCK_USER -> handleBlockUser(session, request, userId);
+                case UNBLOCK_USER -> handleUnblockUser(session, request, userId);
                 default -> handleUnknownMessageType(session, request.type());
             }
 
@@ -107,6 +109,32 @@ public class WebSocketMessageRouter {
         } catch (Exception e) {
             log.error("메시지 전송 처리 중 예외 발생", e);
             messageSender.sendErrorMessage(session, "MESSAGE_SEND_ERROR", "메시지 전송 중 오류가 발생했습니다.");
+        }
+    }
+
+    private void handleBlockUser(WebSocketSession session, WebSocketMessageDTO.Request request, Long userId) {
+        try {
+            chatService.blockUserInChatRoom(userId, request.chatRoomId(), request.targetUserId());
+        } catch (CustomException e) {
+            log.warn("사용자 차단 실패 - 채팅방: {}, 차단자: {}, 대상: {}, 이유: {}",
+                    request.chatRoomId(), userId, request.targetUserId(), e.getErrorCode().getMessage());
+            messageSender.sendErrorMessage(session, e.getErrorCode().getStatus().toString(), e.getErrorCode().getMessage());
+        } catch (Exception e) {
+            log.error("사용자 차단 처리 중 예외 발생", e);
+            messageSender.sendErrorMessage(session, "BLOCK_ERROR", "사용자 차단 중 오류가 발생했습니다.");
+        }
+    }
+
+    private void handleUnblockUser(WebSocketSession session, WebSocketMessageDTO.Request request, Long userId) {
+        try {
+            chatService.unblockUserInChatRoom(userId, request.chatRoomId(), request.targetUserId());
+        } catch (CustomException e) {
+            log.warn("사용자 차단 해제 실패 - 채팅방: {}, 차단해제자: {}, 대상: {}, 이유: {}",
+                    request.chatRoomId(), userId, request.targetUserId(), e.getErrorCode().getMessage());
+            messageSender.sendErrorMessage(session, e.getErrorCode().getStatus().toString(), e.getErrorCode().getMessage());
+        } catch (Exception e) {
+            log.error("사용자 차단 해제 처리 중 예외 발생", e);
+            messageSender.sendErrorMessage(session, "UNBLOCK_ERROR", "사용자 차단 해제 중 오류가 발생했습니다.");
         }
     }
 
