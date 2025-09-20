@@ -20,8 +20,6 @@ public class RedisChatListSaver {
             String subscribersKey = CHAT_LIST_SUBSCRIBERS_KEY + userId;
             stringRedisTemplate.opsForSet().add(subscribersKey, userId.toString());
             stringRedisTemplate.expire(subscribersKey, SUBSCRIPTION_TTL);
-
-            log.info("채팅방 목록 구독 시작 - userId: {}", userId);
         } catch (Exception e) {
             log.error("채팅방 목록 구독 실패 - userId: {}", userId, e);
         }
