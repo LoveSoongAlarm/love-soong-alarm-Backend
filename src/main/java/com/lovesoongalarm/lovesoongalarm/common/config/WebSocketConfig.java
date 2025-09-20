@@ -21,7 +21,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
         registry
                 .addHandler(webSocketChatHandler, "/ws/chats")
                 .addInterceptors(webSocketJWTAuthInterceptor)
-                .setAllowedOrigins("http://localhost:5173", "https://love-soong-alarm-web.vercel.app/")
+                .setAllowedOrigins("http://localhost:5173", "https://love-soong-alarm.vercel.app/")
                 .withSockJS();
     }
 }

@@ -87,12 +87,15 @@ public class MessageSender {
         messageTransmitter.sendMessage(session, unsubscribeSuccess);
     }
 
-    public void sendNewChatRoomNotification(WebSocketSession session, Long chatRoomId, String partnerNickname, String partnerEmoji) {
+    public void sendNewChatRoomNotification(WebSocketSession session, Long chatRoomId, String partnerNickname, String partnerEmoji, Message message) {
         WebSocketMessageDTO.NewChatRoomNotification notification = WebSocketMessageDTO.NewChatRoomNotification.builder()
                 .type(EWebSocketMessageType.NEW_CHAT_ROOM_CREATED)
                 .chatRoomId(chatRoomId)
                 .partnerNickname(partnerNickname)
                 .partnerEmoji(partnerEmoji)
+                .isMyMessage(false)
+                .lastMessageContent(message.getContent())
+                .isRead(message.isRead())
                 .createdAt(LocalDateTime.now())
                 .build();
 
