@@ -51,7 +51,7 @@ public class RedisSubscriber {
         redisChatListSaver.subscribeToChatList(userId);
     }
 
-    public void unsubscribeToChatList(Long userId) {
+    public void unsubscribeFromChatList(Long userId) {
         redisChatListRemover.unsubscribeFromChatList(userId);
     }
 
