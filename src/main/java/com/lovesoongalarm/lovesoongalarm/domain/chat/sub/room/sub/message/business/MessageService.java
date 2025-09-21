@@ -154,7 +154,7 @@ public class MessageService {
         Message blockedMessage = Message.createBlockedMessage(content, chatRoom, user);
         Message savedMessage = messageSaver.save(blockedMessage);
 
-        messageSender.sendMessageSuccess(session, chatRoom.getId(), savedMessage);
+        messageSender.sendMessageSuccess(session, savedMessage, chatRoom.getId());
         return savedMessage;
     }
 

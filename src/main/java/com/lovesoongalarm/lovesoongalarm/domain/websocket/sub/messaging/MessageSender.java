@@ -126,6 +126,20 @@ public class MessageSender {
         messageTransmitter.sendMessage(session, chatMessage);
     }
 
+    public void sendMessageSuccess(WebSocketSession session, Message message, Long chatRoomId) {
+        WebSocketMessageDTO.MessageSuccess messageSuccess = WebSocketMessageDTO.MessageSuccess.builder()
+                .type(EWebSocketMessageType.MESSAGE_SEND)
+                .chatRoomId(chatRoomId)
+                .messageId(message.getId())
+                .content(message.getContent())
+                .sentAt(message.getCreatedAt())
+                .success(true)
+                .message("메시지가 전송되었습니다.")
+                .build();
+
+        messageTransmitter.sendMessage(session, messageSuccess);
+    }
+
     public void sendUnreadBadgeUpdate(WebSocketSession session, int totalUnreadCount) {
         WebSocketMessageDTO.UnreadBadgeUpdate unreadBadgeUpdate = WebSocketMessageDTO.UnreadBadgeUpdate.builder()
                 .type(EWebSocketMessageType.UNREAD_BADGE_UPDATE)
