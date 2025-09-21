@@ -76,12 +76,4 @@ public class Message {
     public boolean isSentBy(Long userId) {
         return this.user.getId().equals(userId);
     }
-
-    public boolean isVisibleToPartner() {
-        return !isBlockedMessage;
-    }
-
-    public void markAsBlocked() {
-        this.isBlockedMessage = true;
-    }
 }
