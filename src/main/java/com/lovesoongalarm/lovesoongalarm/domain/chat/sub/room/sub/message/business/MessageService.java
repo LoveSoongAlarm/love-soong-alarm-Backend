@@ -102,7 +102,7 @@ public class MessageService {
                 chatRoomId, userId, lastMessageId, size);
 
         int pageSize = validateAndGetPageSize(size);
-        List<Message> messages = messageRetriever.findPreviousMesasgesWithViewerFilter(chatRoomId, userId, lastMessageId, pageSize);
+        List<Message> messages = messageRetriever.findPreviousMessagesWithViewerFilter(chatRoomId, userId, lastMessageId, pageSize);
 
         Long nextCursor = null;
         boolean hasMoreMessages = false;

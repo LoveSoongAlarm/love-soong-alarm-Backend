@@ -17,24 +17,24 @@ public class MessageRetriever {
     private final MessageRepository messageRepository;
 
     public Optional<Message> findLastMessageWithViewerFilter(Long chatRoomId, Long userId) {
-        return messageRepository.findLastMessageByChatRoomId(chatRoomId);
+        return messageRepository.findLastMessageWithViewerFilter(chatRoomId, userId);
     }
 
     public List<Message> findRecentMessagesWithViewerFilter(Long chatRoomId, Long userId, int limit) {
         Pageable pageable = PageRequest.of(0, limit);
-        return messageRepository.findRecentMessagesByChatRoomIdOrderByIdDesc(chatRoomId, pageable);
+        return messageRepository.findRecentMessagesWithViewerFilter(chatRoomId, userId, pageable);
     }
 
     public boolean hasMoreFilteredMessagesBefore(Long chatRoomId, Long oldestMessageId, Long userId) {
-        return messageRepository.countMessagesByChatRoomIdAndIdLessThan(chatRoomId, oldestMessageId) > 0;
+        return messageRepository.countFilteredMessagesBefore(chatRoomId, oldestMessageId, userId) > 0;
     }
 
-    public List<Message> findPreviousMesasgesWithViewerFilter(Long chatRoomId, Long userId, Long lastMessageId, Integer pageSize) {
+    public List<Message> findPreviousMessagesWithViewerFilter(Long chatRoomId, Long userId, Long lastMessageId, Integer pageSize) {
         Pageable pageable = PageRequest.of(0, pageSize);
-        return messageRepository.findPreviousMessagesByChatRoomIdAndLastMessageId(chatRoomId, lastMessageId, pageable);
+        return messageRepository.findPreviousMessagesWithViewerFilter(chatRoomId, userId, lastMessageId, pageable);
     }
 
     public int countUnreadMessagesForUser(Long userId) {
-        return messageRepository.countUnreadMessagesForUser(userId);
+        return messageRepository.countUnreadNonBlockedMessagesForUser(userId);
     }
 }
