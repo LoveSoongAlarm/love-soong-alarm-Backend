@@ -33,6 +33,9 @@ public class Message {
     @Column(name = "is_read", nullable = false)
     private boolean isRead = false;
 
+    @Column(name = "is_blocked_message", nullable = false)
+    private boolean isBlockedMessage = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoom;
