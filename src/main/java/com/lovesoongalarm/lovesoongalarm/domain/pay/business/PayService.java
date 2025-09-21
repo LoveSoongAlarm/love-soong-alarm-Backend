@@ -32,7 +32,7 @@ public class PayService {
     @Transactional
     public CreateCheckoutSessionDTO createCheckoutSession(PayItemRequestDTO request, Long userId, String ipAddress) {
 
-        User findUser = userRetriever.findByIdOrElseThrow(userId);
+        User findUser = userRetriever.findByIdAndOnlyActive(userId);
 
         SessionCreateParams.LineItem lineItem; //단일 상품만
         try {
@@ -85,6 +85,7 @@ public class PayService {
 
     @Transactional
     public PaySuccessResponseDTO verifySuccess(String sessionId, String ipAddress) {
+
         Session session = stripe.retrieveSession(sessionId);
 
         String status = session.getPaymentStatus();
