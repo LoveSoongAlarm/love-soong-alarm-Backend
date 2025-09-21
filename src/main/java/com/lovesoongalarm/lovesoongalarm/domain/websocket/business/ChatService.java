@@ -33,15 +33,15 @@ public class ChatService {
         log.info("채팅방 구독 해제 완료 - userId: {}, chatRoomId: {}", userId, chatRoomId);
     }
 
-    public void subscribeToChatList(WebSocketSession session, Long userId) {
+    public void subscribeToChatList(Long userId) {
         log.info("채팅방 목록 구독 시작 - userId: {}", userId);
-        subscriptionService.subscribeToChatList(session, userId);
+        subscriptionService.subscribeToChatList(userId);
         log.info("채팅방 목록 구독 완료 - userId: {}", userId);
     }
 
-    public void unsubscribeFromChatList(WebSocketSession session, Long userId) {
+    public void unsubscribeFromChatList(Long userId) {
         log.info("채팅방 목록 구독 해제 시작 - userId: {}", userId);
-        subscriptionService.unsubscribeFromChatList(session, userId);
+        subscriptionService.unsubscribeFromChatList(userId);
         log.info("채팅방 목록 구독 해제 완료 - userId: {}", userId);
     }
 

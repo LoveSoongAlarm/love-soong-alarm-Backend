@@ -43,13 +43,15 @@ public class SubscriptionService {
         messageSender.sendUnreadBadgeUpdate(session, totalUnreadCount);
     }
 
-    public void subscribeToChatList(WebSocketSession session, Long userId) {
+    public void subscribeToChatList(Long userId) {
         redisSubscriber.subscribeToChatList(userId);
+        WebSocketSession session = sessionService.getSession(userId);
         messageSender.sendChatListSubscribeSuccessMessage(session);
     }
 
-    public void unsubscribeFromChatList(WebSocketSession session, Long userId) {
+    public void unsubscribeFromChatList(Long userId) {
         redisSubscriber.unsubscribeFromChatList(userId);
+        WebSocketSession session = sessionService.getSession(userId);
         messageSender.sendChatListUnsubscribeSuccessMessage(session);
     }
 }
