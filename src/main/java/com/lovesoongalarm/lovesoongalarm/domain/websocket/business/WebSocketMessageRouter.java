@@ -72,7 +72,7 @@ public class WebSocketMessageRouter {
 
     private void handleUnsubscribe(WebSocketSession session, WebSocketMessageDTO.Request request, Long userId) {
         try {
-            chatService.handleUnsubscribe(session, request.chatRoomId(), userId);
+            chatService.handleUnsubscribe(request.chatRoomId(), userId);
         } catch (CustomException e) {
             log.warn("구독 해제 실패 - 채팅방: {}, 유저: {}, 이유: {}", request.chatRoomId(), userId, e.getErrorCode().getMessage());
             messageSender.sendErrorMessage(session, e.getErrorCode().getStatus().toString(), e.getErrorCode().getMessage());
