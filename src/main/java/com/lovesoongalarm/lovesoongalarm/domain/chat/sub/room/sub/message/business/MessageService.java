@@ -128,27 +128,27 @@ public class MessageService {
     }
 
     @Transactional
-    public void sendMessage(WebSocketSession session, ChatRoom chatRoom, String content, Long senderId) {
-        log.info("1:1 채팅 메시지 전송 시작 - chatRoomId: {}, senderId: {}", chatRoom.getId(), senderId);
-        ChatTicketValidationResult validation = chatTicketService.validateMessageSending(senderId, chatRoom.getId());
+    public void sendMessage(WebSocketSession session, ChatRoom chatRoom, String content, Long userId) {
+        log.info("1:1 채팅 메시지 전송 시작 - chatRoomId: {}, userId: {}", chatRoom.getId(), userId);
+        ChatTicketValidationResult validation = chatTicketService.validateMessageSending(userId, chatRoom.getId());
         if (!validation.canSend()) {
             messageSender.sendMessageCountLimitWithTicketInfo(session, validation);
             return;
         }
         messageValidator.validateMessage(content);
 
-        User sender = userService.findUserOrElseThrow(senderId);
+        User user = userService.findUserOrElseThrow(userId);
 
-        Message message = Message.create(content, chatRoom, sender);
+        Message message = Message.create(content, chatRoom, user);
         Message savedMessage = messageSaver.save(message);
 
-        chatRoomParticipantService.activatePartnerIfPending(chatRoom, savedMessage, senderId);
+        chatRoomParticipantService.activatePartnerIfPending(chatRoom, savedMessage, userId);
 
         eventPublisher.publishEvent(
                 MessageSentEvent.builder()
                         .chatRoomId(chatRoom.getId())
                         .message(savedMessage)
-                        .senderId(senderId)
+                        .senderId(userId)
                         .build()
         );
 
