@@ -140,20 +140,39 @@ public class MessageService {
         User user = userService.findUserOrElseThrow(userId);
         boolean isSenderBlocked = chatRoomParticipantService.isUserBannedInChatRoom(userId, chatRoom.getId());
 
+        Message savedMessage;
+        if (isSenderBlocked) {
+            savedMessage = handleSilentBlockedMessage(session, chatRoom, content, user);
+        } else {
+            savedMessage = handleNormalMessage(chatRoom, content, user);
+        }
+
+        log.info("1:1 채팅 메시지 전송 완료 - messageId: {}, isBlocked: {}", savedMessage.getId(), isSenderBlocked);
+    }
+
+    private Message handleSilentBlockedMessage(WebSocketSession session, ChatRoom chatRoom, String content, User user) {
+        Message blockedMessage = Message.createBlockedMessage(content, chatRoom, user);
+        Message savedMessage = messageSaver.save(blockedMessage);
+
+        messageSender.sendMessageSuccess(session, chatRoom.getId(), savedMessage);
+        return savedMessage;
+    }
+
+    private Message handleNormalMessage(ChatRoom chatRoom, String content, User user) {
         Message message = Message.create(content, chatRoom, user);
         Message savedMessage = messageSaver.save(message);
 
-        chatRoomParticipantService.activatePartnerIfPending(chatRoom, savedMessage, userId);
+        chatRoomParticipantService.activatePartnerIfPending(chatRoom, savedMessage, user.getId());
 
         eventPublisher.publishEvent(
                 MessageSentEvent.builder()
                         .chatRoomId(chatRoom.getId())
                         .message(savedMessage)
-                        .senderId(userId)
+                        .senderId(user.getId())
                         .build()
         );
 
-        log.info("1:1 채팅 메시지 전송 완료 - messageId: {}", savedMessage.getId());
+        return savedMessage;
     }
 
     private int validateAndGetPageSize(Integer size) {
