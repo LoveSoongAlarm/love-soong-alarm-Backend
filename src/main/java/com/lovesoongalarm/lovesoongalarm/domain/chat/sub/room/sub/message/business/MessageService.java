@@ -51,7 +51,7 @@ public class MessageService {
     public ChatRoomListDTO.LastMessageInfo createLastMessageInfo(ChatRoom chatRoom, Long userId) {
         log.info("마지막 메시지 정보 생성 시작 - chatRoomId: {}, userId: {}", chatRoom.getId(), userId);
 
-        Optional<Message> lastMessage = messageRetriever.findLastMessageByChatRoomId(chatRoom.getId());
+        Optional<Message> lastMessage = messageRetriever.findLastMessageWithViewerFilter(chatRoom.getId(), userId);
 
         if (lastMessage.isEmpty()) {
             log.info("마지막 메시지가 없음 - chatRoomId: {}", chatRoom.getId());
@@ -80,20 +80,20 @@ public class MessageService {
         }
     }
 
-    public List<Message> getRecentMessages(Long roomId) {
-        log.info("채팅방 최근 메시지 조회 시작 - chatRoomId: {}", roomId);
-        List<Message> messages = messageRetriever.findRecentMessagesByChatRoomId(roomId, INITIAL_MESSAGE_LIMIT);
-        log.info("채팅방 최근 메시지 조회 완료 - chatRoomId: {}, messageCount: {}", roomId, messages.size());
+    public List<Message> getRecentMessages(Long chatRoomId, Long userId) {
+        log.info("채팅방 최근 메시지 조회 시작 - chatRoomId: {}, userId: {}", chatRoomId, userId);
+        List<Message> messages = messageRetriever.findRecentMessagesWithViewerFilter(chatRoomId, userId, INITIAL_MESSAGE_LIMIT);
+        log.info("채팅방 최근 메시지 조회 완료 - chatRoomId: {}, messageCount: {}", chatRoomId, messages.size());
         return messages;
     }
 
-    public boolean hasMoreMessages(Long chatRoomId, List<Message> messages) {
+    public boolean hasMoreMessages(Long chatRoomId, List<Message> messages, Long userId) {
         if (messages.isEmpty()) {
             return false;
         }
 
         Long oldestMessageId = messages.get(messages.size() - 1).getId();
-        return messageRetriever.hasMoreMessagesBefore(chatRoomId, oldestMessageId);
+        return messageRetriever.hasMoreFilteredMessagesBefore(chatRoomId, oldestMessageId, userId);
     }
 
     public MessageListDTO.Response getPreviousMessages(
@@ -102,14 +102,14 @@ public class MessageService {
                 chatRoomId, userId, lastMessageId, size);
 
         int pageSize = validateAndGetPageSize(size);
-        List<Message> messages = messageRetriever.findPreviousMessages(chatRoomId, lastMessageId, pageSize);
+        List<Message> messages = messageRetriever.findPreviousMesasgesWithViewerFilter(chatRoomId, userId, lastMessageId, pageSize);
 
         Long nextCursor = null;
         boolean hasMoreMessages = false;
 
         if (!messages.isEmpty()) {
             Long oldestMessageId = messages.get(messages.size() - 1).getId();
-            hasMoreMessages = messageRetriever.hasMoreMessagesBefore(chatRoomId, oldestMessageId);
+            hasMoreMessages = messageRetriever.hasMoreFilteredMessagesBefore(chatRoomId, oldestMessageId, userId);
             nextCursor = hasMoreMessages ? oldestMessageId : null;
         }
 

@@ -16,20 +16,20 @@ public class MessageRetriever {
 
     private final MessageRepository messageRepository;
 
-    public Optional<Message> findLastMessageByChatRoomId(Long chatRoomId) {
+    public Optional<Message> findLastMessageWithViewerFilter(Long chatRoomId, Long userId) {
         return messageRepository.findLastMessageByChatRoomId(chatRoomId);
     }
 
-    public List<Message> findRecentMessagesByChatRoomId(Long chatRoomId, int limit) {
+    public List<Message> findRecentMessagesWithViewerFilter(Long chatRoomId, Long userId, int limit) {
         Pageable pageable = PageRequest.of(0, limit);
         return messageRepository.findRecentMessagesByChatRoomIdOrderByIdDesc(chatRoomId, pageable);
     }
 
-    public boolean hasMoreMessagesBefore(Long chatRoomId, Long oldestMessageId) {
+    public boolean hasMoreFilteredMessagesBefore(Long chatRoomId, Long oldestMessageId, Long userId) {
         return messageRepository.countMessagesByChatRoomIdAndIdLessThan(chatRoomId, oldestMessageId) > 0;
     }
 
-    public List<Message> findPreviousMessages(Long chatRoomId, Long lastMessageId, Integer pageSize) {
+    public List<Message> findPreviousMesasgesWithViewerFilter(Long chatRoomId, Long userId, Long lastMessageId, Integer pageSize) {
         Pageable pageable = PageRequest.of(0, pageSize);
         return messageRepository.findPreviousMessagesByChatRoomIdAndLastMessageId(chatRoomId, lastMessageId, pageable);
     }

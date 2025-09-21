@@ -71,7 +71,7 @@ public class ReadProcessingService {
 
     private void handleChatListUpdateOnRead(Long chatRoomId, Long userId, Long partnerId, int readCount) {
         try {
-            Optional<Message> lastMessage = messageRetriever.findLastMessageByChatRoomId(chatRoomId);
+            Optional<Message> lastMessage = messageRetriever.findLastMessageWithViewerFilter(chatRoomId, userId);
             if (lastMessage.isEmpty()) {
                 log.debug("마지막 메시지가 없어서 채팅방 목록 업데이트를 건너뜀 - chatRoomId: {}", chatRoomId);
                 return;
