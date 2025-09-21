@@ -29,6 +29,18 @@ spring:
           max-idle: 8
           min-idle: 0
           max-wait: 5s
+
+    stripe:
+      secret: ${STRIPE_SECRET}
+      success_callback: ${STRIPE_SUCCESS_URL}
+      webhook_secret: ${STRIPE_WEBHOOK_SECRET}
+      price:
+        prepass: ${PROD_PREPASS}
+        chat_ticket: ${PROD_CHAT_TICKET}
+        slot_1: ${PROD_SLOT1}
+        slot_2: ${PROD_SLOT2}
+        slot_3: ${PROD_SLOT3}
+
   security:
     oauth2:
       client:
