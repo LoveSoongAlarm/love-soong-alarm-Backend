@@ -45,11 +45,12 @@ public class Message {
     private User user;
 
     @Builder
-    private Message(String content, ChatRoom chatRoom, User user, boolean isRead) {
+    private Message(String content, ChatRoom chatRoom, User user, boolean isRead, boolean isBlockedMessage) {
         this.content = content;
         this.chatRoom = chatRoom;
         this.user = user;
         this.isRead = isRead;
+        this.isBlockedMessage = isBlockedMessage;
     }
 
     public static Message create(String content, ChatRoom chatRoom, User user) {
@@ -58,10 +59,29 @@ public class Message {
                 .chatRoom(chatRoom)
                 .user(user)
                 .isRead(false)
+                .isBlockedMessage(false)
+                .build();
+    }
+
+    public static Message createBlockedMessage(String content, ChatRoom chatRoom, User user) {
+        return Message.builder()
+                .content(content)
+                .chatRoom(chatRoom)
+                .user(user)
+                .isRead(false)
+                .isBlockedMessage(true)
                 .build();
     }
 
     public boolean isSentBy(Long userId) {
         return this.user.getId().equals(userId);
+    }
+
+    public boolean isVisibleToPartner() {
+        return !isBlockedMessage;
+    }
+
+    public void markAsBlocked() {
+        this.isBlockedMessage = true;
     }
 }
