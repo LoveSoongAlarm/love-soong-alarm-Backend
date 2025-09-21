@@ -21,6 +21,8 @@ import com.stripe.param.checkout.SessionCreateParams;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 public class PayService {
@@ -93,15 +95,19 @@ public class PayService {
 
         Pay findPay = payRetriever.findBySessionId(sessionId);
 
-        if (("paid".equalsIgnoreCase(status) || "complete".equalsIgnoreCase(session.getStatus()))
-                && ipAddress == findPay.getIpAddress()) {
-            return new PaySuccessResponseDTO(session.getId(), status, totalAmount);
-        } else {
+        boolean paid = "paid".equalsIgnoreCase(status) || "complete".equalsIgnoreCase(session.getStatus());
+        if (!paid) {
             if (!EItemStatus.FAILED.equals(findPay.getStatus())) {
                 findPay.fail();
             }
-            throw new CustomException(PayErrorCode.PAYMENT_NOT_FOUND);
+            throw new CustomException(PayErrorCode.PAYMENT_STATUS_INVALID);
         }
+
+        // 2. IP 주소 체크
+        if (!Objects.equals(ipAddress, findPay.getIpAddress())) {
+            throw new CustomException(PayErrorCode.PAYMENT_IP_MISMATCH);
+        }
+        return new PaySuccessResponseDTO(session.getId(), status, totalAmount);
     }
 
 }
