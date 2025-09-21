@@ -16,39 +16,48 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             SELECT m FROM Message m
             JOIN FETCH m.user 
             WHERE m.chatRoom.id = :chatRoomId
+            AND (m.isBlockedMessage = false OR m.user.id = :userId)
             ORDER BY m.id DESC
             LIMIT 1
             """)
-    Optional<Message> findLastMessageByChatRoomId(Long chatRoomId);
+    Optional<Message> findLastMessageWithViewerFilter(
+            @Param("chatRoomId") Long chatRoomId,
+            @Param("userId") Long userId);
 
     @Query("""
             SELECT m FROM Message m
             JOIN FETCH m.user
             WHERE m.chatRoom.id = :chatRoomId
+            AND (m.isBlockedMessage = false OR m.user.id = :userId)
             ORDER BY m.id DESC
             """)
-    List<Message> findRecentMessagesByChatRoomIdOrderByIdDesc(
+    List<Message> findRecentMessagesWithViewerFilter(
             @Param("chatRoomId") Long chatRoomId,
+            @Param("userId") Long userId,
             Pageable pageable);
 
     @Query("""
             SELECT COUNT(m) FROM Message m
             WHERE m.chatRoom.id = :chatRoomId 
             AND m.id < :messageId
+            AND (m.isBlockedMessage = false OR m.user.id = :userId)
             """)
-    Long countMessagesByChatRoomIdAndIdLessThan(
+    Long countFilteredMessagesBefore(
             @Param("chatRoomId") Long chatRoomId,
-            @Param("messageId") Long messageId);
+            @Param("messageId") Long messageId,
+            @Param("userId") Long userId);
 
     @Query("""
             SELECT m FROM Message m
             JOIN FETCH m.user
             WHERE m.chatRoom.id = :chatRoomId
+            AND (m.isBlockedMessage = false OR m.user.id = :userId)
             AND m.id < :lastMessageId
             ORDER BY m.id DESC
             """)
-    List<Message> findPreviousMessagesByChatRoomIdAndLastMessageId(
+    List<Message> findPreviousMessagesWithViewerFilter(
             @Param("chatRoomId") Long chatRoomId,
+            @Param("userId") Long userId,
             @Param("lastMessageId") Long lastMessageId,
             Pageable pageable);
 
@@ -73,11 +82,12 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             SELECT COUNT(m) FROM Message m
             WHERE m.user.id != :userId 
             AND m.isRead = false
+            AND m.isBlockedMessage = false
             AND m.chatRoom.id IN (
                 SELECT cp.chatRoom.id 
                 FROM ChatRoomParticipant cp 
                 WHERE cp.user.id = :userId
             )
             """)
-    int countUnreadMessagesForUser(@Param("userId") Long userId);
+    int countUnreadNonBlockedMessagesForUser(@Param("userId") Long userId);
 }

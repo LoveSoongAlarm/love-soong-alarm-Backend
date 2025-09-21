@@ -4,6 +4,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.busine
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.ReadProcessingService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.UnreadCountService;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging.MessageSender;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.session.SessionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,10 +21,12 @@ public class SubscriptionService {
     private final ReadProcessingService readProcessingService;
     private final MessageSender messageSender;
     private final UnreadCountService unreadCountService;
+    private final SessionService sessionService;
 
     @Transactional
-    public void subscribeToChatRoom(WebSocketSession session, Long chatRoomId, Long userId) {
+    public void subscribeToChatRoom(Long chatRoomId, Long userId) {
         redisSubscriber.addSubscriber(chatRoomId, userId);
+        WebSocketSession session = sessionService.getSession(userId);
         messageSender.sendSubscribeSuccessMessage(session, chatRoomId);
         MessageReadService.ReadResult readResult = messageReadService.markUnreadMessagesAsRead(chatRoomId, userId);
         readProcessingService.handleSubscribeReadResult(readResult);
@@ -40,13 +43,15 @@ public class SubscriptionService {
         messageSender.sendUnreadBadgeUpdate(session, totalUnreadCount);
     }
 
-    public void subscribeToChatList(WebSocketSession session, Long userId) {
+    public void subscribeToChatList(Long userId) {
         redisSubscriber.subscribeToChatList(userId);
+        WebSocketSession session = sessionService.getSession(userId);
         messageSender.sendChatListSubscribeSuccessMessage(session);
     }
 
-    public void unsubscribeFromChatList(WebSocketSession session, Long userId) {
+    public void unsubscribeFromChatList(Long userId) {
         redisSubscriber.unsubscribeFromChatList(userId);
+        WebSocketSession session = sessionService.getSession(userId);
         messageSender.sendChatListUnsubscribeSuccessMessage(session);
     }
 }
