@@ -26,7 +26,8 @@ public class Constants {
             "/api/auth/reissue",
             "/ws/**",
             "/api/pay/success",
-            "/api/pay/webhook"
+            "/api/pay/webhook",
+            "/api/pay/cancel"
     );
     public static final Duration SUBSCRIPTION_TTL = Duration.ofHours(24);
 }
