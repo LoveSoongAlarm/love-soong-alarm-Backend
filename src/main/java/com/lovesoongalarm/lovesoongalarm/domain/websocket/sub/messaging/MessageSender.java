@@ -242,14 +242,4 @@ public class MessageSender {
 
         messageTransmitter.sendMessage(session, chatUnblocked);
     }
-
-    public void sendMessageBlocked(WebSocketSession session, Long chatRoomId) {
-        WebSocketMessageDTO.ChatBlocked chatBlocked = WebSocketMessageDTO.ChatBlocked.builder()
-                .type(EWebSocketMessageType.MESSAGE_BLOCKED)
-                .chatRoomId(chatRoomId)
-                .message("이 채팅방에서 차단되어 메시지를 보낼 수 없습니다.")
-                .build();
-
-        messageTransmitter.sendMessage(session, chatBlocked);
-    }
 }
