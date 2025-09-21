@@ -140,12 +140,12 @@ public class LocationServiceImpl implements LocationService {
         });
 
         int matchCount = 0;
-        boolean isMatching = false;
 
         List<MatchingResultDTO.NearbyUserMatchDTO> nearby = new ArrayList<>();
 
         for (int i = 0; i < randomNearbyUsers.size(); i++) {
             Long id = randomNearbyUsers.get(i);
+            boolean isMatching = false;
             Set<String> interests = (Set<String>) interestPipeResults.get(i);
 
             Set<String> overlapInterests = (interests == null) ? Set.of() :
