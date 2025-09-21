@@ -60,6 +60,18 @@ public class WebSocketMessageDTO {
     }
 
     @Builder
+    public record MessageSuccess(
+            EWebSocketMessageType type,
+            Long chatRoomId,
+            Long messageId,
+            String content,
+            LocalDateTime sentAt,
+            boolean success,
+            String message
+    ) {
+    }
+
+    @Builder
     public record UnreadBadgeUpdate(
             EWebSocketMessageType type,
             int totalUnreadCount

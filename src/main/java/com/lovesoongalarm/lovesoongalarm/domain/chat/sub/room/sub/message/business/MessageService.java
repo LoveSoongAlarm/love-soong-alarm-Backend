@@ -51,7 +51,7 @@ public class MessageService {
     public ChatRoomListDTO.LastMessageInfo createLastMessageInfo(ChatRoom chatRoom, Long userId) {
         log.info("마지막 메시지 정보 생성 시작 - chatRoomId: {}, userId: {}", chatRoom.getId(), userId);
 
-        Optional<Message> lastMessage = messageRetriever.findLastMessageByChatRoomId(chatRoom.getId());
+        Optional<Message> lastMessage = messageRetriever.findLastMessageWithViewerFilter(chatRoom.getId(), userId);
 
         if (lastMessage.isEmpty()) {
             log.info("마지막 메시지가 없음 - chatRoomId: {}", chatRoom.getId());
@@ -80,20 +80,20 @@ public class MessageService {
         }
     }
 
-    public List<Message> getRecentMessages(Long roomId) {
-        log.info("채팅방 최근 메시지 조회 시작 - chatRoomId: {}", roomId);
-        List<Message> messages = messageRetriever.findRecentMessagesByChatRoomId(roomId, INITIAL_MESSAGE_LIMIT);
-        log.info("채팅방 최근 메시지 조회 완료 - chatRoomId: {}, messageCount: {}", roomId, messages.size());
+    public List<Message> getRecentMessages(Long chatRoomId, Long userId) {
+        log.info("채팅방 최근 메시지 조회 시작 - chatRoomId: {}, userId: {}", chatRoomId, userId);
+        List<Message> messages = messageRetriever.findRecentMessagesWithViewerFilter(chatRoomId, userId, INITIAL_MESSAGE_LIMIT);
+        log.info("채팅방 최근 메시지 조회 완료 - chatRoomId: {}, messageCount: {}", chatRoomId, messages.size());
         return messages;
     }
 
-    public boolean hasMoreMessages(Long chatRoomId, List<Message> messages) {
+    public boolean hasMoreMessages(Long chatRoomId, List<Message> messages, Long userId) {
         if (messages.isEmpty()) {
             return false;
         }
 
         Long oldestMessageId = messages.get(messages.size() - 1).getId();
-        return messageRetriever.hasMoreMessagesBefore(chatRoomId, oldestMessageId);
+        return messageRetriever.hasMoreFilteredMessagesBefore(chatRoomId, oldestMessageId, userId);
     }
 
     public MessageListDTO.Response getPreviousMessages(
@@ -102,14 +102,14 @@ public class MessageService {
                 chatRoomId, userId, lastMessageId, size);
 
         int pageSize = validateAndGetPageSize(size);
-        List<Message> messages = messageRetriever.findPreviousMessages(chatRoomId, lastMessageId, pageSize);
+        List<Message> messages = messageRetriever.findPreviousMessagesWithViewerFilter(chatRoomId, userId, lastMessageId, pageSize);
 
         Long nextCursor = null;
         boolean hasMoreMessages = false;
 
         if (!messages.isEmpty()) {
             Long oldestMessageId = messages.get(messages.size() - 1).getId();
-            hasMoreMessages = messageRetriever.hasMoreMessagesBefore(chatRoomId, oldestMessageId);
+            hasMoreMessages = messageRetriever.hasMoreFilteredMessagesBefore(chatRoomId, oldestMessageId, userId);
             nextCursor = hasMoreMessages ? oldestMessageId : null;
         }
 
@@ -128,31 +128,52 @@ public class MessageService {
     }
 
     @Transactional
-    public void sendMessage(WebSocketSession session, ChatRoom chatRoom, String content, Long senderId) {
-        log.info("1:1 채팅 메시지 전송 시작 - chatRoomId: {}, senderId: {}", chatRoom.getId(), senderId);
-        ChatTicketValidationResult validation = chatTicketService.validateMessageSending(senderId, chatRoom.getId());
+    public void sendMessage(WebSocketSession session, ChatRoom chatRoom, String content, Long userId) {
+        log.info("1:1 채팅 메시지 전송 시작 - chatRoomId: {}, userId: {}", chatRoom.getId(), userId);
+        ChatTicketValidationResult validation = chatTicketService.validateMessageSending(userId, chatRoom.getId());
         if (!validation.canSend()) {
             messageSender.sendMessageCountLimitWithTicketInfo(session, validation);
             return;
         }
         messageValidator.validateMessage(content);
 
-        User sender = userService.findUserOrElseThrow(senderId);
+        User user = userService.findUserOrElseThrow(userId);
+        boolean isSenderBlocked = chatRoomParticipantService.isUserBannedInChatRoom(userId, chatRoom.getId());
 
-        Message message = Message.create(content, chatRoom, sender);
+        Message savedMessage;
+        if (isSenderBlocked) {
+            savedMessage = handleSilentBlockedMessage(session, chatRoom, content, user);
+        } else {
+            savedMessage = handleNormalMessage(chatRoom, content, user);
+        }
+
+        log.info("1:1 채팅 메시지 전송 완료 - messageId: {}, isBlocked: {}", savedMessage.getId(), isSenderBlocked);
+    }
+
+    private Message handleSilentBlockedMessage(WebSocketSession session, ChatRoom chatRoom, String content, User user) {
+        Message blockedMessage = Message.createBlockedMessage(content, chatRoom, user);
+        Message savedMessage = messageSaver.save(blockedMessage);
+
+        boolean isSentByMe = savedMessage.isSentBy(user.getId());
+        messageSender.sendMessage(session, savedMessage, isSentByMe, chatRoom.getId(), user.getId());
+        return savedMessage;
+    }
+
+    private Message handleNormalMessage(ChatRoom chatRoom, String content, User user) {
+        Message message = Message.create(content, chatRoom, user);
         Message savedMessage = messageSaver.save(message);
 
-        chatRoomParticipantService.activatePartnerIfPending(chatRoom, savedMessage, senderId);
+        chatRoomParticipantService.activatePartnerIfPending(chatRoom, savedMessage, user.getId());
 
         eventPublisher.publishEvent(
                 MessageSentEvent.builder()
                         .chatRoomId(chatRoom.getId())
                         .message(savedMessage)
-                        .senderId(senderId)
+                        .senderId(user.getId())
                         .build()
         );
 
-        log.info("1:1 채팅 메시지 전송 완료 - messageId: {}", savedMessage.getId());
+        return savedMessage;
     }
 
     private int validateAndGetPageSize(Integer size) {

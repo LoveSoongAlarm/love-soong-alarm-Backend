@@ -9,6 +9,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.implement.ChatRoom
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.business.MessageService;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.session.SessionService;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.business.SubscriptionService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.exception.UserErrorCode;
@@ -35,6 +36,7 @@ public class ChatRoomService {
     private final UserService userService;
 
     private final ChatRoomConverter chatRoomConverter;
+    private final SessionService sessionService;
 
     @Transactional
     public ChatRoom createChatRoom(Long userId, Long targetUserId) {
@@ -85,13 +87,14 @@ public class ChatRoomService {
         chatRoomValidator.validateChatRoomAccess(userId, roomId);
     }
 
-    public void subscribeToChatRoom(WebSocketSession session, Long chatRoomId, Long userId) {
+    public void subscribeToChatRoom(Long chatRoomId, Long userId) {
         chatRoomValidator.validateChatRoomAccess(userId, chatRoomId);
-        subscriptionService.subscribeToChatRoom(session, chatRoomId, userId);
+        subscriptionService.subscribeToChatRoom(chatRoomId, userId);
     }
 
-    public void unsubscribeToChatRoom(WebSocketSession session, Long chatRoomId, Long userId) {
+    public void unsubscribeToChatRoom(Long chatRoomId, Long userId) {
         chatRoomValidator.validateChatRoomAccess(userId, chatRoomId);
+        WebSocketSession session = sessionService.getSession(userId);
         subscriptionService.unsubscribeToChatRoom(session, chatRoomId, userId);
     }
 

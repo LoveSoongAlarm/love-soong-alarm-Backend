@@ -60,7 +60,7 @@ public class WebSocketMessageRouter {
 
     private void handleSubscribe(WebSocketSession session, WebSocketMessageDTO.Request request, Long userId) {
         try {
-            chatService.handleSubscribe(session, request.chatRoomId(), userId);
+            chatService.handleSubscribe(request.chatRoomId(), userId);
         } catch (CustomException e) {
             log.warn("구독 실패 - 채팅방: {}, 유저: {}, 이유: {}", request.chatRoomId(), userId, e.getErrorCode().getMessage());
             messageSender.sendErrorMessage(session, e.getErrorCode().getStatus().toString(), e.getErrorCode().getMessage());
@@ -72,7 +72,7 @@ public class WebSocketMessageRouter {
 
     private void handleUnsubscribe(WebSocketSession session, WebSocketMessageDTO.Request request, Long userId) {
         try {
-            chatService.handleUnsubscribe(session, request.chatRoomId(), userId);
+            chatService.handleUnsubscribe(request.chatRoomId(), userId);
         } catch (CustomException e) {
             log.warn("구독 해제 실패 - 채팅방: {}, 유저: {}, 이유: {}", request.chatRoomId(), userId, e.getErrorCode().getMessage());
             messageSender.sendErrorMessage(session, e.getErrorCode().getStatus().toString(), e.getErrorCode().getMessage());
@@ -84,7 +84,7 @@ public class WebSocketMessageRouter {
 
     private void handleChatListSubscribe(WebSocketSession session, Long userId) {
         try {
-            chatService.subscribeToChatList(session, userId);
+            chatService.subscribeToChatList(userId);
         } catch (Exception e) {
             log.error("채팅방 목록 구독 처리 중 예외 발생 - userId: {}", userId, e);
             messageSender.sendErrorMessage(session, "CHAT_LIST_SUBSCRIPTION_ERROR", "채팅방 목록 구독 중 오류가 발생했습니다.");
@@ -93,7 +93,7 @@ public class WebSocketMessageRouter {
 
     private void handleChatListUnsubscribe(WebSocketSession session, Long userId) {
         try {
-            chatService.unsubscribeFromChatList(session, userId);
+            chatService.unsubscribeFromChatList(userId);
         } catch (Exception e) {
             log.error("채팅방 목록 구독 해제 처리 중 예외 발생 - userId: {}", userId, e);
             messageSender.sendErrorMessage(session, "CHAT_LIST_UNSUBSCRIPTION_ERROR", "채팅방 목록 구독 해제 중 오류가 발생했습니다.");

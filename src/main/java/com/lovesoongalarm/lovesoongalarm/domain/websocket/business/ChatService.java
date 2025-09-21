@@ -21,27 +21,27 @@ public class ChatService {
     private final SubscriptionService subscriptionService;
     private final ChatRoomBlockService chatRoomBlockService;
 
-    public void handleSubscribe(WebSocketSession session, Long chatRoomId, Long userId) {
+    public void handleSubscribe(Long chatRoomId, Long userId) {
         log.info("채팅방 구독 시작 - userId: {}, chatRoomId: {}", userId, chatRoomId);
-        chatRoomService.subscribeToChatRoom(session, chatRoomId, userId);
+        chatRoomService.subscribeToChatRoom(chatRoomId, userId);
         log.info("채팅방 구독 완료 - userId: {}, chatRoomId: {}", userId, chatRoomId);
     }
 
-    public void handleUnsubscribe(WebSocketSession session, Long chatRoomId, Long userId) {
+    public void handleUnsubscribe(Long chatRoomId, Long userId) {
         log.info("채팅방 구독 해제 시작 - userId: {}, chatRoomId: {}", userId, chatRoomId);
-        chatRoomService.unsubscribeToChatRoom(session, chatRoomId, userId);
+        chatRoomService.unsubscribeToChatRoom(chatRoomId, userId);
         log.info("채팅방 구독 해제 완료 - userId: {}, chatRoomId: {}", userId, chatRoomId);
     }
 
-    public void subscribeToChatList(WebSocketSession session, Long userId) {
+    public void subscribeToChatList(Long userId) {
         log.info("채팅방 목록 구독 시작 - userId: {}", userId);
-        subscriptionService.subscribeToChatList(session, userId);
+        subscriptionService.subscribeToChatList(userId);
         log.info("채팅방 목록 구독 완료 - userId: {}", userId);
     }
 
-    public void unsubscribeFromChatList(WebSocketSession session, Long userId) {
+    public void unsubscribeFromChatList(Long userId) {
         log.info("채팅방 목록 구독 해제 시작 - userId: {}", userId);
-        subscriptionService.unsubscribeFromChatList(session, userId);
+        subscriptionService.unsubscribeFromChatList(userId);
         log.info("채팅방 목록 구독 해제 완료 - userId: {}", userId);
     }
 
@@ -49,7 +49,6 @@ public class ChatService {
     public void handleSendMessage(WebSocketSession session, Long chatRoomId, String content, Long userId) {
         log.info("메시지 송신 시작 - userId: {}, chatRoomId: {}", userId, chatRoomId);
         chatRoomService.validateChatRoomAccess(userId, chatRoomId);
-        chatRoomBlockService.validateMessageFromBlockedUser(userId, chatRoomId);
         ChatRoom chatRoom = chatRoomService.getChatRoomOrElseThrow(chatRoomId);
         messageService.sendMessage(session, chatRoom, content, userId);
         log.info("메시지 송신 완료 - userId: {}, chatRoomId: {}", userId, chatRoomId);

@@ -44,30 +44,30 @@ public class ChatQueryService {
         return chatRoomConverter.toChatRoomListResponse(userSlotInfo, chatRoomInfos);
     }
 
-    public ChatRoomDetailDTO.Response getChatRoomDetail(Long userId, Long roomId) {
-        log.info("초기 채팅방 조회 시작 - userId = {}, roomId = {}", userId, roomId);
-        chatRoomService.validateChatRoomAccess(userId, roomId);
-        User partner = userService.getPartnerUser(roomId, userId);
+    public ChatRoomDetailDTO.Response getChatRoomDetail(Long userId, Long chatRoomId) {
+        log.info("초기 채팅방 조회 시작 - userId = {}, chatRoomId = {}", userId, chatRoomId);
+        chatRoomService.validateChatRoomAccess(userId, chatRoomId);
+        User partner = userService.getPartnerUser(chatRoomId, userId);
 
-        BlockStatus blockStatus = chatRoomParticipantService.getBlockStatus(userId, roomId, partner.getId());
+        BlockStatus blockStatus = chatRoomParticipantService.getBlockStatus(userId, chatRoomId, partner.getId());
 
-        List<Message> recentMessages = messageService.getRecentMessages(roomId);
-        boolean hasMoreMessages = messageService.hasMoreMessages(roomId, recentMessages);
+        List<Message> recentMessages = messageService.getRecentMessages(chatRoomId, userId);
+        boolean hasMoreMessages = messageService.hasMoreMessages(chatRoomId, recentMessages, userId);
 
         log.info("채팅방 상세 조회 완료 - chatRoomId: {}, partnerId: {}, messageCount: {}, hasMore: {}",
-                roomId, partner.getId(), recentMessages.size(), hasMoreMessages);
+                chatRoomId, partner.getId(), recentMessages.size(), hasMoreMessages);
         return chatRoomConverter.toChatRoomDetailResponse(
                 partner, recentMessages, userId, hasMoreMessages, blockStatus);
     }
 
-    public MessageListDTO.Response getChatRoomMessages(Long userId, Long roomId, Integer size, Long lastMessageId) {
-        log.info("채팅방 과거 메시지 조회 시작 - userId: {}, roomId: {}, lastMessageId: {}, size: {}",
-                userId, roomId, lastMessageId, size);
-        chatRoomService.validateChatRoomAccess(userId, roomId);
+    public MessageListDTO.Response getChatRoomMessages(Long userId, Long chatRoomId, Integer size, Long lastMessageId) {
+        log.info("채팅방 과거 메시지 조회 시작 - userId: {}, chatRoomId: {}, lastMessageId: {}, size: {}",
+                userId, chatRoomId, lastMessageId, size);
+        chatRoomService.validateChatRoomAccess(userId, chatRoomId);
         MessageListDTO.Response response = messageService.getPreviousMessages(
-                roomId, userId, lastMessageId, size);
-        log.info("채팅방 과거 메시지 조회 완료 - userId: {}, roomId: {}, lastMessageId: {}, size: {}",
-                userId, roomId, lastMessageId, size);
+                chatRoomId, userId, lastMessageId, size);
+        log.info("채팅방 과거 메시지 조회 완료 - userId: {}, chatRoomId: {}, lastMessageId: {}, size: {}",
+                userId, chatRoomId, lastMessageId, size);
         return response;
     }
 }
