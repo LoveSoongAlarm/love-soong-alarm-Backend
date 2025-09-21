@@ -3,6 +3,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.pay.application.controller;
 
 import java.util.Map;
 
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,6 +34,10 @@ public class PayController {
     private final PayService service;
     private final WebhookClient webhookClient;
 
+    @Operation(
+            summary = "결제 세션으로 체크 아웃",
+            description = "결제 요청을 할때 사용하는 API 입니다."
+    )
     @PostMapping("/checkout")
     public BaseResponse<CreateCheckoutSessionDTO> createCheckOut(
             @Valid @RequestBody PayItemRequestDTO request,
@@ -57,7 +62,7 @@ public class PayController {
         HttpServletRequest httpServletRequest
     ){
         String ipAddress = extractClientIp(httpServletRequest);
-        return BaseResponse.success(service.verifySuccess(sessionId, ipAddress)); // 일단 이렇게 두긴 했는데, 프엔에서 "결제 완료되었습니다!" 구현하려면 redirect도 괜찮을 것 같아요!
+        return BaseResponse.success(service.verifySuccess(sessionId, ipAddress));
     }
 
     @GetMapping("/cancel")
