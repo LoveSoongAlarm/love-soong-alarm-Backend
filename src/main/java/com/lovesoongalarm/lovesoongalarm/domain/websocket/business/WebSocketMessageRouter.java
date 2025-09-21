@@ -60,7 +60,7 @@ public class WebSocketMessageRouter {
 
     private void handleSubscribe(WebSocketSession session, WebSocketMessageDTO.Request request, Long userId) {
         try {
-            chatService.handleSubscribe(session, request.chatRoomId(), userId);
+            chatService.handleSubscribe(request.chatRoomId(), userId);
         } catch (CustomException e) {
             log.warn("구독 실패 - 채팅방: {}, 유저: {}, 이유: {}", request.chatRoomId(), userId, e.getErrorCode().getMessage());
             messageSender.sendErrorMessage(session, e.getErrorCode().getStatus().toString(), e.getErrorCode().getMessage());

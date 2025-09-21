@@ -21,9 +21,9 @@ public class ChatService {
     private final SubscriptionService subscriptionService;
     private final ChatRoomBlockService chatRoomBlockService;
 
-    public void handleSubscribe(WebSocketSession session, Long chatRoomId, Long userId) {
+    public void handleSubscribe(Long chatRoomId, Long userId) {
         log.info("채팅방 구독 시작 - userId: {}, chatRoomId: {}", userId, chatRoomId);
-        chatRoomService.subscribeToChatRoom(session, chatRoomId, userId);
+        chatRoomService.subscribeToChatRoom(chatRoomId, userId);
         log.info("채팅방 구독 완료 - userId: {}, chatRoomId: {}", userId, chatRoomId);
     }
 
