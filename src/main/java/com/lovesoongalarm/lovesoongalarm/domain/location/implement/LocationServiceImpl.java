@@ -37,7 +37,7 @@ public class LocationServiceImpl implements LocationService {
         if (newZone == null || newZone.isBlank()) {
             throw new CustomException(LocationErrorCode.USER_ZONE_NOT_FOUND);
         } else if (newZone.equals("8")) {
-//            throw new CustomException(LocationErrorCode.OUT_OF_ZONE);
+            throw new CustomException(LocationErrorCode.OUT_OF_ZONE);
         }
         String stringUserId = String.valueOf(userId);
         String prevZone = stringRedisTemplate.opsForValue().get(ZONE_KEY + userId);
@@ -69,7 +69,7 @@ public class LocationServiceImpl implements LocationService {
             log.info("user zone : {}", zone);
             throw new CustomException(LocationErrorCode.USER_ZONE_NOT_FOUND);
         } else if (zone.equals("8")) {
-//            throw new CustomException(LocationErrorCode.OUT_OF_ZONE);
+            throw new CustomException(LocationErrorCode.OUT_OF_ZONE);
         }
         log.info("user zone : {}", zone);
 
