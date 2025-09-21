@@ -154,7 +154,8 @@ public class MessageService {
         Message blockedMessage = Message.createBlockedMessage(content, chatRoom, user);
         Message savedMessage = messageSaver.save(blockedMessage);
 
-        messageSender.sendMessageSuccess(session, savedMessage, chatRoom.getId());
+        boolean isSentByMe = savedMessage.isSentBy(user.getId());
+        messageSender.sendMessage(session, savedMessage, isSentByMe, chatRoom.getId(), user.getId());
         return savedMessage;
     }
 
