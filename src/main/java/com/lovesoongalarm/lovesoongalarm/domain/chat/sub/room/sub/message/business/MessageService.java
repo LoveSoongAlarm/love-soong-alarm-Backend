@@ -138,6 +138,7 @@ public class MessageService {
         messageValidator.validateMessage(content);
 
         User user = userService.findUserOrElseThrow(userId);
+        boolean isSenderBlocked = chatRoomParticipantService.isUserBannedInChatRoom(userId, chatRoom.getId());
 
         Message message = Message.create(content, chatRoom, user);
         Message savedMessage = messageSaver.save(message);

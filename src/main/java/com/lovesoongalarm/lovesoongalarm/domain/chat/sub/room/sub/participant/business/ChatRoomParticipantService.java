@@ -109,6 +109,10 @@ public class ChatRoomParticipantService {
         return new BlockStatus(isPartnerBlocked, isBlockedByPartner);
     }
 
+    public boolean isUserBannedInChatRoom(Long userId, Long chatRoomId) {
+        return chatRoomParticipantRetriever.isUserBannedInChatRoom(userId, chatRoomId);
+    }
+
     private boolean isAlreadyParticipating(Long userId, Long targetUserId, ChatRoom chatRoom) {
         boolean userExists = chatRoomParticipantRetriever.existsByUserIdAndChatRoomId(userId, chatRoom.getId());
         boolean targetExists = chatRoomParticipantRetriever.existsByUserIdAndChatRoomId(targetUserId, chatRoom.getId());
