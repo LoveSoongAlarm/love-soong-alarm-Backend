@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum LocationErrorCode implements ErrorCode {
     OUT_OF_ZONE(HttpStatus.BAD_REQUEST, "숭실대학교 내부에서만 사용 가능합니다."),
+    USER_ZONE_NOT_FOUND(HttpStatus.NOT_FOUND, "유저의 구역을 찾을 수 없습니다."),
     USER_GEO_NOT_FOUND(HttpStatus.NOT_FOUND, "유저의 위치 정보를 찾을 수 없습니다.")
     ;
 

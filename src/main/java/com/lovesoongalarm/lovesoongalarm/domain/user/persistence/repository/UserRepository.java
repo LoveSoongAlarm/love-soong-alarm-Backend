@@ -1,11 +1,13 @@
 package com.lovesoongalarm.lovesoongalarm.domain.user.persistence.repository;
 
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
+import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EUserStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -39,4 +41,18 @@ public interface UserRepository extends JpaRepository<User, Long> {
             AND u.remainingSlot > 0
             """)
     int decreaseRemainingSlot(@Param("userId") Long userId);
+
+    @Modifying(clearAutomatically = true)
+    @Query("""
+            UPDATE User u 
+            SET u.maxSlot = u.maxSlot + 1 
+            WHERE u.id = :userId 
+            AND u.prePass = false
+            """)
+    int increaseMaxSlot(@Param("userId") Long userId);
+
+    Optional<User> findByIdAndStatus(Long userId, EUserStatus status);
+
+    @Query("SELECT u FROM User u WHERE u.id IN :userIds AND u.status= :status")
+    List<User> findAllByIdsAndStatus(@Param("userIds") List<Long> userIds, @Param("status") EUserStatus status);
 }

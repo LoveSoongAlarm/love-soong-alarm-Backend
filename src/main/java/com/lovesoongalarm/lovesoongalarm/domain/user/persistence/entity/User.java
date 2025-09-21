@@ -1,6 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity;
 
 import com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.entity.type.EItem;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.entity.Notification;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EGender;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EPlatform;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.ERole;
@@ -18,6 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.entity.type.EItem.CHAT_TICKET;
+
+import static com.lovesoongalarm.lovesoongalarm.common.constant.Constants.DELETED_USER_DEFAULT_INFO;
+import static com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EUserStatus.INACTIVE;
 
 @Entity
 @Getter
@@ -67,6 +71,9 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Interest> interests = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> notifications;
 
     @Column(name = "pre_pass")
     private boolean prePass = false;
@@ -158,4 +165,14 @@ public class User {
             }
         }
     }
+
+    public void decreaseChatTicket() {
+        this.chatTicket--;
+    }
+
+    public void softDelete() {
+        this.nickname = DELETED_USER_DEFAULT_INFO;
+        this.status = INACTIVE;
+    }
+
 }

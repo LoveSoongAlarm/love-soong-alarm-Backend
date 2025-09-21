@@ -3,8 +3,6 @@ package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.implement;
 import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.exception.ChatRoomErrorCode;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantRetriever;
-import com.lovesoongalarm.lovesoongalarm.domain.user.exception.UserErrorCode;
-import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserRetriever;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

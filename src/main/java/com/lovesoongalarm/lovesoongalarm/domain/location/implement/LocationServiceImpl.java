@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.*;
 
@@ -34,6 +35,8 @@ public class LocationServiceImpl implements LocationService {
         String newZone = zoneResolver.resolve(latitude, longitude);
         log.info("user new zone : {}", newZone);
         if (newZone == null || newZone.isBlank()) {
+            throw new CustomException(LocationErrorCode.USER_ZONE_NOT_FOUND);
+        } else if (newZone.equals("8")) {
             throw new CustomException(LocationErrorCode.OUT_OF_ZONE);
         }
         String stringUserId = String.valueOf(userId);
@@ -63,6 +66,9 @@ public class LocationServiceImpl implements LocationService {
 
         String zone = stringRedisTemplate.opsForValue().get(ZONE_KEY + userId);
         if (zone == null || zone.isBlank()) {
+            log.info("user zone : {}", zone);
+            throw new CustomException(LocationErrorCode.USER_ZONE_NOT_FOUND);
+        } else if (zone.equals("8")) {
             throw new CustomException(LocationErrorCode.OUT_OF_ZONE);
         }
         log.info("user zone : {}", zone);
@@ -85,7 +91,7 @@ public class LocationServiceImpl implements LocationService {
             return MatchingResultDTO.builder()
                     .matchCount(0)
                     .zone(zone)
-                    .userIds(List.of())
+                    .nearbyUsers(List.of())
                     .build();
         }
 
@@ -134,18 +140,31 @@ public class LocationServiceImpl implements LocationService {
         });
 
         int matchCount = 0;
+        boolean isMatching = false;
+
+        List<MatchingResultDTO.NearbyUserMatchDTO> nearby = new ArrayList<>();
 
         for (int i = 0; i < randomNearbyUsers.size(); i++) {
             Long id = randomNearbyUsers.get(i);
             Set<String> interests = (Set<String>) interestPipeResults.get(i);
 
-            long overlap = (interests == null) ? 0 : interests.stream()
-                    .filter(myInterests::contains)
-                    .count();
+            Set<String> overlapInterests = (interests == null) ? Set.of() :
+                    interests.stream()
+                            .filter(myInterests::contains)
+                            .collect(Collectors.toSet());
+
+            long overlap = overlapInterests.size();
 
             if (overlap != 0) {
                 matchCount++;
+                isMatching = true;
             }
+
+            nearby.add(MatchingResultDTO.NearbyUserMatchDTO.builder()
+                    .userId(id)
+                    .isMatching(isMatching)
+                    .overlapInterests(overlapInterests)
+                    .build());
         }
 
         log.info("randomNearbyUsers : {}", randomNearbyUsers);
@@ -153,7 +172,7 @@ public class LocationServiceImpl implements LocationService {
         return MatchingResultDTO.builder()
                 .matchCount(matchCount)
                 .zone(zone)
-                .userIds(randomNearbyUsers)
+                .nearbyUsers(nearby)
                 .build();
     }
 }

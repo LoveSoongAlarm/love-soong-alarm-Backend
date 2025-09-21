@@ -1,5 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.common.constant;
 
+import java.time.Duration;
 import java.util.List;
 
 public class Constants {
@@ -11,6 +12,7 @@ public class Constants {
     public static String REFRESH_TOKEN_PREFIX = "RT:";
     public static final String AUTHORIZATION_PREFIX = "KakaoAK ";
     public static final String TARGET_ID_TYPE = "user_id";
+    public static final String DELETED_USER_DEFAULT_INFO = "알수없음";
     public static List<String> NO_NEED_AUTH = List.of(
             "/api/v1/health-check",
             "/swagger",
@@ -26,4 +28,5 @@ public class Constants {
             "/api/pay/success",
             "/api/pay/webhook"
     );
+    public static final Duration SUBSCRIPTION_TTL = Duration.ofHours(24);
 }

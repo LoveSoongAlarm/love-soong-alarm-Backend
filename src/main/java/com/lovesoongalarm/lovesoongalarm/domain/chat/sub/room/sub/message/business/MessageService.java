@@ -9,14 +9,18 @@ import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implem
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageSaver;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.implement.MessageValidator;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.application.dto.ChatTicketValidationResult;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business.ChatRoomParticipantService;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business.ChatTicketService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.messaging.MessageSender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.socket.WebSocketSession;
 
 import java.util.Comparator;
 import java.util.List;
@@ -30,12 +34,13 @@ public class MessageService {
     private final MessageRetriever messageRetriever;
     private final MessageValidator messageValidator;
     private final MessageSaver messageSaver;
+    private final MessageSender messageSender;
 
     private final MessageConverter messageConverter;
 
     private final UserService userService;
     private final ChatRoomParticipantService chatRoomParticipantService;
-    private final MessageNotificationService messageNotificationService;
+    private final ChatTicketService chatTicketService;
 
     private final ApplicationEventPublisher eventPublisher;
 
@@ -123,8 +128,13 @@ public class MessageService {
     }
 
     @Transactional
-    public void sendMessage(ChatRoom chatRoom, String content, Long senderId) {
+    public void sendMessage(WebSocketSession session, ChatRoom chatRoom, String content, Long senderId) {
         log.info("1:1 채팅 메시지 전송 시작 - chatRoomId: {}, senderId: {}", chatRoom.getId(), senderId);
+        ChatTicketValidationResult validation = chatTicketService.validateMessageSending(senderId, chatRoom.getId());
+        if (!validation.canSend()) {
+            messageSender.sendMessageCountLimitWithTicketInfo(session, validation);
+            return;
+        }
         messageValidator.validateMessage(content);
 
         User sender = userService.findUserOrElseThrow(senderId);
@@ -132,7 +142,7 @@ public class MessageService {
         Message message = Message.create(content, chatRoom, sender);
         Message savedMessage = messageSaver.save(message);
 
-        chatRoomParticipantService.activatePartnerIfPending(chatRoom, senderId);
+        chatRoomParticipantService.activatePartnerIfPending(chatRoom, savedMessage, senderId);
 
         eventPublisher.publishEvent(
                 MessageSentEvent.builder()

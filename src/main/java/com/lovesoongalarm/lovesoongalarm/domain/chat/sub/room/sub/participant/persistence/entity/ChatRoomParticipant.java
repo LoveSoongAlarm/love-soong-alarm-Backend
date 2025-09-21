@@ -20,6 +20,12 @@ public class ChatRoomParticipant {
     @Column(nullable = false)
     private EChatRoomParticipantStatus status = EChatRoomParticipantStatus.PENDING;
 
+    @Column(name = "free_message_count", nullable = false)
+    private Integer freeMessageCount = 0;
+
+    @Column(name = "ticket_used", nullable = false)
+    private Boolean ticketUsed = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -33,6 +39,8 @@ public class ChatRoomParticipant {
         this.status = status;
         this.chatRoom = chatRoom;
         this.user = user;
+        this.freeMessageCount = 0;
+        this.ticketUsed = false;
     }
 
     public static ChatRoomParticipant createJoined(ChatRoom chatRoom, User me) {
@@ -49,5 +57,35 @@ public class ChatRoomParticipant {
                 .chatRoom(chatRoom)
                 .user(target)
                 .build();
+    }
+
+    public boolean hasUnlimitedChat() {
+        return this.getUser().isPrePass() || this.getTicketUsed();
+    }
+
+    public void setTicketUsed() {
+        this.ticketUsed = true;
+    }
+
+    public int getTicketCount() {
+        return this.getUser().getChatTicket();
+    }
+
+    public void banUser() {
+        this.status = EChatRoomParticipantStatus.BANNED;
+    }
+
+    public void unbanUser() {
+        if (this.status == EChatRoomParticipantStatus.BANNED) {
+            this.status = EChatRoomParticipantStatus.JOINED;
+        }
+    }
+
+    public boolean canSendMessage() {
+        return this.status.canSendMessage();
+    }
+
+    public boolean isBanned() {
+        return this.status.isBanned();
     }
 }

@@ -7,12 +7,14 @@ import java.util.List;
 
 @Builder
 public record NearbyUserResponseDTO(
+        Long userId,
         String name,
         Integer age,
         String major,
         String emoji,
         List<UserInterestResponseDTO> interests,
         String lastSeen,
+        boolean isMatching,
         Double latitude,
         Double longitude
 ) {

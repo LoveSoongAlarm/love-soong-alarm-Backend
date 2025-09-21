@@ -1,19 +1,25 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.business;
 
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.BlockStatus;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.message.persistence.entity.Message;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.application.converter.ChatRoomParticipantConverter;
+import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.application.dto.UseTicketDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantSaver;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.persistence.entity.ChatRoom;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.implement.ChatRoomParticipantUpdater;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.entity.ChatRoomParticipant;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.sub.participant.persistence.type.EChatRoomParticipantStatus;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
+import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.subscription.business.UserSubscriptionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -21,10 +27,12 @@ import java.util.List;
 public class ChatRoomParticipantService {
 
     private final UserService userService;
+    private final UserSubscriptionService userSubscriptionService;
 
     private final ChatRoomParticipantSaver chatRoomParticipantSaver;
     private final ChatRoomParticipantRetriever chatRoomParticipantRetriever;
     private final ChatRoomParticipantUpdater chatRoomParticipantUpdater;
+    private final ChatRoomParticipantConverter chatRoomParticipantConverter;
 
     public void addParticipant(Long userId, Long targetUserId, ChatRoom chatRoom) {
         log.info("채팅방에 유저 참여 로직 시작 - userId: {}, targetUserId: {}, chatRoomId: {}", userId, targetUserId, chatRoom.getId());
@@ -40,20 +48,65 @@ public class ChatRoomParticipantService {
         ChatRoomParticipant myParticipant = ChatRoomParticipant.createJoined(chatRoom, me);
         ChatRoomParticipant targetParticipant = ChatRoomParticipant.createPending(chatRoom, target);
         chatRoomParticipantSaver.save(List.of(myParticipant, targetParticipant));
+
         log.info("채팅방에 유저 참여 로직 종료 - userId: {}, targetUserId: {}, chatRoomId: {}", userId, targetUserId, chatRoom.getId());
     }
 
     @Transactional
-    public void activatePartnerIfPending(ChatRoom chatRoom, Long senderId) {
-        chatRoom.getParticipants().stream()
+    public void activatePartnerIfPending(ChatRoom chatRoom, Message message, Long senderId) {
+        Optional<ChatRoomParticipant> partnerParticipant = getPartnerParticipant(chatRoom, senderId);
+
+        if (partnerParticipant.isEmpty()) {
+            log.warn("상대방 참여자를 찾을 수 없습니다 - chatRoomId: {}, senderId: {}",
+                    chatRoom.getId(), senderId);
+            return;
+        }
+
+        ChatRoomParticipant partner = partnerParticipant.get();
+        if (partner.getStatus() == EChatRoomParticipantStatus.PENDING) {
+            Long partnerId = partner.getUser().getId();
+            chatRoomParticipantUpdater.updateParticipantStatusToJoined(partner.getId());
+            userService.increaseMaxSlot(partnerId);
+
+            User sender = userService.findUserOrElseThrow(senderId);
+            userSubscriptionService.publishNewChatRoomNotification(
+                    partnerId,
+                    chatRoom.getId(),
+                    sender.getNickname(),
+                    sender.getEmoji(),
+                    message
+            );
+
+            log.info("상대방 활성화 및 슬롯 증가 완료 - partnerId: {}, chatRoomId: {}",
+                    partnerId, chatRoom.getId());
+        }
+    }
+
+    public Optional<ChatRoomParticipant> getPartnerParticipant(ChatRoom chatRoom, Long senderId) {
+        Optional<ChatRoomParticipant> partnerParticipant = chatRoom.getParticipants().stream()
                 .filter(participant -> !participant.getUser().getId().equals(senderId))
-                .filter(participant -> participant.getStatus() == EChatRoomParticipantStatus.PENDING)
-                .findFirst()
-                .ifPresent(partnerParticipant -> {
-                   log.info("상대방을 JOINED 상태로 변경 - partnerId: {}, chatRoomId: {}",
-                           partnerParticipant.getUser().getId(), chatRoom.getId());
-                   chatRoomParticipantUpdater.updateParticipantStatusToJoined(partnerParticipant);
-                });
+                .findFirst();
+        return partnerParticipant;
+    }
+
+    @Transactional
+    public UseTicketDTO.Response useTicket(Long userId, Long chatRoomId) {
+        ChatRoomParticipant participant = chatRoomParticipantRetriever.findByUserIdAndChatRoomId(userId, chatRoomId);
+        User user = participant.getUser();
+
+        userService.validateChatTicket(user);
+        user.decreaseChatTicket();
+        participant.setTicketUsed();
+
+        ChatRoomParticipant savedParticipant = chatRoomParticipantSaver.save(participant);
+        return chatRoomParticipantConverter.toUseTicketResponse(savedParticipant);
+    }
+
+    public BlockStatus getBlockStatus(Long userId, Long chatRoomId, Long partnerId) {
+        boolean isPartnerBlocked = chatRoomParticipantRetriever.isUserBannedInChatRoom(partnerId, chatRoomId);
+        boolean isBlockedByPartner = chatRoomParticipantRetriever.isUserBannedInChatRoom(userId, chatRoomId);
+
+        return new BlockStatus(isPartnerBlocked, isBlockedByPartner);
     }
 
     private boolean isAlreadyParticipating(Long userId, Long targetUserId, ChatRoom chatRoom) {

@@ -11,4 +11,12 @@ public enum EChatRoomParticipantStatus {
     BANNED("채팅방 밴");
 
     private final String value;
+
+    public boolean canSendMessage() {
+        return this == JOINED;
+    }
+
+    public boolean isBanned() {
+        return this == BANNED;
+    }
 }

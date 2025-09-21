@@ -7,10 +7,14 @@ import com.lovesoongalarm.lovesoongalarm.domain.location.application.dto.NearbyR
 import com.lovesoongalarm.lovesoongalarm.domain.location.application.dto.NearbyUserResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.location.business.LocationService;
 import com.lovesoongalarm.lovesoongalarm.domain.location.implement.RedisPipeline;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.business.NotificationQueryService;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationBadgeUpdateEvent;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationCreatedEvent;
 import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +25,10 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.GEO_KEY;
 import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.LAST_SEEN_KEY;
@@ -32,6 +40,8 @@ public class LocationFacade {
     private final LocationService locationService;
     private final UserQueryService userQueryService;
     private final RedisPipeline redisPipeline;
+    private final NotificationQueryService notificationQueryService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
     public void updateLocation(Long userId, double latitude, double longitude) {
@@ -47,49 +57,70 @@ public class LocationFacade {
             log.info("matchingResult: {}", matchingResult);
 
             List<Object> pipeResults = redisPipeline.pipe(ops -> {
-                for (Long id : matchingResult.userIds()) {
-                    ops.opsForValue().get(LAST_SEEN_KEY + id);
-                    ops.opsForGeo().position(GEO_KEY + matchingResult.zone(), String.valueOf(id));
+                for (MatchingResultDTO.NearbyUserMatchDTO userMatch : matchingResult.nearbyUsers()) {
+                    ops.opsForGeo().position(GEO_KEY + matchingResult.zone(), String.valueOf(userMatch.userId()));
+
                 }
             });
 
             int i = 0;
-            for (Long id : matchingResult.userIds()) {
-                UserResponseDTO user = userQueryService.getUser(id);
+
+            List<Long> userIds = matchingResult.nearbyUsers().stream()
+                    .map(MatchingResultDTO.NearbyUserMatchDTO::userId)
+                    .toList();
+
+            Map<Long, UserResponseDTO> userMap = userQueryService.getAllUser(userIds).stream()
+                    .collect(Collectors.toMap(UserResponseDTO::id, Function.identity()));
+
+            List<NotificationCreatedEvent.NotificationHolder> holders = new ArrayList<>();
+            for (MatchingResultDTO.NearbyUserMatchDTO userMatch : matchingResult.nearbyUsers()) {
+                UserResponseDTO user = userMap.get(userMatch.userId());
+
                 log.info("userResponseDTO: {}", user);
-
-                String lastSeenStr = (String) pipeResults.get(i++);
-                long lastSeen = (lastSeenStr != null) ? Long.parseLong(lastSeenStr) : 0L;
-
-                String time = LocalDateTime.ofInstant(
-                        Instant.ofEpochSecond(lastSeen),
-                        ZoneId.of("Asia/Seoul")
-                ).format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
 
                 List<Point> posList = (List<Point>) pipeResults.get(i++);
                 Double latitude = null;
                 Double longitude = null;
-                if(posList != null && !posList.isEmpty() && posList.get(0) != null) {
+                if (posList != null && !posList.isEmpty() && posList.get(0) != null) {
                     longitude = posList.get(0).getX();
                     latitude = posList.get(0).getY();
                 }
-                log.debug("{} lastSeen : {}, lat: {}, lon: {}", id, lastSeen, latitude, longitude);
-
-                log.info("{} lastSeen: {}", id, time);
+                log.debug("{} lat: {}, lon: {}", userMatch.userId(), latitude, longitude);
 
                 nearbyUserResponse.add(NearbyUserResponseDTO.builder()
+                        .userId(userMatch.userId())
                         .name(user.name())
                         .age(user.age())
                         .major(user.major())
-                        .lastSeen(time)
+                        .lastSeen(user.lastSeen())
                         .emoji(user.emoji())
                         .interests(user.interests())
+                        .isMatching(userMatch.isMatching())
                         .latitude(latitude)
                         .longitude(longitude)
                         .build());
+
+                if (userMatch.isMatching()) {
+                    Optional.ofNullable(notificationQueryService.saveNotification(userId, userMatch.userId(), new ArrayList<>(userMatch.overlapInterests())))
+                            .ifPresent(notification -> holders.add(new NotificationCreatedEvent.NotificationHolder(userId, notification)));
+
+                    Optional.ofNullable(notificationQueryService.saveNotification(userMatch.userId(), userId, new ArrayList<>(userMatch.overlapInterests())))
+                            .ifPresent(notification -> holders.add(new NotificationCreatedEvent.NotificationHolder(userMatch.userId(), notification)));
+                }
             }
 
             log.info("nearbyUserResponse: {}", nearbyUserResponse);
+
+            if (!holders.isEmpty()) {
+                applicationEventPublisher.publishEvent(new NotificationCreatedEvent(holders));
+
+                applicationEventPublisher.publishEvent(
+                        NotificationBadgeUpdateEvent.builder()
+                                .userId(userId)
+                                .hasUnRead(true)
+                                .build()
+                );
+            }
 
             return NearbyResponseDTO.builder()
                     .matchCount(matchingResult.matchCount())
