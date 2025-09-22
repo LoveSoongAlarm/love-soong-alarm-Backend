@@ -1,10 +1,8 @@
 package com.lovesoongalarm.lovesoongalarm.domain.pay.application.controller;
 
 
-import java.util.Map;
 
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,7 +22,6 @@ import com.lovesoongalarm.lovesoongalarm.domain.pay.application.dto.CreateChecko
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Map;
 
 
 @RestController
@@ -42,12 +39,10 @@ public class PayController {
     @PostMapping("/checkout")
     public BaseResponse<CreateCheckoutSessionDTO> createCheckOut(
             @Valid @RequestBody PayItemRequestDTO request,
-            HttpServletRequest httpServletRequest,
             @UserId Long userId
 
     ){
-        String ipAddress = extractClientIp(httpServletRequest);
-        return BaseResponse.success(service.createCheckoutSession(request, userId, ipAddress)); // 요것도 일단 url 던지는걸로 구현햇는데, redirect도 좋을 것 같아요!
+        return BaseResponse.success(service.createCheckoutSession(request, userId)); // 요것도 일단 url 던지는걸로 구현햇는데, redirect도 좋을 것 같아요!
     }
 
     @Operation(
@@ -67,11 +62,9 @@ public class PayController {
     @GetMapping("/success")
     public BaseResponse<PaySuccessResponseDTO> verifySuccess(
         @RequestParam("session_id") String sessionId,
-        @UserId Long userId,
-        HttpServletRequest httpServletRequest
+        @UserId Long userId
     ){
-        String ipAddress = extractClientIp(httpServletRequest);
-        return BaseResponse.success(service.verifySuccess(sessionId, ipAddress, userId));
+        return BaseResponse.success(service.verifySuccess(sessionId, userId));
     }
 
     @Operation(
@@ -87,31 +80,6 @@ public class PayController {
         return BaseResponse.success(null);
     }
 
-
-    private String extractClientIp(HttpServletRequest request) {
-        String xff = request.getHeader("X-Forwarded-For");
-        if (xff != null && !xff.isBlank()) {
-            int commaIdx = xff.indexOf(',');
-            return (commaIdx > -1 ? xff.substring(0, commaIdx) : xff).trim();
-        }
-
-        String realIp = request.getHeader("X-Real-IP");
-        if (realIp != null && !realIp.isBlank()) {
-            return realIp.trim();
-        }
-
-        String proxyClientIp = request.getHeader("Proxy-Client-IP");
-        if (proxyClientIp != null && !proxyClientIp.isBlank()) {
-            return proxyClientIp.trim();
-        }
-
-        String wlProxyClientIp = request.getHeader("WL-Proxy-Client-IP");
-        if (wlProxyClientIp != null && !wlProxyClientIp.isBlank()) {
-            return wlProxyClientIp.trim();
-        }
-
-        return request.getRemoteAddr();
-    }
 }
 
 

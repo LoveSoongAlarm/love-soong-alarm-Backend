@@ -7,8 +7,6 @@ import com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.entity.type.EIte
 import com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.entity.type.EItemStatus;
 import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +21,6 @@ import com.stripe.param.checkout.SessionCreateParams;
 
 import lombok.RequiredArgsConstructor;
 
-import java.io.IOException;
 
 import java.util.Objects;
 
@@ -36,7 +33,7 @@ public class PayService {
     private final PayRetriever payRetriever;
 
     @Transactional
-    public CreateCheckoutSessionDTO createCheckoutSession(PayItemRequestDTO request, Long userId, String ipAddress) {
+    public CreateCheckoutSessionDTO createCheckoutSession(PayItemRequestDTO request, Long userId) {
 
         User findUser = userRetriever.findByIdAndOnlyActive(userId);
 
@@ -52,7 +49,7 @@ public class PayService {
 
         Session session = stripe.createCheckoutSession(lineItem); // PayStripeClient에서 새 결제 생성
 
-        payRetriever.createOrLoadPay(session, findUser, EItem.valueOf(request.item()), ipAddress);
+        payRetriever.createOrLoadPay(session, findUser, EItem.valueOf(request.item()));
         return new CreateCheckoutSessionDTO(session.getUrl()); // 사용자가 결제 가능한 URL을 넘깁니다
     }
 
@@ -92,7 +89,7 @@ public class PayService {
     }
 
     @Transactional
-    public PaySuccessResponseDTO verifySuccess(String sessionId, String ipAddress, Long userId)
+    public PaySuccessResponseDTO verifySuccess(String sessionId, Long userId)
      {
          User findUser = userRetriever.findByIdAndOnlyActive(userId);
          Pay findPay = payRetriever.findBySessionIdAndUser(sessionId, findUser);
@@ -108,11 +105,6 @@ public class PayService {
                 findPay.fail();
             }
             throw new CustomException(PayErrorCode.PAYMENT_STATUS_INVALID);
-        }
-
-        // 2. IP 주소 체크
-        if (!Objects.equals(ipAddress, findPay.getIpAddress())) {
-            throw new CustomException(PayErrorCode.PAYMENT_IP_MISMATCH);
         }
       
         return new PaySuccessResponseDTO(session.getId(), status, totalAmount);
