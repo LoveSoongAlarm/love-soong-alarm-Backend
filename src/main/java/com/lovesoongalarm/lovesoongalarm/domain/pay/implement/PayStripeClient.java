@@ -71,6 +71,13 @@ public class PayStripeClient implements InitializingBean {
         }
     }
 
+    /**
+     * Retrieves a Stripe Checkout Session by its ID.
+     *
+     * @param sessionId the Stripe Checkout Session ID to retrieve
+     * @return the Stripe Session corresponding to the provided ID
+     * @throws CustomException with PayErrorCode.PAYMENT_NOT_FOUND if the session cannot be retrieved
+     */
     public Session retrieveSession(String sessionId) {
         try {
             return Session.retrieve(sessionId);
@@ -79,6 +86,15 @@ public class PayStripeClient implements InitializingBean {
         }
     }
 
+    /**
+     * Expires a Stripe Checkout Session by ID and returns the expired Session object.
+     *
+     * <p>Retrieves the session identified by {@code sessionId} and calls Stripe's expire API.
+     *
+     * @param sessionId the Stripe Checkout Session ID to expire
+     * @return the Session returned by Stripe after expiration
+     * @throws CustomException if the session cannot be retrieved or expiration fails (PayErrorCode.SESSION_EXPIRE_ERROR)
+     */
     public Session expireCheckoutSession(String sessionId) {
         try {
             Session expireTargetSession = this.retrieveSession(sessionId);

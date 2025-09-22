@@ -22,6 +22,23 @@ public class WebhookClient {
     @Value("${spring.data.stripe.webhook_secret}")
     private String webhookSecret;
 
+    /**
+     * Processes a Stripe webhook payload and dispatches payment actions to PayService.
+     *
+     * Parses the provided raw webhook payload and signature header into a Stripe Event,
+     * extracts the deserialized Session object from the event data, and calls the
+     * appropriate PayService method based on the event type:
+     * - "checkout.session.completed" -> fulfillPayment(sessionId)
+     * - "charge.refunded", "payment_intent.canceled" -> cancelPayment(sessionId)
+     * - "payment_intent.payment_failed", "charge.failed" -> failPayment(sessionId)
+     *
+     * @param payload the raw HTTP request body received from Stripe (webhook JSON)
+     * @param sigHeader the value of the "Stripe-Signature" header from the webhook request
+     * @throws CustomException thrown with PayErrorCode.INVALID_ARGUMENT when the Stripe
+     *         signature verification fails
+     * @throws NullPointerException if the event data cannot be deserialized into a
+     *         Stripe Session (session is null) and the code attempts to access its id
+     */
     public void handle(String payload, String sigHeader) {
         Event event;
         try {

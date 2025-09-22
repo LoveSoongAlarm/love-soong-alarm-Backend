@@ -51,6 +51,16 @@ public class PayService {
         return new CreateCheckoutSessionDTO(session.getUrl()); // 사용자가 결제 가능한 URL을 넘깁니다
     }
 
+    /**
+     * Finalizes a payment corresponding to the given Stripe Checkout session ID.
+     *
+     * If the Stripe session indicates a successful payment (paymentStatus equals "paid"
+     * or session status equals "complete"), marks the associated Pay as completed and
+     * credits the user (calls User.buyTicket for the Pay's item). Otherwise marks the
+     * Pay as failed.
+     *
+     * @param sessionId the Stripe Checkout session ID used to look up the session and associated Pay
+     */
     @Transactional
     public void fulfillPayment(String sessionId) {
         Session session = stripe.retrieveSession(sessionId);
@@ -70,6 +80,14 @@ public class PayService {
         }
     }
 
+    /**
+     * Cancels the payment associated with the given Stripe Checkout session and expires that Checkout session.
+     *
+     * Finds the Pay by sessionId, calls its cancel() method, and then expires the corresponding Stripe Checkout session
+     * so the session cannot be used to complete payment.
+     *
+     * @param sessionId the Stripe Checkout session ID identifying the payment to cancel
+     */
     @Transactional
     public void cancelPayment(String sessionId) {
         payRetriever.findBySessionId(sessionId).cancel();
@@ -77,6 +95,14 @@ public class PayService {
 
     }
 
+    /**
+     * Marks the payment associated with the given Stripe Checkout session as failed and expires that session.
+     *
+     * This method looks up the Pay record by the provided Stripe session ID, calls its fail() method to update
+     * the payment state, and then instructs Stripe to expire the Checkout session so it can no longer be used.
+     *
+     * @param sessionId the Stripe Checkout session ID associated with the payment to fail
+     */
     @Transactional
     public void failPayment(String sessionId) {
         payRetriever.findBySessionId(sessionId).fail();
