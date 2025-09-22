@@ -26,7 +26,7 @@ public class ChatCommandService {
         log.debug("채팅방 생성 및 본인 참여 시작 - userId: {}, targetUserId: {}", userId, request.targetUserId());
         ChatRoom chatRoom = chatRoomService.createChatRoom(userId, request.targetUserId());
         chatRoomParticipantService.addParticipant(userId, request.targetUserId(), chatRoom);
-        log.debug("채팅방 생성 및 본인 참여 종료 - userId: {}, chatRoomId: {}", userId, chatRoom.getId());
+        log.info("채팅방 생성 및 본인 참여 종료 - userId: {}, chatRoomId: {}", userId, chatRoom.getId());
         return chatRoomConverter.toCreateChatRoomResponse(chatRoom.getId());
     }
 
