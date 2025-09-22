@@ -4,6 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record UserTicketResponseDTO(
-        Integer chatTicket
+        Integer chatTicket,
+        Boolean isPrepass
 ) {
 }

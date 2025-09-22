@@ -111,26 +111,6 @@ public class User {
                 .build();
     }
 
-    public void updateNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public void updateMajor(String major) {
-        this.major = major;
-    }
-
-    public void updateBirthDate(Integer birthDate) {
-        this.birthDate = birthDate;
-    }
-
-    public void updateGender(EGender gender) {
-        this.gender = gender;
-    }
-
-    public void updateEmoji(String emoji) {
-        this.emoji = emoji;
-    }
-
     public void updateFromOnboardingAndProfile(String nickname, String major, Integer birthDate, EGender gender, String emoji) {
         this.nickname = nickname;
         this.major = major;
