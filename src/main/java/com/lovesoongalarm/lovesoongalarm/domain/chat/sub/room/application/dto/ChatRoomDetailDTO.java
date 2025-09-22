@@ -16,8 +16,7 @@ public class ChatRoomDetailDTO {
             List<MessageInfo> recentMessages,
             boolean hasMoreMessages,
             Long oldestMessageId,
-            Boolean isPartnerBlocked,
-            Boolean isBlockedByPartner
+            Boolean isPartnerBlocked
     ) {
     }
 

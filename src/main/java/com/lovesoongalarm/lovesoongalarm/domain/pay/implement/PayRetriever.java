@@ -26,4 +26,9 @@ public class PayRetriever {
         return payRepository.findBySessionId(sessionId)
                 .orElseThrow(() -> new CustomException(PayErrorCode.PAYMENT_NOT_FOUND));
     }
+
+    public Pay findBySessionIdAndUser(String sessionId, User user){
+        return payRepository.findBySessionIdAndUser(sessionId, user)
+                .orElseThrow(()-> new CustomException(PayErrorCode.PAY_USER_CONFLICT));
+    }
 }

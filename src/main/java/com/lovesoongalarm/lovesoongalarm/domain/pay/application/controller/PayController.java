@@ -4,6 +4,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.pay.application.controller;
 import java.util.Map;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,6 +50,9 @@ public class PayController {
         return BaseResponse.success(service.createCheckoutSession(request, userId, ipAddress)); // 요것도 일단 url 던지는걸로 구현햇는데, redirect도 좋을 것 같아요!
     }
 
+    @Operation(
+            summary = "프론트 호출 x"
+    )
     @PostMapping("/webhook")
     public BaseResponse<Void> handleWebhook(@RequestBody String payload,
                                             @RequestHeader("Stripe-Signature") String sigHeader) {
@@ -56,20 +60,30 @@ public class PayController {
         return BaseResponse.success(null);
     }
 
+    @Operation(
+            summary = "결제 성공 검증",
+            description = "결제 성공 여부를 검증하는 API"
+    )
     @GetMapping("/success")
     public BaseResponse<PaySuccessResponseDTO> verifySuccess(
         @RequestParam("session_id") String sessionId,
+        @UserId Long userId,
         HttpServletRequest httpServletRequest
     ){
         String ipAddress = extractClientIp(httpServletRequest);
-        return BaseResponse.success(service.verifySuccess(sessionId, ipAddress));
+        return BaseResponse.success(service.verifySuccess(sessionId, ipAddress, userId));
     }
 
+    @Operation(
+            summary = "결제 취소 검증",
+            description = "결제 취소를 검증하는 API 입니다."
+    )
     @GetMapping("/cancel")
     public BaseResponse<Void> handleCheckoutCancel(
-        @RequestParam("session_id") String sessionId
+        @RequestParam("session_id") String sessionId,
+        @UserId Long userId
     ){
-        service.handleCheckoutCancel(sessionId);
+        service.handleCheckoutCancel(sessionId, userId);
         return BaseResponse.success(null);
     }
 
