@@ -7,6 +7,8 @@ import com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.entity.type.EIte
 import com.lovesoongalarm.lovesoongalarm.domain.pay.persistence.entity.type.EItemStatus;
 import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,7 @@ import com.stripe.param.checkout.SessionCreateParams;
 
 import lombok.RequiredArgsConstructor;
 
+import java.io.IOException;
 import java.util.Objects;
 
 @Service
@@ -77,23 +80,26 @@ public class PayService {
     }
 
     @Transactional
-    public void handleCheckoutCancel(String sessionId) {
+    public void handleCheckoutCancel(String sessionId, Long userId) {
+        User findUser = userRetriever.findByIdAndOnlyActive(userId);
+
         // JWT 검증해서 해당 유저의 결제만 Cancel할 수 있는 것 필요 ...
         Session expired = stripe.expireCheckoutSession(sessionId);
-        Pay canceledPay = payRetriever.findBySessionId(expired.getId());
+        Pay canceledPay = payRetriever.findBySessionIdAndUser(expired.getId(), findUser);
 
         canceledPay.cancel();
     }
 
     @Transactional
-    public PaySuccessResponseDTO verifySuccess(String sessionId, String ipAddress) {
+    public PaySuccessResponseDTO verifySuccess(String sessionId, String ipAddress, Long userId)
+     {
+         User findUser = userRetriever.findByIdAndOnlyActive(userId);
+         Pay findPay = payRetriever.findBySessionIdAndUser(sessionId, findUser);
 
-        Session session = stripe.retrieveSession(sessionId);
+         Session session = stripe.retrieveSession(sessionId);
 
-        String status = session.getPaymentStatus();
-        Long totalAmount = session.getAmountTotal();
-
-        Pay findPay = payRetriever.findBySessionId(sessionId);
+         String status = session.getPaymentStatus();
+         Long totalAmount = session.getAmountTotal();
 
         boolean paid = "paid".equalsIgnoreCase(status) || "complete".equalsIgnoreCase(session.getStatus());
         if (!paid) {
@@ -107,6 +113,7 @@ public class PayService {
         if (!Objects.equals(ipAddress, findPay.getIpAddress())) {
             throw new CustomException(PayErrorCode.PAYMENT_IP_MISMATCH);
         }
+
         return new PaySuccessResponseDTO(session.getId(), status, totalAmount);
 
     }
