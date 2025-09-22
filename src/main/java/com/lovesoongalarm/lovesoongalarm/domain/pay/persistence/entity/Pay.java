@@ -38,30 +38,24 @@ public class Pay {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(nullable = false, length = 50)
-    private String ipAddress;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EItem item;
 
     @Builder
-    public Pay (String sessionId, EItemStatus status, User user, EItem item, String ipAddress) {
+    public Pay (String sessionId, EItemStatus status, User user, EItem item) {
         this.sessionId = sessionId;
         this.status = status;
-        this.ipAddress = ipAddress;
         this.user = user;
         this.item = item;
-        this.ipAddress = ipAddress;
     }
 
-    public static Pay create(String sessionId, EItemStatus status, User user, EItem item, String ipAddress){
+    public static Pay create(String sessionId, EItemStatus status, User user, EItem item){
         return Pay.builder()
                 .sessionId(sessionId)
                 .status(status)
                 .user(user)
                 .item(item)
-                .ipAddress(ipAddress)
                 .build();
     }
 

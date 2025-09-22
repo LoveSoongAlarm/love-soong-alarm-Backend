@@ -53,6 +53,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByIdAndStatus(Long userId, EUserStatus status);
 
-    @Query("SELECT u FROM User u WHERE u.id IN :userIds AND u.status= :status")
+    @Query("""
+            SELECT DISTINCT u FROM User u
+            LEFT JOIN FETCH u.interests i
+            WHERE u.id IN :userIds AND u.status= :status
+            """)
     List<User> findAllByIdsAndStatus(@Param("userIds") List<Long> userIds, @Param("status") EUserStatus status);
 }

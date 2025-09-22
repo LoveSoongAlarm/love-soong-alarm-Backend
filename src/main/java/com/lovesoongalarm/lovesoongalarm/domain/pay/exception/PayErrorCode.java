@@ -12,7 +12,6 @@ public enum PayErrorCode implements ErrorCode {
     PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "결제 시스템에서 해당 결제를 찾을 수 없습니다."),
     SESSION_CREATE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버에서 결제를 생성하던 중, 에러가 발생했습니다."),
     PAYMENT_STATUS_INVALID(HttpStatus.BAD_REQUEST, "결제 상태가 유효하지 않습니다."),
-    PAYMENT_IP_MISMATCH(HttpStatus.FORBIDDEN, "결제 요청의 IP 주소가 일치하지 않습니다."),
     SESSION_EXPIRE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버에서 결제를 취소하던 중, 에러가 발생했습니다."),
     PAY_USER_CONFLICT(HttpStatus.CONFLICT, "결제를 한 유저가 아닙니다.");
 
