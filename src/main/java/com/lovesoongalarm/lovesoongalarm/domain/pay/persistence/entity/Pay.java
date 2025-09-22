@@ -38,7 +38,6 @@ public class Pay {
     @JoinColumn(name = "user_id")
     private User user;
 
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EItem item;

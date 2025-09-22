@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import jakarta.servlet.http.HttpServletRequest;
 import com.lovesoongalarm.lovesoongalarm.common.annotation.UserId;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.application.dto.PayItemRequestDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.pay.application.dto.PaySuccessResponseDTO;
@@ -79,7 +78,6 @@ public class PayController {
         service.handleCheckoutCancel(sessionId, userId);
         return BaseResponse.success(null);
     }
-
 }
 
 
