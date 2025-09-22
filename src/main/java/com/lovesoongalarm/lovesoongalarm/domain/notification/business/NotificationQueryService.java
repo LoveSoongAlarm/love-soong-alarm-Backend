@@ -16,6 +16,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.type.EN
 import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.type.EWebSocketNotificationType;
 import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
+import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EGender;
 import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.persistence.type.EDetailLabel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,7 +64,7 @@ public class NotificationQueryService {
                 .map(label -> "#" + label)
                 .collect(Collectors.joining(" "));
 
-        String message = String.format("내 주변 50m에 %s를 좋아하는 %s이 있어요!", interestTags, user.getGender().getValue());
+        String message = String.format("내 주변 50m에 %s를 좋아하는 %s이 있어요!", interestTags, getOppositeGenderValue(user.getGender()));
 
         LocalDate today = LocalDate.now();
 
@@ -211,6 +212,16 @@ public class NotificationQueryService {
         } catch (Exception e) {
             log.error("알림 일괄 삭제 실패.", e);
             throw new CustomException(NotificationErrorCode.DELETE_NOTIFICATION_ERROR);
+        }
+    }
+
+    private String getOppositeGenderValue(EGender gender) {
+        if(gender == EGender.MALE) {
+            return EGender.FEMALE.getValue();
+        } else if(gender == EGender.FEMALE) {
+            return EGender.MALE.getValue();
+        } else {
+            return gender.getValue();
         }
     }
 }
