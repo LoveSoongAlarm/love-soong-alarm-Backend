@@ -12,6 +12,8 @@ import lombok.*;
         indexes = {
                 @Index(name = "idx_chat_room_participants_room_user",
                         columnList = "chat_room_id, user_id"),
+                @Index(name = "idx_participants_user_status_room",
+                        columnList = "user_id, status, chat_room_id"),
                 @Index(name = "idx_chat_room_participants_user_status",
                         columnList = "user_id, status")
         }
