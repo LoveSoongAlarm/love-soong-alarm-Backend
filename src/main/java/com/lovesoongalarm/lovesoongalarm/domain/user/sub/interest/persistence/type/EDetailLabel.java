@@ -49,7 +49,7 @@ public enum EDetailLabel {
 
     // 패션 (Fashion)
     STREET("스트릿"),
-    VINTAGE("빈티지"),
+    CASUAL("캐주얼"),
     FASHION_CLASSIC("클래식"),
     SUBCULTURE("서브컬쳐"),
 
