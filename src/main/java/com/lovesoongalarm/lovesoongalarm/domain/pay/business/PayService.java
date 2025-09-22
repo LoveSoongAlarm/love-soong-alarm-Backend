@@ -114,7 +114,7 @@ public class PayService {
         if (!Objects.equals(ipAddress, findPay.getIpAddress())) {
             throw new CustomException(PayErrorCode.PAYMENT_IP_MISMATCH);
         }
-
+      
         return new PaySuccessResponseDTO(session.getId(), status, totalAmount);
 
     }
