@@ -7,14 +7,11 @@ import com.stripe.model.Product;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
 import lombok.RequiredArgsConstructor;
-import com.stripe.param.checkout.SessionExpireParams;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Slf4j
 @Component
@@ -22,7 +19,7 @@ import java.util.List;
 public class PayStripeClient implements InitializingBean {
 
     @Value("${spring.data.stripe.success_callback}")
-    private String successUrl; // 콜백 URL이였으면 좋겠습니다, api/v1/success
+    private String successUrl;
 
     @Value("${spring.data.stripe.secret}")
     private String secretKey;
@@ -51,8 +48,7 @@ public class PayStripeClient implements InitializingBean {
         try {
             SessionCreateParams params = SessionCreateParams.builder()
                     .setMode(SessionCreateParams.Mode.PAYMENT)
-                    .setSuccessUrl(successUrl + "?session_id={CHECKOUT_SESSION_ID}")
-                    .setCancelUrl(cancelUrl + "?session_id={CHECKOUT_SESSION_ID}")
+                    .setSuccessUrl(successUrl) // 프엔
                     .addLineItem(lineItem)
                     .setPaymentMethodOptions(
                             SessionCreateParams.PaymentMethodOptions.builder()
@@ -70,17 +66,6 @@ public class PayStripeClient implements InitializingBean {
         } catch (Exception e) {
             throw new CustomException(PayErrorCode.SESSION_CREATE_ERROR);
         }
-    }
-
-    public Session expireCheckoutSession(String sessionId) {
-        try {
-            Session expireTargetSession = this.retrieveSession(sessionId);
-            SessionExpireParams params = SessionExpireParams.builder().build();
-            return expireTargetSession.expire(params);
-        } catch (Exception e) {
-            throw new CustomException(PayErrorCode.SESSION_EXPIRE_ERROR);
-        }
-
     }
 
     public Session retrieveSession(String sessionId) {
