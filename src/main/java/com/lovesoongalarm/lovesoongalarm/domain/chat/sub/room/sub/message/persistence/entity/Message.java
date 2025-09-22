@@ -18,6 +18,8 @@ import java.time.LocalDateTime;
         indexes = {
                 @Index(name = "idx_messages_chatroom_id_desc",
                         columnList = "chat_room_id, id DESC"),
+                @Index(name = "idx_messages_chatroom_id_asc",
+                        columnList = "chat_room_id, id")
         }
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
