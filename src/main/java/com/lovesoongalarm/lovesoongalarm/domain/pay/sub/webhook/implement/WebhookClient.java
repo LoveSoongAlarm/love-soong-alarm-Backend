@@ -35,10 +35,6 @@ public class WebhookClient {
                 EventDataObjectDeserializer deserializer = event.getDataObjectDeserializer();
                 Session session = (Session) deserializer.getObject().orElse(null);
 
-                if (session == null) {
-                    throw new CustomException(PayErrorCode.PAYMENT_NOT_FOUND);
-                }
-
                 payService.fulfillPayment(session.getId());
             }
         }
