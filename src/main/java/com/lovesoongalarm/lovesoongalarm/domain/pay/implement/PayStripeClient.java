@@ -49,6 +49,7 @@ public class PayStripeClient implements InitializingBean {
             SessionCreateParams params = SessionCreateParams.builder()
                     .setMode(SessionCreateParams.Mode.PAYMENT)
                     .setSuccessUrl(successUrl) // 프엔
+                    .setCancelUrl(cancelUrl) // 프엔
                     .addLineItem(lineItem)
                     .setPaymentMethodOptions(
                             SessionCreateParams.PaymentMethodOptions.builder()
