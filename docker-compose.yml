@@ -27,6 +27,7 @@ services:
       PROD_SLOT1: ${PROD_SLOT1}
       PROD_SLOT2: ${PROD_SLOT2}
       PROD_SLOT3: ${PROD_SLOT3}
+      STRIPE_CANCEL_URL: ${secrets.STRIPE_CANCEL_URL}
 
     ports:
       - "8080:8080"
