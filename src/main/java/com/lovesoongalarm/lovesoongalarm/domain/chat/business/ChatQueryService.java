@@ -1,7 +1,6 @@
 package com.lovesoongalarm.lovesoongalarm.domain.chat.business;
 
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.converter.ChatRoomConverter;
-import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.BlockStatus;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomDetailDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomListDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.business.ChatRoomService;
@@ -49,7 +48,7 @@ public class ChatQueryService {
         chatRoomService.validateChatRoomAccess(userId, chatRoomId);
         User partner = userService.getPartnerUser(chatRoomId, userId);
 
-        BlockStatus blockStatus = chatRoomParticipantService.getBlockStatus(userId, chatRoomId, partner.getId());
+        boolean isPartnerBlocked = chatRoomParticipantService.getPartnerBlockStatus(chatRoomId, partner.getId());
 
         List<Message> recentMessages = messageService.getRecentMessages(chatRoomId, userId);
         boolean hasMoreMessages = messageService.hasMoreMessages(chatRoomId, recentMessages, userId);
@@ -57,7 +56,7 @@ public class ChatQueryService {
         log.info("채팅방 상세 조회 완료 - chatRoomId: {}, partnerId: {}, messageCount: {}, hasMore: {}",
                 chatRoomId, partner.getId(), recentMessages.size(), hasMoreMessages);
         return chatRoomConverter.toChatRoomDetailResponse(
-                partner, recentMessages, userId, hasMoreMessages, blockStatus);
+                partner, recentMessages, userId, hasMoreMessages, isPartnerBlocked);
     }
 
     public MessageListDTO.Response getChatRoomMessages(Long userId, Long chatRoomId, Integer size, Long lastMessageId) {
