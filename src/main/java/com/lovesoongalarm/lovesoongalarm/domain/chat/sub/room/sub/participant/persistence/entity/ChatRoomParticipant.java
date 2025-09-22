@@ -8,7 +8,14 @@ import lombok.*;
 
 @Entity
 @Getter
-@Table(name = "chat_room_participants")
+@Table(name = "chat_room_participants",
+        indexes = {
+                @Index(name = "idx_chat_room_participants_room_user",
+                        columnList = "chat_room_id, user_id"),
+                @Index(name = "idx_participants_user_status_room",
+                        columnList = "user_id, status, chat_room_id")
+        }
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatRoomParticipant {
 

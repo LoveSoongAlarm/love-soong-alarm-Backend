@@ -32,7 +32,7 @@ public class ChatQueryService {
     private final ChatRoomConverter chatRoomConverter;
 
     public ChatRoomListDTO.Response getChatRoomList(Long userId) {
-        log.info("채팅방 목록 조회 시작 - userId = {}", userId);
+        log.debug("채팅방 목록 조회 시작 - userId = {}", userId);
         User user = userService.findUserOrElseThrow(userId);
         ChatRoomListDTO.UserSlotInfo userSlotInfo = userService.createUserSlotInfo(user);
         List<ChatRoom> chatRoomList = chatRoomService.getUserChatRooms(userId);
