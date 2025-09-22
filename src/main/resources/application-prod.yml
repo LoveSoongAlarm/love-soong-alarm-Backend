@@ -33,6 +33,7 @@ spring:
     stripe:
       secret: ${STRIPE_SECRET}
       success_callback: ${STRIPE_SUCCESS_URL}
+      cancel_callback: ${STRIPE_CANCEL_URL}
       webhook_secret: ${STRIPE_WEBHOOK_SECRET}
       price:
         prepass: ${PROD_PREPASS}
