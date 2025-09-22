@@ -12,10 +12,10 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
     @Query("""
             SELECT cr FROM ChatRoom cr
-            JOIN cr.participants cp
-            WHERE cp.user.id IN (:userId, :targetUserId)
+            JOIN cr.participants p
+            WHERE p.user.id IN (:userId, :targetUserId)
             GROUP BY cr.id
-            HAVING COUNT(DISTINCT cp.user.id) = 2
+            HAVING COUNT(DISTINCT p.user.id) = 2
             """)
     Optional<ChatRoom> findByIdAndTargetUserId(
             @Param("userId") Long userId,
