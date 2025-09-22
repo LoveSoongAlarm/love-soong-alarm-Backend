@@ -14,7 +14,12 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Table(name="messages")
+@Table(name="messages",
+        indexes = {
+                @Index(name = "idx_messages_chatroom_id_desc",
+                        columnList = "chat_room_id, id DESC"),
+        }
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 public class Message {
