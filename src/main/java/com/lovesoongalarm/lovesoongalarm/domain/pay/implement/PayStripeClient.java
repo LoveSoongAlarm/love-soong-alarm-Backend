@@ -6,6 +6,8 @@ import com.stripe.Stripe;
 import com.stripe.model.Product;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
+import com.stripe.param.checkout.SessionExpireParams;
+
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
@@ -75,5 +77,17 @@ public class PayStripeClient implements InitializingBean {
         } catch (Exception e) {
             throw new CustomException(PayErrorCode.PAYMENT_NOT_FOUND);
         }
+    }
+
+    public Session expireCheckoutSession(String sessionId) {
+        try {
+            Session expireTargetSession = this.retrieveSession(sessionId);
+            SessionExpireParams params = SessionExpireParams.builder().build();
+            
+            return expireTargetSession.expire(params);
+        } catch (Exception e) {
+            throw new CustomException(PayErrorCode.SESSION_EXPIRE_ERROR);
+        }
+
     }
 }

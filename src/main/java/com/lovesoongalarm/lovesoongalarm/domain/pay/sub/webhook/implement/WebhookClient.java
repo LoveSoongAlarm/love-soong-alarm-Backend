@@ -30,12 +30,18 @@ public class WebhookClient {
             throw new CustomException(PayErrorCode.INVALID_ARGUMENT);
         }
 
+        EventDataObjectDeserializer deserializer = event.getDataObjectDeserializer();
+        Session session = (Session) deserializer.getObject().orElse(null);
+
         switch (event.getType()) {
             case "checkout.session.completed" -> {
-                EventDataObjectDeserializer deserializer = event.getDataObjectDeserializer();
-                Session session = (Session) deserializer.getObject().orElse(null);
-
                 payService.fulfillPayment(session.getId());
+            }
+            case "charge.refunded", "payment_intent.canceled" -> {
+                payService.cancelPayment(session.getId());
+            }
+            case "payment_intent.payment_failed", "charge.failed" -> {
+                payService.failPayment(session.getId());
             }
         }
     }
