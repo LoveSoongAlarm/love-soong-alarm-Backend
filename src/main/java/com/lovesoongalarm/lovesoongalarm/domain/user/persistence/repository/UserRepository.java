@@ -23,7 +23,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("""
             SELECT DISTINCT u FROM User u
-            JOIN FETCH u.interests i
+            LEFT JOIN FETCH u.interests i
             WHERE u.id = (
                 SELECT cp.user.id 
                 FROM ChatRoomParticipant cp 
