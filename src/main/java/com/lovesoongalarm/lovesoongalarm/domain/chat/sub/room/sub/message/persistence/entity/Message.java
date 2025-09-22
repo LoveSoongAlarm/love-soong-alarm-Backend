@@ -21,7 +21,9 @@ import java.time.LocalDateTime;
                 @Index(name = "idx_messages_chatroom_id_asc",
                         columnList = "chat_room_id, id"),
                 @Index(name = "idx_messages_chatroom_read_user",
-                        columnList = "chat_room_id, is_read, user_id")
+                        columnList = "chat_room_id, is_read, user_id"),
+                @Index(name = "idx_messages_user_read_blocked",
+                        columnList = "user_id, is_read, is_blocked_message")
         }
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
