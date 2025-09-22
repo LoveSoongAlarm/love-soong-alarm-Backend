@@ -16,6 +16,7 @@ public class UserConverter {
     public UserTicketResponseDTO createTicketInfo(User user) {
         return UserTicketResponseDTO.builder()
                 .chatTicket(user.getChatTicket())
+                .isPrepass(user.isPrePass())
                 .build();
     }
 }
