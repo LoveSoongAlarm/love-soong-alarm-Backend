@@ -25,9 +25,9 @@ public class Constants {
             "/login/oauth2/code/kakao",
             "/api/auth/reissue",
             "/ws/**",
-            "/api/pay/success",
-            "/api/pay/webhook",
-            "/api/pay/cancel"
+           // "/api/pay/success",
+            "/api/pay/webhook"
+            //"/api/pay/cancel"
     );
     public static final Duration SUBSCRIPTION_TTL = Duration.ofHours(24);
 }

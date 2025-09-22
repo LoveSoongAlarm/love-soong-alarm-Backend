@@ -27,6 +27,9 @@ public class PayStripeClient implements InitializingBean {
     @Value("${spring.data.stripe.secret}")
     private String secretKey;
 
+    @Value("${spring.data.stripe.cancel_callback}")
+    private String cancelUrl;
+
     @Override
     public void afterPropertiesSet() throws Exception {
         Stripe.apiKey = this.secretKey;
@@ -49,7 +52,7 @@ public class PayStripeClient implements InitializingBean {
             SessionCreateParams params = SessionCreateParams.builder()
                     .setMode(SessionCreateParams.Mode.PAYMENT)
                     .setSuccessUrl(successUrl + "?session_id={CHECKOUT_SESSION_ID}")
-                    .setCancelUrl(successUrl.replace("/success", "/cancel"))
+                    .setCancelUrl(cancelUrl + "?session_id={CHECKOUT_SESSION_ID}")
                     .addLineItem(lineItem)
                     .setPaymentMethodOptions(
                             SessionCreateParams.PaymentMethodOptions.builder()
@@ -68,7 +71,6 @@ public class PayStripeClient implements InitializingBean {
             throw new CustomException(PayErrorCode.SESSION_CREATE_ERROR);
         }
     }
-
 
     public Session expireCheckoutSession(String sessionId) {
         try {
