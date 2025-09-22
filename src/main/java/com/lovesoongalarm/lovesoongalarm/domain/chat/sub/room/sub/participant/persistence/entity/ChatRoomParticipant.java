@@ -11,7 +11,9 @@ import lombok.*;
 @Table(name = "chat_room_participants",
         indexes = {
                 @Index(name = "idx_chat_room_participants_room_user",
-                        columnList = "chat_room_id, user_id")
+                        columnList = "chat_room_id, user_id"),
+                @Index(name = "idx_chat_room_participants_user_status",
+                        columnList = "user_id, status")
         }
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

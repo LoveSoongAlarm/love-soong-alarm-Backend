@@ -27,10 +27,10 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
             JOIN FETCH cr.participants cp
             JOIN FETCH cp.user
             WHERE cr.id IN (
-                SELECT DISTINCT myParticipant.chatRoom.id\s
-                FROM ChatRoomParticipant myParticipant\s
-                WHERE myParticipant.user.id = :userId\s
-                AND myParticipant.status = 'JOINED'
+                SELECT DISTINCT p.chatRoom.id
+                FROM ChatRoomParticipant p
+                WHERE p.user.id = :userId
+                AND p.status = 'JOINED'
             )
             ORDER BY COALESCE(
                 (SELECT MAX(m.id)
