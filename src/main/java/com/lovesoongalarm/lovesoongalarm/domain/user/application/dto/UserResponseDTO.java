@@ -1,6 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.user.application.dto;
 
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
+import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EGender;
 import lombok.Builder;
 
 import java.util.List;
@@ -13,9 +14,10 @@ public record UserResponseDTO(
         String major,
         String emoji,
         String lastSeen,
+        EGender gender,
         List<UserInterestResponseDTO> interests
 ) {
-    public static UserResponseDTO from(User user, Integer age, String lastSeen){
+    public static UserResponseDTO from(User user, Integer age, String lastSeen) {
         return UserResponseDTO.builder()
                 .id(user.getId())
                 .age(age)
@@ -27,6 +29,7 @@ public record UserResponseDTO(
                 ).toList()
                 )
                 .lastSeen(lastSeen)
+                .gender(user.getGender())
                 .build();
     }
 }
