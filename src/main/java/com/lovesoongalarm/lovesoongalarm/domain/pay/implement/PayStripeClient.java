@@ -81,10 +81,10 @@ public class PayStripeClient implements InitializingBean {
     }
 
     public Session expireCheckoutSession(String sessionId) {
+        Session expireTargetSession = this.retrieveSession(sessionId);
+        
         try {
-            Session expireTargetSession = this.retrieveSession(sessionId);
             SessionExpireParams params = SessionExpireParams.builder().build();
-            
             return expireTargetSession.expire(params);
         } catch (Exception e) {
             throw new CustomException(PayErrorCode.SESSION_EXPIRE_ERROR);
