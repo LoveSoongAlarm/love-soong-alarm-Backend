@@ -12,6 +12,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,7 @@ import java.security.Key;
 import java.util.Date;
 
 @Component
+@Slf4j
 public class JwtUtil implements InitializingBean {
 
     @Value("${jwt.secret}")
@@ -78,11 +80,19 @@ public class JwtUtil implements InitializingBean {
                     .build()
                     .parseClaimsJws(refreshToken)
                     .getBody();
+            log.info("[JWT] Claims = {}", claims);
+
+
+            Long userId = claims.get(Constants.CLAIM_USER_ID, Long.class);
+            log.info("[JWT] Extracted userId = {}", userId);
 
             return claims.get(Constants.CLAIM_USER_ID, Long.class);
         } catch (ExpiredJwtException e) {
+            log.info("[JWT] Refresh token expired: {}", refreshToken, e);
             throw new CustomException(GlobalErrorCode.EXPIRED_TOKEN_ERROR);
         } catch (Exception e) {
+            log.info("[JWT] Invalid refresh token: {}", refreshToken, e);
+
             throw new CustomException(GlobalErrorCode.INVALID_TOKEN_ERROR);
         }
     }
