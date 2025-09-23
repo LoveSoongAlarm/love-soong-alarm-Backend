@@ -4,6 +4,7 @@ import com.lovesoongalarm.lovesoongalarm.common.code.GlobalErrorCode;
 import com.lovesoongalarm.lovesoongalarm.common.constant.Constants;
 import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import com.lovesoongalarm.lovesoongalarm.security.service.RefreshTokenService;
+import com.lovesoongalarm.lovesoongalarm.utils.CookieUtil;
 import com.lovesoongalarm.lovesoongalarm.utils.HeaderUtil;
 import com.lovesoongalarm.lovesoongalarm.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -26,14 +27,18 @@ public class CustomLogoutProcessHandler implements LogoutHandler {
     @Override
     @Transactional
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        if (authentication == null) {
-            throw CustomException.type(GlobalErrorCode.UNAUTHORIZED);
-        }
+//        if (authentication == null) {
+//            throw CustomException.type(GlobalErrorCode.UNAUTHORIZED);
+//        }
 
-        String accessToken = HeaderUtil.refineHeader(request, Constants.PREFIX_AUTH, Constants.PREFIX_BEARER)
-                .orElseThrow(() -> CustomException.type(GlobalErrorCode.INVALID_HEADER_VALUE));
+//        String accessToken = HeaderUtil.refineHeader(request, Constants.PREFIX_AUTH, Constants.PREFIX_BEARER)
+//                .orElseThrow(() -> CustomException.type(GlobalErrorCode.INVALID_HEADER_VALUE));
+//
+//        Claims claims = jwtUtil.validateToken(accessToken);
+//        refreshTokenService.deleteRefreshToken(claims.get(Constants.CLAIM_USER_ID, Long.class));
 
-        Claims claims = jwtUtil.validateToken(accessToken);
-        refreshTokenService.deleteRefreshToken(claims.get(Constants.CLAIM_USER_ID, Long.class));
+        String refreshToken = CookieUtil.getCookie(request, Constants.REFRESH_COOKIE_NAME);
+        Long userId = jwtUtil.validateRefreshToken(refreshToken);
+        refreshTokenService.deleteRefreshToken(userId);
     }
 }
