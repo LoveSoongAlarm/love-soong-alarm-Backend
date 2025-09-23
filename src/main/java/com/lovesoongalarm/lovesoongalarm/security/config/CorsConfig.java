@@ -14,13 +14,15 @@ public class CorsConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*")); // 모든 도메인 허용
-        configuration.setAllowedMethods(List.of("*")); // 모든 메소드 허용
-        configuration.setAllowedHeaders(List.of("*")); // 모든 헤더 허용
-        configuration.setAllowCredentials(true); // 자격 증명 허용
+        configuration.setAllowedOrigins(List.of(
+                "https://love-soong-alarm.vercel.app"
+        ));
+        configuration.setAllowedMethods(List.of("*"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true); // 쿠키/인증 허용
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // 모든 경로에 대해 적용
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 }

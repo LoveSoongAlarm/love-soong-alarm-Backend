@@ -78,13 +78,18 @@ public class CookieUtil {
             String value,
             Integer maxAge
     ) {
-        Cookie cookie = new Cookie(key, value);
-        cookie.setPath("/");
-        cookie.setDomain(domain);
-        cookie.setSecure(true);
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(maxAge);
-        response.addCookie(cookie);
+        ResponseCookie cookie = ResponseCookie.from(key, value)
+                .path("/")
+                .domain(domain)
+                .httpOnly(true)
+                .secure(true)       // HTTPS 필수
+                .sameSite("None")   // 교차 도메인 전송 지원
+                .maxAge(maxAge)
+                .build();
+
+        log.info("[Cookie] Add secure cookie: {}", cookie.toString());
+
+        response.addHeader("Set-Cookie", cookie.toString());
     }
 
     public static void deleteCookie(
