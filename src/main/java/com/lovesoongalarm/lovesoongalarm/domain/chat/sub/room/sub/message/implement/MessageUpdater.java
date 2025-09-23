@@ -21,10 +21,10 @@ public class MessageUpdater {
     }
 
     @Transactional
-    public int markMessagesAsReadByChatRoomAndReceiver(Long chatRoomId, Long receiverId) {
-        int updatedCount = messageRepository.markUnreadMessagesAsRead(chatRoomId, receiverId);
-        log.info("채팅방 미읽은 메시지 일괄 읽음 처리 완료 - chatRoomId: {}, receiverId: {}, updatedCount: {}",
-                chatRoomId, receiverId, updatedCount);
+    public int markMessagesAsReadByChatRoomAndReceiver(Long chatRoomId, Long partnerId) {
+        int updatedCount = messageRepository.markUnreadMessagesAsRead(chatRoomId, partnerId);
+        log.info("채팅방 미읽은 메시지 일괄 읽음 처리 완료 - chatRoomId: {}, partnerId: {}, updatedCount: {}",
+                chatRoomId, partnerId, updatedCount);
         return updatedCount;
     }
 }
