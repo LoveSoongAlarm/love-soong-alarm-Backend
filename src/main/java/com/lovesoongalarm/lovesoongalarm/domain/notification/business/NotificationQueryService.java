@@ -21,7 +21,6 @@ import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.persistence.ty
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,7 +54,8 @@ public class NotificationQueryService {
     }
 
     @Transactional
-    public Notification saveNotification(Long userId, Long matchingUserId, EGender userGender, List<String> interests) {
+    public Notification saveNotification(Long userId, Long matchingUserId, List<String> interests) {
+        User user = userRetriever.findByIdOrElseThrow(userId);
         String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
 
         String interestTags = interests.stream()
@@ -64,26 +64,25 @@ public class NotificationQueryService {
                 .map(label -> "#" + label)
                 .collect(Collectors.joining(" "));
 
-        String message = String.format("내 주변 50m에 %s를 좋아하는 %s이 있어요!", interestTags, userGender.getValue());
+        String message = String.format("내 주변 50m에 %s를 좋아하는 %s이 있어요!", interestTags, getOppositeGenderValue(user.getGender()));
 
         LocalDate today = LocalDate.now();
 
-        Notification notification = Notification.create(userId, matchingUserId, message, ENotificationStatus.NOT_READ, now, today);
-        try {
+        Notification notification = Notification.create(user, matchingUserId, message, ENotificationStatus.NOT_READ, now, today);
+
+        try{
             notificationSaver.save(notification);
             return notification;
-        } catch (DataIntegrityViolationException e) {
-            log.debug("중복 알림 : userId = {}, matchingUserId = {}", userId, matchingUserId);
+        } catch (Exception e) {
             return null;
         }
-
     }
 
     @Transactional
     public void changeStatus(Long userId, Long notificationId) {
         Notification notification = notificationRetriever.findByNotificationIdOrElseThrow(notificationId);
 
-        if (!notification.getUserId().equals(userId)) {
+        if (!notification.getUser().getId().equals(userId)) {
             log.error("잘못된 접근입니다. userId={}가 notificationId={}를 변경 시도", userId, notificationId);
             throw new CustomException(NotificationErrorCode.UNAUTHORIZED_NOTIFICATION_ACCESS);
         }
@@ -155,7 +154,7 @@ public class NotificationQueryService {
     public void deleteNotification(Long userId, Long notificationId) {
         Notification notification = notificationRetriever.findByNotificationIdOrElseThrow(notificationId);
 
-        if (!notification.getUserId().equals(userId)) {
+        if (!notification.getUser().getId().equals(userId)) {
             log.error("잘못된 접근입니다. userId={}가 notificationId={}를 삭제 시도", userId, notificationId);
             throw new CustomException(NotificationErrorCode.UNAUTHORIZED_NOTIFICATION_ACCESS);
         }

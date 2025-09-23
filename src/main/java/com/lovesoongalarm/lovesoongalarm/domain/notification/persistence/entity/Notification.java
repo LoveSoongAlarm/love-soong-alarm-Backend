@@ -24,12 +24,9 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "user_id")
-//    private User user;
-
-    @Column(name = "user_id")
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Column(name = "matching_user_id")
     private Long matchingUserId;
@@ -48,8 +45,8 @@ public class Notification {
     private LocalDate date;
 
     @Builder
-    public Notification(Long userId, Long matchingUserId, String message, ENotificationStatus status, String notificationTime, LocalDate date) {
-        this.userId = userId;
+    public Notification(User user, Long matchingUserId, String message, ENotificationStatus status, String notificationTime, LocalDate date) {
+        this.user = user;
         this.matchingUserId = matchingUserId;
         this.message = message;
         this.status = status;
@@ -57,9 +54,9 @@ public class Notification {
         this.date = date;
     }
 
-    public static Notification create(Long userId, Long matchingUserId, String message, ENotificationStatus status, String notificationTime, LocalDate date) {
+    public static Notification create(User user, Long matchingUserId, String message, ENotificationStatus status, String notificationTime, LocalDate date) {
         return Notification.builder()
-                .userId(userId)
+                .user(user)
                 .matchingUserId(matchingUserId)
                 .message(message)
                 .status(status)
