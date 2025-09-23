@@ -6,10 +6,12 @@ import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseCookie;
 
 import java.util.Arrays;
 
+@Slf4j
 public class CookieUtil {
 
     public static String getCookie(HttpServletRequest request, String name) {
@@ -51,6 +53,8 @@ public class CookieUtil {
                 .maxAge(0)          // 즉시 만료
                 .sameSite("None")   // 크로스 도메인 로그인/로그아웃 지원
                 .build();
+
+        log.info("[Cookie] Logout cookie set: {}", expiredCookie.toString());
 
         response.addHeader("Set-Cookie", expiredCookie.toString());
     }
