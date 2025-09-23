@@ -17,7 +17,7 @@ public record UserResponseDTO(
         EGender gender,
         List<UserInterestResponseDTO> interests
 ) {
-    public static UserResponseDTO from(User user, Integer age, String lastSeen) {
+    public static UserResponseDTO from(User user, Integer age, String lastSeen){
         return UserResponseDTO.builder()
                 .id(user.getId())
                 .age(age)
@@ -29,7 +29,6 @@ public record UserResponseDTO(
                 ).toList()
                 )
                 .lastSeen(lastSeen)
-                .gender(user.getGender())
                 .build();
     }
 }
