@@ -21,13 +21,13 @@ public class MessageReadService {
         log.info("미읽은 메시지 일괄 읽음 처리 시작 - chatRoomId: {}, userId: {}", chatRoomId, userId);
 
         try {
-            int updatedCount = messageUpdater.markMessagesAsReadByChatRoomAndReceiver(chatRoomId, userId);
+            User partner = userService.getPartnerUser(chatRoomId, userId);
+
+            int updatedCount = messageUpdater.markMessagesAsReadByChatRoomAndReceiver(chatRoomId, partner.getId());
             if (updatedCount == 0) {
                 log.info("읽음 처리할 메시지가 없음 - chatRoomId: {}, userId: {}", chatRoomId, userId);
                 return ReadResult.empty();
             }
-
-            User partner = userService.getPartnerUser(chatRoomId, userId);
 
             log.info("미읽은 메시지 일괄 읽음 처리 완료 - updatedCount: {}, partnerId: {}",
                     updatedCount, partner.getId());

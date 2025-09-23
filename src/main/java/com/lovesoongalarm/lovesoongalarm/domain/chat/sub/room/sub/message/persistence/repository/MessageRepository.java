@@ -70,12 +70,12 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             UPDATE Message m 
             SET m.isRead = true 
             WHERE m.chatRoom.id = :chatRoomId 
-            AND m.user.id != :receiverId 
+            AND m.user.id = :partnerId
             AND m.isRead = false
             """)
     int markUnreadMessagesAsRead(
             @Param("chatRoomId") Long chatRoomId,
-            @Param("receiverId") Long receiverId
+            @Param("partnerId") Long partnerId
     );
 
     @Query("""
