@@ -43,4 +43,8 @@ public class UserRetriever {
     public List<User> findAllByIdAndOnlyActive(List<Long> userIds){
         return userRepository.findAllByIdsAndStatus(userIds, EUserStatus.ACTIVE);
     }
+
+    public boolean notExistsByNickname(String nickname) {
+        return !userRepository.existsByNickname(nickname);
+    }
 }
