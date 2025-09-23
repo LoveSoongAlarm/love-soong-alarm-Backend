@@ -23,7 +23,7 @@ public class UserController {
             , description = "온보딩 진행하는 API 입니다.")
     @ApiResponse(responseCode = "200", description = "온보딩 성공")
     @PatchMapping("/on-boarding")
-    public BaseResponse<Void> onBoarding(
+    public BaseResponse<OnBoardingResponseDTO> onBoarding(
             @UserId Long userId,
             @Valid @RequestBody OnBoardingRequestDTO request
             ){
@@ -39,7 +39,7 @@ public class UserController {
             @PathVariable("user-id") Long targetId
     ){
 
-        return BaseResponse.success(userQueryService.getUser(targetId));
+        return BaseResponse.success(userQueryService.getUser(userId,targetId));
     }
 
     @Operation(summary = "유저 자신의 프로필 상세 조회"

@@ -70,6 +70,19 @@ public class PayService {
         }
     }
 
+    @Transactional
+    public void cancelPayment(String sessionId) {
+        payRetriever.findBySessionId(sessionId).cancel();
+        stripe.expireCheckoutSession(sessionId);
+
+    }
+
+    @Transactional
+    public void failPayment(String sessionId) {
+        payRetriever.findBySessionId(sessionId).fail();
+        stripe.expireCheckoutSession(sessionId);
+    }
+
     /*
 
     @Transactional
