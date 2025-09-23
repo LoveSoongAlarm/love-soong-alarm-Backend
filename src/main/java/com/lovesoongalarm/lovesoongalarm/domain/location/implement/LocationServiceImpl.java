@@ -5,7 +5,6 @@ import com.lovesoongalarm.lovesoongalarm.domain.location.application.dto.Matchin
 import com.lovesoongalarm.lovesoongalarm.domain.location.business.LocationService;
 import com.lovesoongalarm.lovesoongalarm.domain.location.exception.LocationErrorCode;
 import com.lovesoongalarm.lovesoongalarm.domain.user.exception.UserErrorCode;
-import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EGender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.geo.Distance;
@@ -122,14 +121,12 @@ public class LocationServiceImpl implements LocationService {
         });
 
         List<Long> filteredUsers = new ArrayList<>();
-        Map<Long, String> genderMap = new HashMap<>();
 
         for (int i = 0; i < nearbyUsers.size(); i++) {
             Long id = nearbyUsers.get(i);
             String gender = (String) genderPipeResult.get(i);
             if (gender != null && !gender.equals(myGender)) {
                 filteredUsers.add(id);
-                genderMap.put(id, gender);
             }
         }
 
@@ -167,7 +164,6 @@ public class LocationServiceImpl implements LocationService {
                     .userId(id)
                     .isMatching(isMatching)
                     .overlapInterests(overlapInterests)
-                    .gender(EGender.valueOf(genderMap.get(id)))
                     .build());
         }
 
