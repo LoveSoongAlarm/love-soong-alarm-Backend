@@ -16,14 +16,25 @@ public class CookieUtil {
 
     public static String getCookie(HttpServletRequest request, String name) {
         if (request.getCookies() == null) {
+            log.info("[CookieUtil] request.getCookies() == null (쿠키가 전혀 없음)");
             throw new CustomException(GlobalErrorCode.INVALID_TOKEN_ERROR);
         }
+
+        // 요청에 들어온 전체 쿠키 찍기
+        Arrays.stream(request.getCookies())
+                .forEach(cookie -> log.info("[CookieUtil] Incoming cookie: name={}, value={}", cookie.getName(), cookie.getValue()));
+
+        // 원하는 쿠키 찾기
         return Arrays.stream(request.getCookies())
                 .filter(cookie -> cookie.getName().equals(name))
                 .map(Cookie::getValue)
                 .findFirst()
-                .orElseThrow(() -> new CustomException(GlobalErrorCode.INVALID_TOKEN_ERROR));
+                .orElseThrow(() -> {
+                    log.info("[CookieUtil] '{}' 쿠키를 찾지 못했습니다.", name);
+                    return new CustomException(GlobalErrorCode.INVALID_TOKEN_ERROR);
+                });
     }
+
 
     public static void addCookie(
             HttpServletResponse response,
