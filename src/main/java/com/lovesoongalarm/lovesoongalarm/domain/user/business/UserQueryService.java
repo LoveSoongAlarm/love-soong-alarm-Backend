@@ -41,7 +41,7 @@ public class UserQueryService {
     }
 
     @Transactional
-    public Void onBoardingUser(Long userId, OnBoardingRequestDTO request){
+    public OnBoardingResponseDTO onBoardingUser(Long userId, OnBoardingRequestDTO request){
         User findUser = userRetriever.findByIdAndOnlyInActive(userId);
         findUser.updateFromOnboardingAndProfile(request.nickname(), request.major(), request.birthDate(), EGender.valueOf(request.gender()), request.emoji());
 
@@ -67,18 +67,19 @@ public class UserQueryService {
 
         // Redis에 취향 정보 저장
         updateRedis(userId, EGender.valueOf(request.gender()), interests);
-      
-        return null;
+
+        return OnBoardingResponseDTO.from(userId);
     }
 
-    public UserResponseDTO getUser(Long targetId){
-        User findUser = userRetriever.findByIdAndOnlyActive(targetId);
+    public UserResponseDTO getUser(Long userId, Long targetId){
+        User findUser = userRetriever.findByIdAndOnlyActive(userId);
+        User targetUser = userRetriever.findByIdAndOnlyActive(targetId);
 
-        int age = calculateAge(findUser.getBirthDate());
+        int age = calculateAge(targetUser.getBirthDate());
 
         String lastSeen = userLastSeen(targetId);
 
-        return UserResponseDTO.from(findUser, age, lastSeen);
+        return UserResponseDTO.from(targetUser, age, lastSeen);
     }
 
     public List<UserResponseDTO> getAllUser(List<Long> targetIds){
