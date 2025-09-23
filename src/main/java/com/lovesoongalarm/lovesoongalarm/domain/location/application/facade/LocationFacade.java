@@ -12,6 +12,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationB
 import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationCreatedEvent;
 import com.lovesoongalarm.lovesoongalarm.domain.user.application.dto.UserResponseDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserQueryService;
+import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EGender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -65,18 +66,20 @@ public class LocationFacade {
 
             int i = 0;
 
-            List<Long> userIds = matchingResult.nearbyUsers().stream()
+            List<Long> userMatchingIds = matchingResult.nearbyUsers().stream()
                     .map(MatchingResultDTO.NearbyUserMatchDTO::userId)
                     .toList();
 
-            Map<Long, UserResponseDTO> userMap = userQueryService.getAllUser(userIds).stream()
+            EGender userGender = userQueryService.getUserGender(userId);
+
+            Map<Long, UserResponseDTO> userMatchingMap = userQueryService.getAllUser(userMatchingIds).stream()
                     .collect(Collectors.toMap(UserResponseDTO::id, Function.identity()));
 
             List<NotificationCreatedEvent.NotificationHolder> holders = new ArrayList<>();
             for (MatchingResultDTO.NearbyUserMatchDTO userMatch : matchingResult.nearbyUsers()) {
-                UserResponseDTO user = userMap.get(userMatch.userId());
+                UserResponseDTO matchingUser = userMatchingMap.get(userMatch.userId());
 
-                log.info("userResponseDTO: {}", user);
+                log.info("userResponseDTO: {}", matchingUser);
 
                 List<Point> posList = (List<Point>) pipeResults.get(i++);
                 Double latitude = null;
@@ -89,22 +92,22 @@ public class LocationFacade {
 
                 nearbyUserResponse.add(NearbyUserResponseDTO.builder()
                         .userId(userMatch.userId())
-                        .name(user.name())
-                        .age(user.age())
-                        .major(user.major())
-                        .lastSeen(user.lastSeen())
-                        .emoji(user.emoji())
-                        .interests(user.interests())
+                        .name(matchingUser.name())
+                        .age(matchingUser.age())
+                        .major(matchingUser.major())
+                        .lastSeen(matchingUser.lastSeen())
+                        .emoji(matchingUser.emoji())
+                        .interests(matchingUser.interests())
                         .isMatching(userMatch.isMatching())
                         .latitude(latitude)
                         .longitude(longitude)
                         .build());
 
                 if (userMatch.isMatching()) {
-                    Optional.ofNullable(notificationQueryService.saveNotification(userId, userMatch.userId(), new ArrayList<>(userMatch.overlapInterests())))
+                    Optional.ofNullable(notificationQueryService.saveNotification(userId, matchingUser.id(), matchingUser.gender(), new ArrayList<>(userMatch.overlapInterests())))
                             .ifPresent(notification -> holders.add(new NotificationCreatedEvent.NotificationHolder(userId, notification)));
 
-                    Optional.ofNullable(notificationQueryService.saveNotification(userMatch.userId(), userId, new ArrayList<>(userMatch.overlapInterests())))
+                    Optional.ofNullable(notificationQueryService.saveNotification(matchingUser.id(), userId, userGender, new ArrayList<>(userMatch.overlapInterests())))
                             .ifPresent(notification -> holders.add(new NotificationCreatedEvent.NotificationHolder(userMatch.userId(), notification)));
                 }
             }
