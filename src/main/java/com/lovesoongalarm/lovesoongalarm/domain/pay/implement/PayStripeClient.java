@@ -54,17 +54,6 @@ public class PayStripeClient implements InitializingBean {
                     .setSuccessUrl(successUrl) // 프엔
                     .setCancelUrl(cancelUrl) // 프엔
                     .addLineItem(lineItem)
-                    .setPaymentMethodOptions(
-                            SessionCreateParams.PaymentMethodOptions.builder()
-                                    .setCard(
-                                            SessionCreateParams.PaymentMethodOptions.Card.builder()
-                                                    .setRequestThreeDSecure(
-                                                            SessionCreateParams.PaymentMethodOptions.Card.RequestThreeDSecure.ANY
-                                                    )
-                                                    .build()
-                                    )
-                                    .build()
-                    )
                     .build();
             return Session.create(params);
         } catch (Exception e) {
