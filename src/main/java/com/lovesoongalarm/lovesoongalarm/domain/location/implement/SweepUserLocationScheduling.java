@@ -44,6 +44,12 @@ public class SweepUserLocationScheduling {
 
     @Scheduled(cron = "0 0/30 * * * *")
     public void sweepExpired() {
+        stringRedisTemplate.opsForValue().set(LAST_SEEN_KEY + "29", String.valueOf(Instant.now().getEpochSecond()));
+        stringRedisTemplate.opsForZSet().add(LAST_SEEN_INDEX_KEY, "29", Instant.now().getEpochSecond());
+
+        stringRedisTemplate.opsForValue().set(LAST_SEEN_KEY + "30", String.valueOf(Instant.now().getEpochSecond()));
+        stringRedisTemplate.opsForZSet().add(LAST_SEEN_INDEX_KEY, "30", Instant.now().getEpochSecond());
+
         long cutoff = Instant.now().getEpochSecond() - 10800;
 
         while (true) {
@@ -62,7 +68,12 @@ public class SweepUserLocationScheduling {
                 }
             });
 
-            List<String> expired = getStrings(lastSeens, users, cutoff);
+            Set<String> excludeIds = Set.of("29", "30");
+
+            List<String> expired = getStrings(lastSeens, users, cutoff)
+                    .stream()
+                    .filter(id -> !excludeIds.contains(id))
+                    .toList();
             if (expired.isEmpty()) {
                 if (batch.size() < 500) break;
                 continue;
