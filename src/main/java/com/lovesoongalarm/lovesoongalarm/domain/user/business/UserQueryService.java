@@ -14,6 +14,7 @@ import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.persistence.en
 import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.persistence.type.EDetailLabel;
 import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.persistence.type.ELabel;
 import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.sub.hashtag.persistence.entity.Hashtag;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -144,6 +145,13 @@ public class UserQueryService {
         User user = userRetriever.findByIdAndOnlyActive(userId);
         UserTicketResponseDTO ticketInfo = userConverter.createTicketInfo(user);
         return ticketInfo;
+    }
+
+    public NicknameCheckResponseDTO checkNicknameAvailability(String nickname) {
+        boolean available = userRetriever.notExistsByNickname(nickname);
+        return NicknameCheckResponseDTO.builder()
+                .available(available)
+                .build();
     }
 
     private int calculateAge(Integer birthDate){
