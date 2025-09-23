@@ -1,6 +1,5 @@
 package com.lovesoongalarm.lovesoongalarm.domain.location.application.dto;
 
-import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EGender;
 import lombok.Builder;
 
 import java.util.List;
@@ -17,7 +16,6 @@ public record MatchingResultDTO(
     public record NearbyUserMatchDTO(
             Long userId,
             Set<String> overlapInterests,
-            EGender gender,
             boolean isMatching
     ) {
     }

@@ -41,11 +41,6 @@ public class UserQueryService {
         return findUser.getNickname();
     }
 
-    public EGender getUserGender(Long userId) {
-        User findUser = userRetriever.findByIdAndOnlyActive(userId);
-        return findUser.getGender();
-    }
-
     @Transactional
     public OnBoardingResponseDTO onBoardingUser(Long userId, OnBoardingRequestDTO request){
         User findUser = userRetriever.findByIdAndOnlyInActive(userId);
