@@ -86,6 +86,4 @@ public class JwtUtil implements InitializingBean {
             throw new CustomException(GlobalErrorCode.INVALID_TOKEN_ERROR);
         }
     }
-
-
 }
