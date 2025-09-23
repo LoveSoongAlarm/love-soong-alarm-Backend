@@ -2,6 +2,7 @@ package com.lovesoongalarm.lovesoongalarm.security.service;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -13,6 +14,7 @@ import static com.lovesoongalarm.lovesoongalarm.common.constant.Constants.REFRES
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RefreshTokenService {
 
     @Value("${jwt.refresh-token.expiration}")
@@ -33,12 +35,18 @@ public class RefreshTokenService {
 
     public void updateRefreshToken(Long userId, String refreshToken) {
         String key = REFRESH_TOKEN_PREFIX + userId;
+        log.info("[Redis] Update refreshToken key={} value={}", key, refreshToken);
+
         String existingToken = stringRedisTemplate.opsForValue().get(key);
+        log.info("[Redis] Existing refreshToken for {} = {}", userId, existingToken);
 
         if (existingToken != null) {
             deleteRefreshToken(userId);
+            log.info("[Redis] Deleted old refreshToken for {}", userId);
         }
+
         saveRefreshToken(userId, refreshToken);
+        log.info("[Redis] Saved new refreshToken for {} = {}", userId, refreshToken);
     }
 
     public String getRefreshToken(Long userId){

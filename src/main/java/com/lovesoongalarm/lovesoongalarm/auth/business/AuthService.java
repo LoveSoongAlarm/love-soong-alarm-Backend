@@ -15,12 +15,14 @@ import com.lovesoongalarm.lovesoongalarm.utils.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final RefreshTokenService refreshTokenService;
@@ -35,7 +37,9 @@ public class AuthService {
 
     @Transactional
     public ReissueTokenResponseDTO reissue(HttpServletRequest request, HttpServletResponse response) {
+        log.info("[Reissue] Start reissue process");
         String refreshToken = CookieUtil.getCookie(request, Constants.REFRESH_COOKIE_NAME);
+        log.info("[Reissue] Cookie refreshToken = {}", refreshToken);
         Long userId = jwtUtil.validateRefreshToken(refreshToken);
 
         JwtDTO jwtDto = jwtUtil.generateTokens(userId, ERole.USER);
