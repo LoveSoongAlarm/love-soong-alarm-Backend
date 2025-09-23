@@ -59,4 +59,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             WHERE u.id IN :userIds AND u.status= :status
             """)
     List<User> findAllByIdsAndStatus(@Param("userIds") List<Long> userIds, @Param("status") EUserStatus status);
+
+    boolean existsByNickname(String nickname);
 }

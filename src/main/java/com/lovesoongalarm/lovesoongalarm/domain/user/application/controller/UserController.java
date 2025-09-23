@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -79,5 +80,14 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "채팅 연장 티켓 개수 조회 성공")
     public BaseResponse<UserTicketResponseDTO> getUserTickets(@UserId Long userId){
         return BaseResponse.success(userQueryService.getUserTickets(userId));
+    }
+
+    @GetMapping("/nickname/check")
+    @Operation(summary = "닉네임 중복 여부 조회",
+            description = "닉네임 사용 가능 여부를 확인합니다.")
+    @ApiResponse(responseCode = "200", description = "닉네임 중복 여부 체크 성공")
+    public BaseResponse<NicknameCheckResponseDTO> getUserTickets(
+            @RequestParam @NotBlank String nickname){
+        return BaseResponse.success(userQueryService.checkNicknameAvailability(nickname));
     }
 }
