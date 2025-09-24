@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
@@ -48,7 +49,6 @@ public class LocationFacade {
         locationService.updateLocation(userId, latitude, longitude);
     }
 
-    @Transactional
     public NearbyResponseDTO findNearby(Long userId) {
         try {
             List<NearbyUserResponseDTO> nearbyUserResponse = new ArrayList<>();
@@ -101,11 +101,15 @@ public class LocationFacade {
                         .build());
 
                 if (userMatch.isMatching()) {
-                    Optional.ofNullable(notificationQueryService.saveNotification(userId, userMatch.userId(), new ArrayList<>(userMatch.overlapInterests())))
-                            .ifPresent(notification -> holders.add(new NotificationCreatedEvent.NotificationHolder(userId, notification)));
+                    try {
+                        Optional.ofNullable(notificationQueryService.saveNotification(userId, userMatch.userId(), new ArrayList<>(userMatch.overlapInterests())))
+                                .ifPresent(notification -> holders.add(new NotificationCreatedEvent.NotificationHolder(userId, notification)));
 
-                    Optional.ofNullable(notificationQueryService.saveNotification(userMatch.userId(), userId, new ArrayList<>(userMatch.overlapInterests())))
-                            .ifPresent(notification -> holders.add(new NotificationCreatedEvent.NotificationHolder(userMatch.userId(), notification)));
+                        Optional.ofNullable(notificationQueryService.saveNotification(userMatch.userId(), userId, new ArrayList<>(userMatch.overlapInterests())))
+                                .ifPresent(notification -> holders.add(new NotificationCreatedEvent.NotificationHolder(userMatch.userId(), notification)));
+                    } catch (UnexpectedRollbackException e) {
+                        log.error("findNearby() failed. userId={}", userId, e);
+                    }
                 }
             }
 

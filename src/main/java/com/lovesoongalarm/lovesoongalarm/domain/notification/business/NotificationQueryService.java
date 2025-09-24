@@ -23,6 +23,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.UnexpectedRollbackException;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -34,7 +35,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class NotificationQueryService {
     private final UserRetriever userRetriever;
     private final NotificationRetriever notificationRetriever;
@@ -55,7 +55,7 @@ public class NotificationQueryService {
         }
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Notification saveNotification(Long userId, Long matchingUserId, List<String> interests) {
         User user = userRetriever.findByIdOrElseThrow(userId);
         String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
@@ -70,12 +70,7 @@ public class NotificationQueryService {
 
         LocalDate today = LocalDate.now();
 
-        if (notificationRetriever.existsByUserIdAndMatchingUserIdAndDate(userId, matchingUserId, today)) {
-            return null;
-        }
-
         Notification notification = Notification.create(user, matchingUserId, message, ENotificationStatus.NOT_READ, now, today);
-
 
         try {
             notificationSaver.save(notification);
