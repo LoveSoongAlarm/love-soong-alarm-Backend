@@ -1,6 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.domain.notification.business;
 
 import com.google.firebase.messaging.*;
+import com.lovesoongalarm.lovesoongalarm.common.constant.Constants;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.implement.FCMTokenDeleter;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.implement.FCMTokenRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.entity.FCMToken;
@@ -60,7 +61,7 @@ public class FCMPushService {
     public void sendChatMessagePush(Long receiverId, String senderName, String senderEmoji,
                                     String messageContent, Long chatRoomId, Long senderId) {
         String title = String.format("%s %s님의 메시지", senderEmoji, senderName);
-        String body = truncateMessage(messageContent, 100);
+        String body = truncateMessage(messageContent, Constants.FCM_MESSAGE_MAX_LENGTH);
 
         Map<String, String> data = Map.of(
                 "type", "CHAT_MESSAGE",
@@ -140,14 +141,13 @@ public class FCMPushService {
                 .setNotification(WebpushNotification.builder()
                         .setTitle(title)
                         .setBody(body)
-                        .setIcon("/icon-192x192.png")
-                        .setBadge("/badge-72x72.png")
-                        .setTag("love-soong-alarm-notification")
+                        .setIcon(Constants.FCM_NOTIFICATION_ICON)
+                        .setTag(Constants.FCM_NOTIFICATION_TAG)
                         .setRequireInteraction(true)
                         .addAction(new WebpushNotification.Action("open", "열기", "/icon-open.png"))
                         .addAction(new WebpushNotification.Action("close", "닫기", "/icon-close.png"))
                         .build())
-                .putHeader("TTL", "86400") // 24시간
+                .putHeader("TTL", String.valueOf(Constants.FCM_TTL_SECONDS))
                 .build();
     }
 
