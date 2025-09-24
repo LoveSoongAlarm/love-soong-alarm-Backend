@@ -2,6 +2,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.reposi
 
 import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.entity.FCMToken;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.type.EDeviceType;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface FCMTokenRepository {
+public interface FCMTokenRepository extends JpaRepository<FCMToken, Long> {
 
     List<FCMToken> findByUserId(Long userId);
 
