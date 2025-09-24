@@ -20,9 +20,9 @@ import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.persistence.ty
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.UnexpectedRollbackException;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -70,7 +70,7 @@ public class NotificationQueryService {
 
         LocalDate today = LocalDate.now();
 
-        if(notificationRetriever.existsByUserIdAndMatchingUserIdAndDate(userId, matchingUserId, today)) {
+        if (notificationRetriever.existsByUserIdAndMatchingUserIdAndDate(userId, matchingUserId, today)) {
             return null;
         }
 
