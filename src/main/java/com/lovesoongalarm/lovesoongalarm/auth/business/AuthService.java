@@ -1,6 +1,7 @@
 package com.lovesoongalarm.lovesoongalarm.auth.business;
 
 import com.lovesoongalarm.lovesoongalarm.common.constant.Constants;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.business.FCMTokenService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
 import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserDeleter;
 import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserRetriever;
@@ -31,6 +32,7 @@ public class AuthService {
     private final OAuthUserInfo oAuthUserInfo;
     private final UserDeleter userDeleter;
     private final UserService userService;
+    private final FCMTokenService fcmTokenService;
 
     @Value("${server.domain}")
     private String domain;
@@ -64,6 +66,7 @@ public class AuthService {
         oAuthUserInfo.revoke(findUser.getPlatform(), findUser.getSerialId());
         CookieUtil.logoutCookie(response, domain);
         refreshTokenService.deleteRefreshToken(userId);
+        fcmTokenService.deleteAllTokensByUserId(userId);
         findUser.softDelete();
         findUser.getInterests().clear();
         userService.sweepUserInformation(userId);

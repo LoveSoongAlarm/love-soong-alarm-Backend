@@ -13,6 +13,12 @@ public class Constants {
     public static final String AUTHORIZATION_PREFIX = "KakaoAK ";
     public static final String TARGET_ID_TYPE = "user_id";
     public static final String DELETED_USER_DEFAULT_INFO = "알수없음";
+
+    public static final String FCM_NOTIFICATION_ICON = "/icon-192x192.png";
+    public static final String FCM_NOTIFICATION_TAG = "love-soong-alarm-notification";
+    public static final long FCM_TTL_SECONDS = 86400L; // 24시간
+    public static final int FCM_MESSAGE_MAX_LENGTH = 100;
+
     public static List<String> NO_NEED_AUTH = List.of(
             "/api/v1/health-check",
             "/swagger",

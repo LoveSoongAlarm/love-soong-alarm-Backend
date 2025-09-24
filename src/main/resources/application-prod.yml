@@ -89,3 +89,6 @@ logging:
   level:
     org.springframework.security: debug
     web: debug
+
+firebase:
+  config-file: firebase-service-account.json
