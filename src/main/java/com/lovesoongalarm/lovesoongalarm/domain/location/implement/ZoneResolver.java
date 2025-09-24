@@ -9,10 +9,20 @@ import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
 public class ZoneResolver {
+    private static final Map<String, List<String>> adjacency = Map.of(
+            "1", List.of("2", "3", "7"),
+            "2", List.of("1", "3", "5", "7"),
+            "3", List.of("1", "2", "4", "5"),
+            "4", List.of("3", "5", "6"),
+            "5", List.of("2", "3", "4", "6", "7"),
+            "6", List.of("4", "5", "7"),
+            "7", List.of("1", "2", "5", "6")
+    );
     private final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
     private final Map<String, Geometry> zones = new LinkedHashMap<>();
 
@@ -43,6 +53,10 @@ public class ZoneResolver {
                 .map(Map.Entry::getKey)
                 .findFirst()
                 .orElse("8");   // 우선은 구역을 벗어난 경우 zone 8 반환
+    }
+
+    public List<String> getNeighborZones(String zoneId) {
+        return adjacency.getOrDefault(zoneId, List.of());
     }
 
     private Polygon polygonFrom(JsonNode geom) {
