@@ -6,9 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum EDeviceType {
-    WEB("웹"),
-    ANDROID("안드로이드"),
-    IOS("iOS");
+    WEB("웹");
 
     private final String description;
 
