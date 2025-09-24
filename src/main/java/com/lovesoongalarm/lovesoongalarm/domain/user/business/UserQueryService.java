@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.*;
 
@@ -72,11 +73,16 @@ public class UserQueryService {
         return OnBoardingResponseDTO.from(userId);
     }
 
-    public UserResponseDTO getUser(Long userId, Long targetId){
-        User findUser = userRetriever.findByIdAndOnlyActive(userId);
+    public UserResponseDTO getUser(Long targetId){
         User targetUser = userRetriever.findByIdAndOnlyActive(targetId);
 
-        int age = calculateAge(targetUser.getBirthDate());
+        int age;
+
+        try {
+            age = calculateAge(targetUser.getBirthDate());
+        } catch (CustomException e) {
+            age = 0;
+        }
 
         String lastSeen = userLastSeen(targetId);
 
@@ -86,10 +92,17 @@ public class UserQueryService {
     public List<UserResponseDTO> getAllUser(List<Long> targetIds){
         return userRetriever.findAllByIdAndOnlyActive(targetIds).stream()
                 .map(user -> {
-                    int age = calculateAge(user.getBirthDate());
-                    String lastSeen = userLastSeen(user.getId());
-                    return UserResponseDTO.from(user, age, lastSeen);
+                    try {
+                        int age = calculateAge(user.getBirthDate());
+                        String lastSeen = userLastSeen(user.getId());
+                        return UserResponseDTO.from(user, age, lastSeen);
+                    } catch (CustomException e) {
+                        int age = 0;
+                        String lastSeen = userLastSeen(user.getId());
+                        return UserResponseDTO.from(user, age, lastSeen);
+                    }
                 })
+                .filter(Objects::nonNull)
                 .toList();
     }
 
