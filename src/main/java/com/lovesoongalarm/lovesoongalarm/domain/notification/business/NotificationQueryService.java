@@ -3,8 +3,8 @@ package com.lovesoongalarm.lovesoongalarm.domain.notification.business;
 import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.application.converter.NotificationConverter;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.application.dto.NotificationResponseDTO;
-import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationStatusAllChangeEvent;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationBadgeUpdateEvent;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationStatusAllChangeEvent;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationStatusChangeEvent;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.exception.NotificationErrorCode;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.implement.NotificationDeleter;
@@ -13,7 +13,6 @@ import com.lovesoongalarm.lovesoongalarm.domain.notification.implement.Notificat
 import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.entity.Notification;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.type.ENotificationStatus;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.type.ENotificationType;
-import com.lovesoongalarm.lovesoongalarm.domain.notification.persistence.type.EWebSocketNotificationType;
 import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.type.EGender;
@@ -21,7 +20,10 @@ import com.lovesoongalarm.lovesoongalarm.domain.user.sub.interest.persistence.ty
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.UnexpectedRollbackException;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -42,6 +44,7 @@ public class NotificationQueryService {
     private final NotificationDeleter notificationDeleter;
     private final ApplicationEventPublisher applicationEventPublisher;
 
+    @Transactional(readOnly = true)
     public List<NotificationResponseDTO> notification(Long userId) {
         try {
             return notificationRetriever.findNoticesByUserId(userId).stream()
@@ -68,12 +71,24 @@ public class NotificationQueryService {
 
         LocalDate today = LocalDate.now();
 
+        if(notificationRetriever.existsByUserIdAndMatchingUserIdAndDate(userId, matchingUserId, today)) {
+            return null;
+        }
+
         Notification notification = Notification.create(user, matchingUserId, message, ENotificationStatus.NOT_READ, now, today);
 
-        try{
+
+        try {
             notificationSaver.save(notification);
             return notification;
+        } catch (UnexpectedRollbackException e) {
+            log.warn("알림 저장 트랜잭션 롤백됨, 무시: userId={}, matchId={}", userId, matchingUserId);
+            return null;
+        } catch (DataIntegrityViolationException e) {
+            log.debug("중복 알림 무시: userId={}, matchingUserId={}", userId, matchingUserId);
+            return null;
         } catch (Exception e) {
+            log.error("알림 저장 실패: userId={}, matchingUserId={}", userId, matchingUserId, e);
             return null;
         }
     }
@@ -171,7 +186,7 @@ public class NotificationQueryService {
             );
 
             boolean hasUnread = notificationRetriever.existsByUserIdAndStatus(userId);
-            if(!hasUnread) {
+            if (!hasUnread) {
                 applicationEventPublisher.publishEvent(
                         NotificationBadgeUpdateEvent.builder()
                                 .userId(userId)
@@ -213,9 +228,9 @@ public class NotificationQueryService {
     }
 
     private String getOppositeGenderValue(EGender gender) {
-        if(gender == EGender.MALE) {
+        if (gender == EGender.MALE) {
             return EGender.FEMALE.getValue();
-        } else if(gender == EGender.FEMALE) {
+        } else if (gender == EGender.FEMALE) {
             return EGender.MALE.getValue();
         } else {
             return gender.getValue();
