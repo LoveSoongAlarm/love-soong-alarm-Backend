@@ -44,15 +44,30 @@ public class LocationServiceImpl implements LocationService {
         log.info("user prev zone : {}", prevZone);
         Long nowSec = Instant.now().getEpochSecond();
 
+        List<String> neighborZones = zoneResolver.getNeighborZones(newZone);
+
+        List<String> targetZones = new ArrayList<>();
+        targetZones.add(newZone);
+        targetZones.addAll(neighborZones);
+
         redisPipeline.pipe(ops -> {
             if (prevZone != null && !prevZone.equals(newZone)) {
-                ops.opsForZSet().remove(GEO_KEY + prevZone, stringUserId);
+                List<String> prevTargetZones = new ArrayList<>();
+                prevTargetZones.add(prevZone);
+                prevTargetZones.addAll(zoneResolver.getNeighborZones(prevZone));
+
+                for (String zone : prevTargetZones) {
+                    ops.opsForZSet().remove(GEO_KEY + zone, stringUserId);
+                }
             }
 
-            ops.opsForGeo().add(
-                    GEO_KEY + newZone,
-                    new RedisGeoCommands.GeoLocation<>(stringUserId, new Point(longitude, latitude))
-            );
+            for (String zone : targetZones) {
+                ops.opsForGeo().add(
+                        GEO_KEY + zone,
+                        new RedisGeoCommands.GeoLocation<>(stringUserId, new Point(longitude, latitude))
+                );
+            }
+
             ops.opsForValue().set(ZONE_KEY + userId, newZone);
             ops.opsForValue().set(LAST_SEEN_KEY + stringUserId, String.valueOf(nowSec));
             ops.opsForZSet().add(LAST_SEEN_INDEX_KEY, stringUserId, nowSec);
@@ -73,21 +88,38 @@ public class LocationServiceImpl implements LocationService {
         }
         log.info("user zone : {}", zone);
 
+        List<String> neighborZones = zoneResolver.getNeighborZones(zone);
+
+        List<String> targetZones = new ArrayList<>();
+        targetZones.add(zone);
+        targetZones.addAll(neighborZones);
+
         var pos = stringRedisTemplate.opsForGeo().position(GEO_KEY + zone, stringUserId);
         if (pos == null || pos.isEmpty() || pos.get(0) == null) {
             throw new CustomException(LocationErrorCode.USER_GEO_NOT_FOUND);
         }
         log.info("user position : {}", pos);
 
-        var res = stringRedisTemplate.opsForGeo().search(
-                GEO_KEY + zone,
-                GeoReference.fromMember(stringUserId),
-                new Distance(100, RedisGeoCommands.DistanceUnit.METERS),
-                RedisGeoCommands.GeoSearchCommandArgs.newGeoSearchArgs().includeDistance().sortAscending().limit(50)
-        );
+        log.info("user neighbor zone : {}", targetZones);
+
+        List<RedisGeoCommands.GeoLocation<String>> res = new ArrayList<>();
+
+        for(String targetZone : targetZones) {
+            var result = stringRedisTemplate.opsForGeo().search(
+                    GEO_KEY + targetZone,
+                    GeoReference.fromMember(stringUserId),
+                    new Distance(100, RedisGeoCommands.DistanceUnit.METERS),
+                    RedisGeoCommands.GeoSearchCommandArgs.newGeoSearchArgs().includeDistance().sortAscending().limit(50)
+            );
+            log.info("user search : {}", result);
+            if (result != null && !result.getContent().isEmpty()) {
+                result.getContent().forEach(r -> res.add(r.getContent()));
+            }
+        }
+
         log.info("user search : {}", res);
 
-        if (res == null || res.getContent().isEmpty()) {
+        if(res.isEmpty()) {
             return MatchingResultDTO.builder()
                     .matchCount(0)
                     .zone(zone)
@@ -95,9 +127,10 @@ public class LocationServiceImpl implements LocationService {
                     .build();
         }
 
-        return matching(userId, zone, res.getContent().stream()
-                .map(g -> Long.parseLong(g.getContent().getName()))
+        return matching(userId, zone, res.stream()
+                .map(g -> Long.parseLong(g.getName()))
                 .filter(id -> !id.equals(userId))
+                .distinct()
                 .toList());
     }
 
