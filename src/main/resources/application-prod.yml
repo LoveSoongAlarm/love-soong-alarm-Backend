@@ -91,4 +91,4 @@ logging:
     web: debug
 
 firebase:
-  config-file: classpath:firebase-service-account.json
+  config-file: firebase-service-account.json
