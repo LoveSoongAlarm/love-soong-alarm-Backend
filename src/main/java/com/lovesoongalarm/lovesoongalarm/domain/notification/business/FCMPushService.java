@@ -57,6 +57,22 @@ public class FCMPushService {
         log.info("여러 사용자 푸시 알림 전송 완료 - 전송된 토큰 수: {}", tokens.size());
     }
 
+    public void sendChatMessagePush(Long receiverId, String senderName, String senderEmoji,
+                                    String messageContent, Long chatRoomId, Long senderId) {
+        String title = String.format("%s %s님의 메시지", senderEmoji, senderName);
+        String body = truncateMessage(messageContent, 100);
+
+        Map<String, String> data = Map.of(
+                "type", "CHAT_MESSAGE",
+                "chatRoomId", chatRoomId.toString(),
+                "senderId", senderId.toString(),
+                "senderNickname", senderName,
+                "senderEmoji", senderEmoji
+        );
+
+        sendToUser(receiverId, title, body, data);
+    }
+
     /**
      * 단일 토큰으로 메시지 전송
      */
@@ -188,6 +204,13 @@ public class FCMPushService {
         return "UNREGISTERED".equals(errorCode) ||
                 "INVALID_ARGUMENT".equals(errorCode) ||
                 "REGISTRATION_TOKEN_NOT_REGISTERED".equals(errorCode);
+    }
+
+    private String truncateMessage(String message, int maxLength) {
+        if (message == null || message.length() <= maxLength) {
+            return message;
+        }
+        return message.substring(0, maxLength) + "...";
     }
 
 }
