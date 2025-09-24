@@ -206,12 +206,11 @@ public class UserQueryService {
             return "30분 내 접속";
         } else if (diff <= 3600) {
             return "1시간 내 접속";
-        } else if (diff <= 7200) {
-            return "2시간 내 접속";
-        } else if (diff <= 10800) {
-            return "3시간 내 접속";
+        } else if (diff <= 3600) {
+            return "1시간 내 접속";
         } else {
-            return null;
+            long hours = diff / 3600;
+            return hours + "시간 내 접속";
         }
     }
 }
