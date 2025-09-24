@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -55,5 +56,25 @@ public class FCMTokenService {
 
         fcmTokenDeleter.deleteByToken(token);
         log.info("FCM 토큰 삭제 완료: {}", token.substring(0, Math.min(token.length(), 20)) + "...");
+    }
+
+    /**
+     * 특정 사용자의 모든 FCM 토큰 삭제 (회원탈퇴 시 사용)
+     */
+    public void deleteAllTokensByUserId(Long userId) {
+        log.info("사용자 모든 FCM 토큰 삭제 시작 - userId: {}", userId);
+
+        List<FCMToken> userTokens = fcmTokenRetriever.findByUserId(userId);
+
+        if (userTokens.isEmpty()) {
+            log.info("삭제할 FCM 토큰이 없습니다 - userId: {}", userId);
+            return;
+        }
+
+        for (FCMToken token : userTokens) {
+            fcmTokenDeleter.deleteByToken(token.getToken());
+        }
+
+        log.info("사용자 모든 FCM 토큰 삭제 완료 - userId: {}, 삭제된 토큰 수: {}", userId, userTokens.size());
     }
 }
