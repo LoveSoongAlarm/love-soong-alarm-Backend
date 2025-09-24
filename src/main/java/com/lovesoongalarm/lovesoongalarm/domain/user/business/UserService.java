@@ -3,6 +3,7 @@ package com.lovesoongalarm.lovesoongalarm.domain.user.business;
 import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
 import com.lovesoongalarm.lovesoongalarm.domain.chat.sub.room.application.dto.ChatRoomListDTO;
 import com.lovesoongalarm.lovesoongalarm.domain.location.implement.RedisPipeline;
+import com.lovesoongalarm.lovesoongalarm.domain.location.implement.ZoneResolver;
 import com.lovesoongalarm.lovesoongalarm.domain.user.exception.UserErrorCode;
 import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserRetriever;
 import com.lovesoongalarm.lovesoongalarm.domain.user.implement.UserUpdater;
@@ -13,6 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.lovesoongalarm.lovesoongalarm.common.constant.RedisKey.*;
 
@@ -25,6 +29,7 @@ public class UserService {
     private final UserValidator userValidator;
     private final UserUpdater userUpdater;
     private final StringRedisTemplate stringRedisTemplate;
+    private final ZoneResolver zoneResolver;
 
     public User findUserOrElseThrow(Long userId) {
         return userRetriever.findByIdOrElseThrow(userId);
@@ -87,7 +92,13 @@ public class UserService {
             String zone = stringRedisTemplate.opsForValue().get(ZONE_KEY + stringUserId);
 
             if (zone != null && !zone.isBlank()) {
-                stringRedisTemplate.opsForGeo().remove(GEO_KEY + zone, stringUserId);
+                List<String> zonesToRemove = new ArrayList<>();
+                zonesToRemove.add(zone);
+                zonesToRemove.addAll(zoneResolver.getNeighborZones(zone));
+
+                for (String zoneId : zonesToRemove) {
+                    stringRedisTemplate.opsForGeo().remove(GEO_KEY + zoneId, stringUserId);
+                }
             }
 
             stringRedisTemplate.delete(ZONE_KEY + stringUserId);
