@@ -36,11 +36,10 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "유저 상세 조회 성공")
     @GetMapping("/{user-id}")
     public BaseResponse<UserResponseDTO> getUser(
-            @UserId Long userId,
             @PathVariable("user-id") Long targetId
     ){
 
-        return BaseResponse.success(userQueryService.getUser(userId,targetId));
+        return BaseResponse.success(userQueryService.getUser(targetId));
     }
 
     @Operation(summary = "유저 자신의 프로필 상세 조회"
