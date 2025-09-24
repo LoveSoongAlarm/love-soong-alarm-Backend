@@ -3,6 +3,7 @@ package com.lovesoongalarm.lovesoongalarm.security.handler.logout;
 import com.lovesoongalarm.lovesoongalarm.common.code.GlobalErrorCode;
 import com.lovesoongalarm.lovesoongalarm.common.constant.Constants;
 import com.lovesoongalarm.lovesoongalarm.common.exception.CustomException;
+import com.lovesoongalarm.lovesoongalarm.domain.notification.business.FCMTokenService;
 import com.lovesoongalarm.lovesoongalarm.security.service.RefreshTokenService;
 import com.lovesoongalarm.lovesoongalarm.utils.CookieUtil;
 import com.lovesoongalarm.lovesoongalarm.utils.HeaderUtil;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CustomLogoutProcessHandler implements LogoutHandler {
     private final RefreshTokenService refreshTokenService;
+    private final FCMTokenService fcmTokenService;
     private final JwtUtil jwtUtil;
 
     @Override
@@ -40,5 +42,11 @@ public class CustomLogoutProcessHandler implements LogoutHandler {
         String refreshToken = CookieUtil.getCookie(request, Constants.REFRESH_COOKIE_NAME);
         Long userId = jwtUtil.validateRefreshToken(refreshToken);
         refreshTokenService.deleteRefreshToken(userId);
+
+        String fcmTokenToDelete = request.getParameter("fcmToken");
+        if (fcmTokenToDelete != null && !fcmTokenToDelete.isBlank()) {
+            fcmTokenService.deleteToken(fcmTokenToDelete);
+            log.info("로그아웃 - FCM Token 삭제 완료: userId={}", userId);
+        }
     }
 }
