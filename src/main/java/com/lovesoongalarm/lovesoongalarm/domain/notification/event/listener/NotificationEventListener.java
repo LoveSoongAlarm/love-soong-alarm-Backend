@@ -6,6 +6,8 @@ import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationS
 import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationBadgeUpdateEvent;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationCreatedEvent;
 import com.lovesoongalarm.lovesoongalarm.domain.notification.event.NotificationStatusChangeEvent;
+import com.lovesoongalarm.lovesoongalarm.domain.user.business.UserService;
+import com.lovesoongalarm.lovesoongalarm.domain.user.persistence.entity.User;
 import com.lovesoongalarm.lovesoongalarm.domain.websocket.sub.session.SessionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,7 @@ public class NotificationEventListener {
     private final SessionService sessionService;
     private final WebSocketNotificationService webSocketNotificationService;
     private final FCMPushService fcmPushService;
+    private final UserService userService;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleNotificationEvent(NotificationCreatedEvent event) {
@@ -105,8 +108,11 @@ public class NotificationEventListener {
 
     private void sendMatchingPushNotification(NotificationCreatedEvent.NotificationHolder holder) {
         try {
+            User sender = userService.findUserOrElseThrow(holder.userId());
+
             fcmPushService.sendMatchingPush(
                     holder.userId(),
+                    sender.getNickname(),
                     holder.notification().getMessage(),
                     holder.notification().getMatchingUserId(),
                     holder.notification().getId()

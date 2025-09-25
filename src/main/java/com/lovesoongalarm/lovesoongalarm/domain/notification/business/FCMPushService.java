@@ -39,8 +39,8 @@ public class FCMPushService {
         sendToUser(receiverId, title, body, data);
     }
 
-    public void sendMatchingPush(Long userId, String message, Long matchingUserId, Long notificationId) {
-        String title = "띠링~ 💝";
+    public void sendMatchingPush(Long userId, String nickname, String message, Long matchingUserId, Long notificationId) {
+        String title = String.format("지금 %s님 근처에서 설레는 발견! \uD83D\uDC9D", nickname);
         String body = message;
 
         Map<String, String> data = Map.of(
