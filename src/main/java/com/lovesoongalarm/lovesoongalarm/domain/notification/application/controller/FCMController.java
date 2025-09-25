@@ -25,7 +25,6 @@ import java.util.Map;
 public class FCMController {
 
     private final FCMTokenService fcmTokenService;
-    private final FCMPushService fcmPushService;
 
     @PostMapping("/token")
     @Operation(summary = "FCM 토큰 등록",
@@ -50,49 +49,6 @@ public class FCMController {
     ) {
         log.info("FCM 토큰 삭제 요청 - userId: {}", userId);
         fcmTokenService.deleteToken(token);
-        return BaseResponse.success(null);
-    }
-
-    @PostMapping("/test/send")
-    @Operation(summary = "테스트 푸시 알림 전송",
-            description = "개발/테스트용 푸시 알림을 전송합니다. (운영환경에서는 사용하지 마세요)")
-    @ApiResponse(responseCode = "200", description = "테스트 푸시 알림 전송 성공")
-    public BaseResponse<Void> sendTestPush(
-            @UserId Long userId,
-            @Valid @RequestBody PushNotificationRequestDTO request
-    ) {
-        log.info("테스트 푸시 알림 전송 요청 - userId: {}, targetUserId: {}, type: {}",
-                userId, request.targetUserId(), request.type());
-
-        fcmPushService.sendToUser(
-                request.targetUserId(),
-                request.title(),
-                request.body(),
-                request.data()
-        );
-
-        return BaseResponse.success(null);
-    }
-
-    @PostMapping("/test/send-to-me")
-    @Operation(summary = "나에게 테스트 푸시 전송",
-            description = "자신에게 테스트 푸시 알림을 전송합니다.")
-    @ApiResponse(responseCode = "200", description = "테스트 푸시 알림 전송 성공")
-    public BaseResponse<Void> sendTestPushToMe(
-            @UserId Long userId,
-            @RequestBody Map<String, String> request
-    ) {
-        String title = request.getOrDefault("title", "테스트 알림");
-        String body = request.getOrDefault("body", "푸시 알림 테스트 메시지입니다.");
-
-        log.info("나에게 테스트 푸시 전송 - userId: {}, title: {}", userId, title);
-
-        Map<String, String> data = Map.of(
-                "type", "TEST",
-                "timestamp", String.valueOf(System.currentTimeMillis())
-        );
-
-        fcmPushService.sendToUser(userId, title, body, data);
         return BaseResponse.success(null);
     }
 }
