@@ -23,21 +23,6 @@ public class FCMPushService {
     private final FCMTokenRetriever fcmTokenRetriever;
     private final FCMTokenDeleter fcmTokenDeleter;
 
-    public void sendToUser(Long userId, String title, String body, Map<String, String> data) {
-        log.info("사용자에게 푸시 알림 전송 시작 - userId: {}, title: {}", userId, title);
-
-        List<FCMToken> tokens = fcmTokenRetriever.findByUserId(userId);
-
-        if (tokens.isEmpty()) {
-            log.warn("사용자 FCM 토큰이 없습니다 - userId: {}", userId);
-            return;
-        }
-
-        tokens.forEach(fcmToken -> sendSingleMessage(fcmToken.getToken(), title, body, data, fcmToken.getDeviceType()));
-
-        log.info("사용자 푸시 알림 전송 완료 - userId: {}, 전송된 토큰 수: {}", userId, tokens.size());
-    }
-
     public void sendChatMessagePush(Long receiverId, String senderName, String senderEmoji,
                                     String messageContent, Long chatRoomId, Long senderId) {
         String title = String.format("%s %s님의 메시지", senderEmoji, senderName);
@@ -52,6 +37,21 @@ public class FCMPushService {
         );
 
         sendToUser(receiverId, title, body, data);
+    }
+
+    public void sendToUser(Long userId, String title, String body, Map<String, String> data) {
+        log.info("사용자에게 푸시 알림 전송 시작 - userId: {}, title: {}", userId, title);
+
+        List<FCMToken> tokens = fcmTokenRetriever.findByUserId(userId);
+
+        if (tokens.isEmpty()) {
+            log.warn("사용자 FCM 토큰이 없습니다 - userId: {}", userId);
+            return;
+        }
+
+        tokens.forEach(fcmToken -> sendSingleMessage(fcmToken.getToken(), title, body, data, fcmToken.getDeviceType()));
+
+        log.info("사용자 푸시 알림 전송 완료 - userId: {}, 전송된 토큰 수: {}", userId, tokens.size());
     }
 
     private void sendSingleMessage(String token, String title, String body, Map<String, String> data, EDeviceType deviceType) {
