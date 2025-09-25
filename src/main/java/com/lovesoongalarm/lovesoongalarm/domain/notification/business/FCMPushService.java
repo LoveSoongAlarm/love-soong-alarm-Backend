@@ -39,7 +39,22 @@ public class FCMPushService {
         sendToUser(receiverId, title, body, data);
     }
 
-    public void sendToUser(Long userId, String title, String body, Map<String, String> data) {
+    public void sendMatchingPush(Long userId, String message, Long matchingUserId, Long notificationId) {
+        String title = "띠링~ 💝";
+        String body = message;
+
+        Map<String, String> data = Map.of(
+                "type", "MATCHING",
+                "notificationId", notificationId.toString(),
+                "matchingUserId", matchingUserId.toString(),
+                "timestamp", String.valueOf(System.currentTimeMillis())
+        );
+
+        sendToUser(userId, title, body, data);
+        log.info("매칭 푸시 알림 전송 완료 - userId: {}, matchingUserId: {}", userId, matchingUserId);
+    }
+
+    private void sendToUser(Long userId, String title, String body, Map<String, String> data) {
         log.info("사용자에게 푸시 알림 전송 시작 - userId: {}, title: {}", userId, title);
 
         List<FCMToken> tokens = fcmTokenRetriever.findByUserId(userId);
